@@ -13,11 +13,11 @@ var col2 = 0xffffff;
 var cubeSize = 30;
 var cube = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 
-const loader = new THREE.TextureLoader();
+const textureLoader = new THREE.TextureLoader();
 
-// const marbleTexture = loader.load("textures/Seamless-White-Marble-Texture.webp");
+// const marbleTexture = textureLoader.load("textures/Seamless-White-Marble-Texture.webp");
 
-var reflectionTexture = loader.load('textures/2294472375_24a3b8ef46_o.jpg');
+var reflectionTexture = textureLoader.load('textures/2294472375_24a3b8ef46_o.jpg');
 reflectionTexture.mapping = THREE.EquirectangularReflectionMapping;
 reflectionTexture.encoding = THREE.sRGBEncoding;
 
@@ -57,7 +57,7 @@ var boardMat2 = new THREE.MeshStandardMaterial({
 // 	shading: THREE.SmoothShading,
 // 	shininess: 100.0,
 // 	specular: 0xfbbbbb,
-// 	map: loader.load('./Seamless-White-Marble-Texture.webp'),
+// 	map: textureLoader.load('./Seamless-White-Marble-Texture.webp'),
 // });
 var pieceMat1 = new THREE.MeshStandardMaterial({
 	color: col1,
@@ -80,7 +80,48 @@ var hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.emissive.add(new THRE
 var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x331111));
 var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x111111));
 
-var pieceGeometries, pieceYs;
+let pieceGeometries = [];
+
+const stlLoader = new THREE.STLLoader();
+const ranks = [
+	"pawn",
+	"knight",
+	"bishop",
+	"rook",
+	"queen",
+	"king",
+];
+const geometryPromises = [
+	"models/classic_pawn.stl",
+	"models/classic_knight.stl",
+	// "models/classic_knight_2.stl",
+	// "models/classic_knight_3.stl",
+	"models/classic_bishop.stl",
+	"models/classic_rook.stl",
+	"models/classic_queen.stl",
+	"models/classic_king.stl",
+	// "models/cooling_tower.stl",
+].map((url) => new Promise((resolve, reject) => {
+	stlLoader.load(
+		url, // `models/classic_${rank}.stl`,
+		resolve, // Success callback
+		(xhr) => {
+			// Progress callback
+		},
+		(xhr) => {
+			// Failure callback
+			// Reject the promise with the failure
+			reject(new Error('Could not load ' + url));
+		}
+	);
+}));
+
+Promise.all(geometryPromises)
+	.then((geometries) => {
+		pieceGeometries = geometries;
+	}, (error) => {
+		console.error("Could not load all files:", error);
+	});
 
 var C = 8;
 
@@ -115,12 +156,19 @@ Piece = function (x, y, z, team, rank) {
 	this.rank = rank || 0;
 	this.o = new THREE.Object3D();
 	var mat = !team ? pieceMat1 : pieceMat2;
-	for (var i = 0; i < pieceGeometries.length; i++) {
-		var mesh = new THREE.Mesh(pieceGeometries[i], mat);
-		mesh.position.y = pieceYs[i];
+	// var mesh = new THREE.Mesh(pieceGeometries[this.rank], mat);
+	// this.o.add(mesh);
+	var tempGeometry = new THREE.CylinderGeometry(11, 10, 2, 15, 1, false);
+	var tempMesh = new THREE.Mesh(tempGeometry, mat);
+	this.o.add(tempMesh);
+	geometryPromises[this.rank].then((geometry) => {
+		var mesh = new THREE.Mesh(geometry, mat);
 		this.o.add(mesh);
-	}
-	this.o.rotation.x += Math.PI / 2;
+		this.o.remove(tempMesh);
+		mesh.rotation.x -= Math.PI / 2;
+		mesh.position.y -= 15;
+	});
+	// this.o.rotation.x += Math.PI / 2;
 	this.px = (x - (C - 1) / 2) * cubeSize;
 	this.py = (y - (C - 1) / 2) * cubeSize;
 	this.pz = (z - (C - 1) / 2) * cubeSize;
@@ -267,12 +315,7 @@ Piece.prototype.update = function () {
 Piece.prototype.toString = function () {
 	var c = (!this.team ? "Red" : "White") + " ";
 	var at = " at (" + this.x + "," + this.y + "," + this.z + ")";
-	switch (this.rank) {
-		case 0: return c + "pawn" + at;
-		case 1: return c + "pawn who thinks he is cool" + at;
-		case 2: return c + "pawn who thinks he is really cool" + at;
-		default: return "Asshole " + (this.rank - 1) + ".0" + at;
-	}
+	return c + ranks[this.rank] + at;
 };
 
 function init() {
@@ -284,17 +327,6 @@ function init() {
 
 	scene = new THREE.Scene();
 	scene.fog = new THREE.FogExp2(0x000000, 0.002);
-
-	//
-	var round = 15;
-	pieceGeometries = [
-		new THREE.CylinderGeometry(11, 10, 2, round, 1, false),
-		new THREE.CylinderGeometry(9, 9, 2, round, 1, false),
-		new THREE.CylinderGeometry(8, 6, 20, round, 1, true),
-		new THREE.CylinderGeometry(0, 10, 20, round, 1, true),
-		new THREE.SphereGeometry(9, round, round, 0, Math.PI * 2, 0, Math.PI)
-	];
-	pieceYs = [-14, -7, -5, -5, 2];
 
 	raycaster = new THREE.Raycaster();
 
@@ -335,8 +367,8 @@ function init() {
 		[C - 4, C - 2],
 	];
 	for (i in pieceLocations) {
-		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, 0));
-		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, 0));
+		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, i % 5));
+		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, i % 5));
 	}
 
 	// lighting
