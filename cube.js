@@ -11,7 +11,7 @@ var col1 = 0xaf0000;
 var col2 = 0xfFFfFf;
 
 var cubeSize = 30;
-var cube = new THREE.CubeGeometry(cubeSize, cubeSize, cubeSize);
+var cube = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 
 /*var material1 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble2.jpg'),
@@ -43,7 +43,7 @@ var pieceGeometries, pieceYs;
 var C = 8;
 
 var turn = false;
-var projector, hover;
+var raycaster, hover;
 
 var mouse = { x: 0, y: 0 };
 
@@ -254,7 +254,7 @@ function init() {
 	];
 	pieceYs = [-14, -7, -5, -5, 2];
 
-	projector = new THREE.Projector();
+	raycaster = new THREE.Raycaster();
 
 	// metacube
 	cubeObject3D = new THREE.Object3D();
@@ -362,10 +362,7 @@ function animate() {
 		hover.hovering = false;
 	}
 	if (controls._state === -1 && mouse.x && mouse.y) {
-		camera.updateMatrixWorld();
-		var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
-		projector.unprojectVector(vector, camera);
-		var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+		raycaster.setFromCamera( mouse, camera );
 		var intersects = raycaster.intersectObjects(scene.children, true);
 
 		if (intersects.length > 0) {
