@@ -80,8 +80,6 @@ var hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.emissive.add(new THRE
 var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x331111));
 var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x111111));
 
-let pieceGeometries = [];
-
 const stlLoader = new THREE.STLLoader();
 const pieceTypes = [
 	"pawn",
@@ -106,13 +104,6 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 		}
 	);
 }));
-
-Promise.all(geometryPromises)
-	.then((geometries) => {
-		pieceGeometries = geometries;
-	}, (error) => {
-		console.error("Could not load all files:", error);
-	});
 
 var C = 8;
 
@@ -147,8 +138,6 @@ Piece = function (x, y, z, team, pieceType) {
 	this.pieceType = pieceType || "pawn";
 	this.o = new THREE.Object3D();
 	var mat = !team ? pieceMat1 : pieceMat2;
-	// var mesh = new THREE.Mesh(pieceGeometries[this.pieceType], mat);
-	// this.o.add(mesh);
 	var tempGeometry = new THREE.CylinderGeometry(11, 10, 2, 15, 1, false);
 	var tempMesh = new THREE.Mesh(tempGeometry, mat);
 	this.o.add(tempMesh);
@@ -159,7 +148,6 @@ Piece = function (x, y, z, team, pieceType) {
 		mesh.rotation.x -= Math.PI / 2;
 		mesh.position.y -= 15;
 	});
-	// this.o.rotation.x += Math.PI / 2;
 	this.px = (x - (C - 1) / 2) * cubeSize;
 	this.py = (y - (C - 1) / 2) * cubeSize;
 	this.pz = (z - (C - 1) / 2) * cubeSize;
