@@ -1,0 +1,10 @@
+{
+	"name": "chessgocala",
+	"version": "0.1.0",
+	"description": "Board game mashup",
+	"author": "Isaiah Odhner",
+	"license": "MIT",
+	"devDependencies": {
+		"live-server": "^1.2.1"
+	}
+}
