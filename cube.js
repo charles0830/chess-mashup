@@ -117,7 +117,6 @@ var mouse = { x: null, y: null };
 addEventListener('mousemove', function (e) {
 	mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
 	mouse.y = 1 - (e.clientY / window.innerHeight) * 2;
-	document.body.style.cursor = hover && hover.piece ? 'pointer' : 'default';
 }, true);
 
 addEventListener('mousedown', function (e) {
@@ -314,6 +313,7 @@ function init() {
 	camera.position.z = 500;
 
 	controls = new THREE.CubeControls(camera);
+	controls.noPan = true; // panning already doesn't work but this makes it not give state === STATE.PANNING (with my modifications)
 
 	scene = new THREE.Scene();
 	scene.fog = new THREE.FogExp2(0x000000, 0.002);
@@ -417,15 +417,17 @@ function animate() {
 	for (var i = 0; i < pieces.length; i++) {
 		pieces[i].update();
 	}
-	// find intersections
 	controls.update();
+	// clear hover state of previously hovered piece
 	if (hover && hover.children) {
 		for (i = 0; i < hover.children.length; i++) {
 			updateMaterial(hover.children[i], false);
 		}
 		hover.hovering = false;
 	}
-	if (controls._state === -1 && mouse.x != null && mouse.y != null) {
+	// find hovered piece and highlight it
+	hover = null;
+	if (mouse.x != null && mouse.y != null && controls.state === controls.STATE.NONE) {
 		raycaster.setFromCamera(mouse, camera);
 		var intersects = raycaster.intersectObjects(scene.children, true);
 
@@ -445,6 +447,8 @@ function animate() {
 			hover.hovering = true;
 		}
 	}
+
+	document.body.style.cursor = hover && hover.piece ? 'pointer' : 'default';
 
 	renderer.render(scene, camera);
 }
