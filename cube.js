@@ -15,19 +15,7 @@ var cube = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 
 const loader = new THREE.TextureLoader();
 
-// const path = "textures/cube/SwedishRoyalCastle/";
-// const format = '.jpg';
-// const urls = [
-// 	path + 'px' + format, path + 'nx' + format,
-// 	path + 'py' + format, path + 'ny' + format,
-// 	path + 'pz' + format, path + 'nz' + format
-// ];
-
-// const cubeTextureLoader = new THREE.CubeTextureLoader();
-
-// const reflectionCube = cubeTextureLoader.load( urls );
-// const refractionCube = cubeTextureLoader.load( urls );
-// refractionCube.mapping = THREE.CubeRefractionMapping;
+// const marbleTexture = loader.load("textures/Seamless-White-Marble-Texture.webp");
 
 var reflectionTexture = loader.load('textures/2294472375_24a3b8ef46_o.jpg');
 reflectionTexture.mapping = THREE.EquirectangularReflectionMapping;
@@ -49,6 +37,7 @@ var boardMat1 = new THREE.MeshStandardMaterial({
 	transparent: true,
 	envMap: reflectionTexture,
 	envMapIntensity: 40,
+	// map: marbleTexture,
 });
 var boardMat2 = new THREE.MeshStandardMaterial({
 	color: col2,
@@ -58,6 +47,7 @@ var boardMat2 = new THREE.MeshStandardMaterial({
 	transparent: true,
 	envMap: reflectionTexture,
 	envMapIntensity: 40,
+	// map: marbleTexture,
 });
 
 // var pieceMat1 = new THREE.MeshLambertMaterial({
