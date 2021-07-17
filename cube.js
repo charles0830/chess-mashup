@@ -8,10 +8,30 @@ var container, stats,
 var cubes = [], cubeObject3D;
 var pieces = [];
 var col1 = 0xaf0000;
-var col2 = 0xfFFfFf;
+var col2 = 0xffffff;
 
 var cubeSize = 30;
 var cube = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+
+const loader = new THREE.TextureLoader();
+
+// const path = "textures/cube/SwedishRoyalCastle/";
+// const format = '.jpg';
+// const urls = [
+// 	path + 'px' + format, path + 'nx' + format,
+// 	path + 'py' + format, path + 'ny' + format,
+// 	path + 'pz' + format, path + 'nz' + format
+// ];
+
+// const cubeTextureLoader = new THREE.CubeTextureLoader();
+
+// const reflectionCube = cubeTextureLoader.load( urls );
+// const refractionCube = cubeTextureLoader.load( urls );
+// refractionCube.mapping = THREE.CubeRefractionMapping;
+
+var reflectionTexture = loader.load('textures/2294472375_24a3b8ef46_o.jpg');
+reflectionTexture.mapping = THREE.EquirectangularReflectionMapping;
+reflectionTexture.encoding = THREE.sRGBEncoding;
 
 /*var material1 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble2.jpg'),
@@ -21,22 +41,54 @@ var material2 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble1'),
 	color:col2, ambient:col2, opacity: 0.7, transparent: true
 });*/
-var boardMat1 = new THREE.MeshLambertMaterial({ color: col1, ambient: col1, opacity: 0.7, transparent: true, shading: THREE.SmoothShading });
-var boardMat2 = new THREE.MeshLambertMaterial({ color: col2, ambient: col2, opacity: 0.7, transparent: true, shading: THREE.SmoothShading });
-
-var pieceMat1 = new THREE.MeshLambertMaterial({
-	color: 0xffffff,
-	ambient: col1,
-	shading: THREE.SmoothShading,
-	shininess: 100.0,
-	specular: 0xfbbbbb
+var boardMat1 = new THREE.MeshStandardMaterial({
+	color: col1,
+	roughness: 0.2,
+	metalness: 0.1,
+	opacity: 0.7,
+	transparent: true,
+	envMap: reflectionTexture,
+	envMapIntensity: 40,
 });
-var pieceMat2 = new THREE.MeshLambertMaterial({ color: 0xffffff, ambient: col2, shading: THREE.SmoothShading });
+var boardMat2 = new THREE.MeshStandardMaterial({
+	color: col2,
+	roughness: 0.2,
+	metalness: 0.4,
+	opacity: 0.7,
+	transparent: true,
+	envMap: reflectionTexture,
+	envMapIntensity: 40,
+});
 
-var hoveredBoardMat1 = boardMat1.clone(); hoveredBoardMat1.ambient = new THREE.Color(0x000000);
-var hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.ambient = new THREE.Color(0x000000);
-var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive = new THREE.Color(0x331111);
-var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive = new THREE.Color(0x111111);
+// var pieceMat1 = new THREE.MeshLambertMaterial({
+// 	color: 0xffffff,
+// 	emissive: 0xd48a8a,
+// 	ambient: col1,
+// 	shading: THREE.SmoothShading,
+// 	shininess: 100.0,
+// 	specular: 0xfbbbbb,
+// 	map: loader.load('./Seamless-White-Marble-Texture.webp'),
+// });
+var pieceMat1 = new THREE.MeshStandardMaterial({
+	color: col1,
+	roughness: 0.2,
+	metalness: 0.4,
+	envMap: reflectionTexture,
+	envMapIntensity: 10,
+});
+var pieceMat2 = new THREE.MeshStandardMaterial({
+	color: col2,
+	emissive: 0x3f3f3f,
+	roughness: 0.2,
+	metalness: 0.4,
+	envMap: reflectionTexture,
+	envMapIntensity: 10,
+});
+
+var hoveredBoardMat1 = boardMat1.clone(); hoveredBoardMat1.emissive.add(new THREE.Color(0x000000));
+var hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.emissive.add(new THREE.Color(0x000000));
+var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x331111));
+var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x111111));
 
 var pieceGeometries, pieceYs;
 
@@ -362,7 +414,7 @@ function animate() {
 		hover.hovering = false;
 	}
 	if (controls._state === -1 && mouse.x && mouse.y) {
-		raycaster.setFromCamera( mouse, camera );
+		raycaster.setFromCamera(mouse, camera);
 		var intersects = raycaster.intersectObjects(scene.children, true);
 
 		if (intersects.length > 0) {
