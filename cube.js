@@ -85,7 +85,7 @@ Piece = function (x, y, z, team, rank) {
 	this.o.position.x = this.px;
 	this.o.position.y = this.py;
 	this.o.position.z = this.pz;
-	this.updateOrientation();
+	this.wrapAroundCube();
 	this.updateRotation();
 	scene.add(this.o);
 	return this.o.piece = this;
@@ -129,13 +129,13 @@ Piece.prototype.move = function (mx, my) {
 	this.py = (y - C / 2 + 0.5) * cubeSize;
 	this.pz = (z - C / 2 + 0.5) * cubeSize;
 
-	this.updateOrientation();
+	this.wrapAroundCube();
 
 	this.updateRotation();
 	return true;
 };
 
-Piece.prototype.updateOrientation = function () {
+Piece.prototype.wrapAroundCube = function () {
 	if (this.x < 0) {
 		this.ox = 1, this.oy = 0, this.oz = 0;
 	} else if (this.y < 0) {
