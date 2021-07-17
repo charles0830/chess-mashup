@@ -6,7 +6,6 @@ Board game mashup.
 ## Development Setup
 
 - Install Git if you don't already have it.
-- [Install Git Large File Storage][git lfs install] if you don't have it.
 - [Clone the repo.][git clone]
 - Install [Node.js][] if you don't have it, then open up a command prompt / terminal in the project directory.
 - Install project dependencies with `npm install`
