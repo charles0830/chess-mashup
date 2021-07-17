@@ -363,21 +363,21 @@ function init() {
 
 	// lighting
 
-	light = new THREE.DirectionalLight(0x112113);
-	light.position.set(15, 52, 16);
-	scene.add(light);
+	// light = new THREE.DirectionalLight(0x112113);
+	// light.position.set(15, 52, 16);
+	// scene.add(light);
 
-	light = new THREE.DirectionalLight(0x111121);
-	light.position.set(15, 16, 52);
-	scene.add(light);
+	// light = new THREE.DirectionalLight(0x111121);
+	// light.position.set(15, 16, 52);
+	// scene.add(light);
 
-	light = new THREE.DirectionalLight(0x111112);
-	light.position.set(-52, -15, -16);
-	scene.add(light);
+	// light = new THREE.DirectionalLight(0x111112);
+	// light.position.set(-52, -15, -16);
+	// scene.add(light);
 
-	light = new THREE.DirectionalLight(0x111211);
-	light.position.set(-52, 15, -76);
-	scene.add(light);
+	// light = new THREE.DirectionalLight(0x111211);
+	// light.position.set(-52, 15, -76);
+	// scene.add(light);
 
 	light = new THREE.AmbientLight(0xeeeeee);
 	scene.add(light);
