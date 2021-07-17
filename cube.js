@@ -10,8 +10,8 @@ var pieces = [];
 var col1 = 0xaf0000;
 var col2 = 0xfFFfFf;
 
-var cubesize = 30;
-var cube = new THREE.CubeGeometry(cubesize, cubesize, cubesize);
+var cubeSize = 30;
+var cube = new THREE.CubeGeometry(cubeSize, cubeSize, cubeSize);
 
 /*var material1 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble2.jpg'),
@@ -21,22 +21,22 @@ var material2 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble1'),
 	color:col2, ambient:col2, opacity: 0.7, transparent: true
 });*/
-var mat1 = new THREE.MeshLambertMaterial({ color: col1, ambient: col1, opacity: 0.7, transparent: true, shading: THREE.SmoothShading });
-var mat2 = new THREE.MeshLambertMaterial({ color: col2, ambient: col2, opacity: 0.7, transparent: true, shading: THREE.SmoothShading });
+var boardMat1 = new THREE.MeshLambertMaterial({ color: col1, ambient: col1, opacity: 0.7, transparent: true, shading: THREE.SmoothShading });
+var boardMat2 = new THREE.MeshLambertMaterial({ color: col2, ambient: col2, opacity: 0.7, transparent: true, shading: THREE.SmoothShading });
 
-var pmat1 = new THREE.MeshLambertMaterial({
+var pieceMat1 = new THREE.MeshLambertMaterial({
 	color: 0xffffff,
 	ambient: col1,
 	shading: THREE.SmoothShading,
 	shininess: 100.0,
 	specular: 0xfbbbbb
 });
-var pmat2 = new THREE.MeshLambertMaterial({ color: 0xffffff, ambient: col2, shading: THREE.SmoothShading });
+var pieceMat2 = new THREE.MeshLambertMaterial({ color: 0xffffff, ambient: col2, shading: THREE.SmoothShading });
 
-var hmat1 = mat1.clone(); hmat1.ambient = new THREE.Color(0x000000);
-var hmat2 = mat2.clone(); hmat2.ambient = new THREE.Color(0x000000);
-var hpmat1 = pmat1.clone(); hpmat1.emissive = new THREE.Color(0x331111);
-var hpmat2 = pmat2.clone(); hpmat2.emissive = new THREE.Color(0x111111);
+var hoveredBoardMat1 = boardMat1.clone(); hoveredBoardMat1.ambient = new THREE.Color(0x000000);
+var hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.ambient = new THREE.Color(0x000000);
+var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive = new THREE.Color(0x331111);
+var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive = new THREE.Color(0x111111);
 
 var pieceGeometries, pieceYs;
 
@@ -72,16 +72,16 @@ Piece = function (x, y, z, team, rank) {
 	this.team = team;
 	this.rank = rank || 0;
 	this.o = new THREE.Object3D();
-	var mat = !team ? pmat1 : pmat2;
+	var mat = !team ? pieceMat1 : pieceMat2;
 	for (var i = 0; i < pieceGeometries.length; i++) {
 		var mesh = new THREE.Mesh(pieceGeometries[i], mat);
 		mesh.position.y = pieceYs[i];
 		this.o.add(mesh);
 	}
 	this.o.rotation.x += Math.PI / 2;
-	this.px = (x - (C - 1) / 2) * cubesize;
-	this.py = (y - (C - 1) / 2) * cubesize;
-	this.pz = (z - (C - 1) / 2) * cubesize;
+	this.px = (x - (C - 1) / 2) * cubeSize;
+	this.py = (y - (C - 1) / 2) * cubeSize;
+	this.pz = (z - (C - 1) / 2) * cubeSize;
 	this.o.position.x = this.px;
 	this.o.position.y = this.py;
 	this.o.position.z = this.pz;
@@ -125,9 +125,9 @@ Piece.prototype.move = function (mx, my) {
 	this.x = x;
 	this.y = y;
 	this.z = z;
-	this.px = (x - C / 2 + 0.5) * cubesize;
-	this.py = (y - C / 2 + 0.5) * cubesize;
-	this.pz = (z - C / 2 + 0.5) * cubesize;
+	this.px = (x - C / 2 + 0.5) * cubeSize;
+	this.py = (y - C / 2 + 0.5) * cubeSize;
+	this.pz = (z - C / 2 + 0.5) * cubeSize;
 
 	this.updateOrientation();
 
@@ -160,9 +160,9 @@ Piece.prototype.updateRotation = function () {
 	this.rz = Math.atan2(this.oy,this.ox);
 	
 	/*this.o.lookAt(new THREE.Vector3(
-		(x-this.ox-C/2+0.5) * cubesize,
-		(y-this.oy-C/2+0.5) * cubesize,
-		(z-this.oz-C/2+0.5) * cubesize
+		(x-this.ox-C/2+0.5) * cubeSize,
+		(y-this.oy-C/2+0.5) * cubeSize,
+		(z-this.oz-C/2+0.5) * cubeSize
 	));
 	this.rx -= Math.PI/2;
 	this.ry -= Math.PI/2;
@@ -263,10 +263,10 @@ function init() {
 		for (var y = 0; y < C; y++) {
 			cubes[x][y] = [];
 			for (var z = 0; z < C; z++) {
-				var mesh = new THREE.Mesh(cube, ((x + y + z) % 2) ? mat1 : mat2);
-				mesh.position.x = (x - C / 2 + 0.5) * cubesize;
-				mesh.position.y = (y - C / 2 + 0.5) * cubesize;
-				mesh.position.z = (z - C / 2 + 0.5) * cubesize;
+				var mesh = new THREE.Mesh(cube, ((x + y + z) % 2) ? boardMat1 : boardMat2);
+				mesh.position.x = (x - C / 2 + 0.5) * cubeSize;
+				mesh.position.y = (y - C / 2 + 0.5) * cubeSize;
+				mesh.position.z = (z - C / 2 + 0.5) * cubeSize;
 				mesh.updateMatrix();
 				mesh.matrixAutoUpdate = false;
 				cubeObject3D.add(mesh);
@@ -276,7 +276,7 @@ function init() {
 	}
 	scene.add(cubeObject3D);
 	//pieces
-	var plocs = [
+	var pieceLocations = [
 		[1, 1],
 		[1, C - 2],
 		[C - 2, 1],
@@ -292,9 +292,9 @@ function init() {
 		[C - 2, 3],
 		[C - 4, C - 2],
 	];
-	for (i in plocs) {
-		pieces.push(new Piece(plocs[i][0], plocs[i][1], -1, 0, 0));
-		pieces.push(new Piece(plocs[i][0], plocs[i][1], C, 1, 0));
+	for (i in pieceLocations) {
+		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, 0));
+		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, 0));
 	}
 
 	// lighting
@@ -357,7 +357,7 @@ function animate() {
 	controls.update();
 	if (hover && hover.children) {
 		for (i = 0; i < hover.children.length; i++) {
-			remat(hover.children[i], false);
+			updateMaterial(hover.children[i], false);
 		}
 		hover.hovering = false;
 	}
@@ -376,7 +376,7 @@ function animate() {
 				hover = intersects[0].face;
 			} else {
 				for (i = 0; i < hover.children.length; i++) {
-					remat(hover.children[i], true);
+					updateMaterial(hover.children[i], true);
 				}
 				var piece = hover.piece;
 				//console.log(piece+" at ("+piece.x+","+piece.y+","+piece.z+")");
@@ -389,18 +389,18 @@ function animate() {
 }
 
 
-function remat(m, hovering) {
+function updateMaterial(m, hovering) {
 	if (m.geometry == cube) {
-		if (m.material == mat1 || m.material == hmat1) {
-			m.material = !hovering ? mat1 : hmat1;
+		if (m.material == boardMat1 || m.material == hoveredBoardMat1) {
+			m.material = !hovering ? boardMat1 : hoveredBoardMat1;
 		} else {
-			m.material = !hovering ? mat2 : hmat2;
+			m.material = !hovering ? boardMat2 : hoveredBoardMat2;
 		}
 	} else {
-		if (m.material == pmat1 || m.material == hpmat1) {
-			m.material = !hovering ? pmat1 : hpmat1;
+		if (m.material == pieceMat1 || m.material == hoveredPieceMat1) {
+			m.material = !hovering ? pieceMat1 : hoveredPieceMat1;
 		} else {
-			m.material = !hovering ? pmat2 : hpmat2;
+			m.material = !hovering ? pieceMat2 : hoveredPieceMat2;
 		}
 	}
 }
