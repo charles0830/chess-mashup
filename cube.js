@@ -40,7 +40,7 @@ var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive = new THREE.
 
 var pieceGeometries, pieceYs;
 
-var C = 7;
+var C = 8;
 
 var turn = false;
 var projector, hover;
