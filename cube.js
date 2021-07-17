@@ -29,21 +29,23 @@ var material2 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble1'),
 	color:col2, ambient:col2, opacity: 0.7, transparent: true
 });*/
-var boardMat1 = new THREE.MeshStandardMaterial({
+var boardMat1 = new THREE.MeshPhysicalMaterial({
 	color: col1,
 	roughness: 0.2,
 	metalness: 0.1,
-	opacity: 0.7,
+	transmission: 0.5,
+	opacity: 0.8,
 	transparent: true,
 	envMap: reflectionTexture,
 	envMapIntensity: 40,
 	// map: marbleTexture,
 });
-var boardMat2 = new THREE.MeshStandardMaterial({
+var boardMat2 = new THREE.MeshPhysicalMaterial({
 	color: col2,
 	roughness: 0.2,
 	metalness: 0.4,
-	opacity: 0.7,
+	transmission: 0.5,
+	opacity: 0.8,
 	transparent: true,
 	envMap: reflectionTexture,
 	envMapIntensity: 40,
@@ -59,16 +61,16 @@ var boardMat2 = new THREE.MeshStandardMaterial({
 // 	specular: 0xfbbbbb,
 // 	map: textureLoader.load('./Seamless-White-Marble-Texture.webp'),
 // });
-var pieceMat1 = new THREE.MeshStandardMaterial({
+var pieceMat1 = new THREE.MeshPhysicalMaterial({
 	color: col1,
 	roughness: 0.2,
 	metalness: 0.4,
 	envMap: reflectionTexture,
 	envMapIntensity: 10,
 });
-var pieceMat2 = new THREE.MeshStandardMaterial({
+var pieceMat2 = new THREE.MeshPhysicalMaterial({
 	color: col2,
-	emissive: 0x3f3f3f,
+	// emissive: 0x3f3f3f,
 	roughness: 0.2,
 	metalness: 0.4,
 	envMap: reflectionTexture,
@@ -77,8 +79,8 @@ var pieceMat2 = new THREE.MeshStandardMaterial({
 
 var hoveredBoardMat1 = boardMat1.clone(); hoveredBoardMat1.emissive.add(new THREE.Color(0x000000));
 var hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.emissive.add(new THREE.Color(0x000000));
-var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x331111));
-var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x111111));
+var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x993333));
+var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x666666));
 
 const stlLoader = new THREE.STLLoader();
 const pieceTypes = [
