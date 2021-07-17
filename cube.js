@@ -91,19 +91,10 @@ const ranks = [
 	"queen",
 	"king",
 ];
-const geometryPromises = [
-	"models/classic_pawn.stl",
-	"models/classic_knight.stl",
-	// "models/classic_knight_2.stl",
-	// "models/classic_knight_3.stl",
-	"models/classic_bishop.stl",
-	"models/classic_rook.stl",
-	"models/classic_queen.stl",
-	"models/classic_king.stl",
-	// "models/cooling_tower.stl",
-].map((url) => new Promise((resolve, reject) => {
+const geometryPromises = ranks.map((rank) => new Promise((resolve, reject) => {
+	const url = `models/classic_${rank}.stl`;
 	stlLoader.load(
-		url, // `models/classic_${rank}.stl`,
+		url,
 		resolve, // Success callback
 		(xhr) => {
 			// Progress callback
