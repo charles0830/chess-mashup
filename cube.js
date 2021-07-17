@@ -363,7 +363,7 @@ function init() {
 
 	// renderer
 
-	renderer = new THREE.WebGLRenderer({ antialias: true });
+	renderer = new THREE.WebGLRenderer();
 	renderer.setClearColor(scene.fog.color, 1);
 	renderer.setSize(window.innerWidth, window.innerHeight);
 
