@@ -80,7 +80,7 @@ var pieceMat2 = new THREE.MeshPhysicalMaterial({
 var hoveredBoardMat1 = boardMat1.clone(); hoveredBoardMat1.emissive.add(new THREE.Color(0x000000));
 var hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.emissive.add(new THREE.Color(0x000000));
 var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x993333));
-var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x666666));
+var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x333344));
 
 const stlLoader = new THREE.STLLoader();
 const pieceTypes = [
@@ -112,17 +112,28 @@ var C = 8;
 var turn = false;
 var raycaster, hover;
 
-var mouse = { x: 0, y: 0 };
+var mouse = { x: null, y: null };
 
 addEventListener('mousemove', function (e) {
 	mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
 	mouse.y = 1 - (e.clientY / window.innerHeight) * 2;
+	document.body.style.cursor = hover && hover.piece ? 'pointer' : 'default';
 }, true);
 
 addEventListener('mousedown', function (e) {
 	if (hover && hover.piece) {
 		console.log(hover.piece + "");
 	}
+}, true);
+
+addEventListener('mouseleave', function (e) {
+	mouse.x = null;
+	mouse.y = null;
+}, true);
+
+addEventListener('blur', function (e) {
+	mouse.x = null;
+	mouse.y = null;
 }, true);
 
 
@@ -414,7 +425,7 @@ function animate() {
 		}
 		hover.hovering = false;
 	}
-	if (controls._state === -1 && mouse.x && mouse.y) {
+	if (controls._state === -1 && mouse.x != null && mouse.y != null) {
 		raycaster.setFromCamera(mouse, camera);
 		var intersects = raycaster.intersectObjects(scene.children, true);
 
