@@ -367,8 +367,8 @@ function init() {
 		[C - 4, C - 2],
 	];
 	for (i in pieceLocations) {
-		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, i % 5));
-		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, i % 5));
+		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, i % 6));
+		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, i % 6));
 	}
 
 	// lighting

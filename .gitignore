@@ -1,3 +1,8 @@
+
+# 3D chess piece model generator binary
+gen_models
+gen_models.exe
+
 # Logs
 logs
 *.log
