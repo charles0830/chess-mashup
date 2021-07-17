@@ -83,7 +83,7 @@ var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THRE
 let pieceGeometries = [];
 
 const stlLoader = new THREE.STLLoader();
-const ranks = [
+const pieceTypes = [
 	"pawn",
 	"knight",
 	"bishop",
@@ -91,8 +91,8 @@ const ranks = [
 	"queen",
 	"king",
 ];
-const geometryPromises = ranks.map((rank) => new Promise((resolve, reject) => {
-	const url = `models/classic_${rank}.stl`;
+const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, reject) => {
+	const url = `models/classic_${pieceType}.stl`;
 	stlLoader.load(
 		url,
 		resolve, // Success callback
@@ -133,7 +133,7 @@ addEventListener('mousedown', function (e) {
 }, true);
 
 
-Piece = function (x, y, z, team, rank) {
+Piece = function (x, y, z, team, pieceType) {
 	this.x = x;
 	this.y = y;
 	this.z = z;
@@ -142,17 +142,17 @@ Piece = function (x, y, z, team, rank) {
 	this.rz = 0;
 	this.ox = 0;
 	this.oy = 0;
-	this.oz = !team * 2 - 1;
+	this.oz = !team * 2 - 1; // ?
 	this.team = team;
-	this.rank = rank || 0;
+	this.pieceType = pieceType || "pawn";
 	this.o = new THREE.Object3D();
 	var mat = !team ? pieceMat1 : pieceMat2;
-	// var mesh = new THREE.Mesh(pieceGeometries[this.rank], mat);
+	// var mesh = new THREE.Mesh(pieceGeometries[this.pieceType], mat);
 	// this.o.add(mesh);
 	var tempGeometry = new THREE.CylinderGeometry(11, 10, 2, 15, 1, false);
 	var tempMesh = new THREE.Mesh(tempGeometry, mat);
 	this.o.add(tempMesh);
-	geometryPromises[this.rank].then((geometry) => {
+	geometryPromises[Math.max(0, pieceTypes.indexOf(this.pieceType))].then((geometry) => {
 		var mesh = new THREE.Mesh(geometry, mat);
 		this.o.add(mesh);
 		this.o.remove(tempMesh);
@@ -304,9 +304,7 @@ Piece.prototype.update = function () {
 	this.o.rotation.z += (this.rz - this.o.rotation.z) / 20;
 };
 Piece.prototype.toString = function () {
-	var c = (!this.team ? "Red" : "White") + " ";
-	var at = " at (" + this.x + "," + this.y + "," + this.z + ")";
-	return c + ranks[this.rank] + at;
+	return `${!this.team ? "Red" : "White"} ${this.pieceType} at (${this.x},${this.y},${this.z})`;
 };
 
 function init() {
@@ -358,8 +356,8 @@ function init() {
 		[C - 4, C - 2],
 	];
 	for (i in pieceLocations) {
-		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, i % 6));
-		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, i % 6));
+		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, pieceTypes[i % 6]));
+		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, pieceTypes[i % 6]));
 	}
 
 	// lighting
