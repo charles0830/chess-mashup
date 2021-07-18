@@ -10,8 +10,8 @@ var pieces = [];
 var col1 = 0xaf0000;
 var col2 = 0xffffff;
 
-var cubeSize = 30;
-var cube = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+var squareSize = 30;
+var cube = new THREE.BoxGeometry(squareSize, squareSize, squareSize);
 
 const textureLoader = new THREE.TextureLoader();
 
@@ -107,7 +107,7 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 	);
 }));
 
-var C = 8;
+var C = 8; // metacube board size in cubes/squares/cells
 
 var turn = false;
 var raycaster, hover;
@@ -160,9 +160,9 @@ Piece = function (x, y, z, team, pieceType) {
 		mesh.rotation.x -= Math.PI / 2;
 		mesh.position.y -= 15;
 	});
-	this.px = (x - (C - 1) / 2) * cubeSize;
-	this.py = (y - (C - 1) / 2) * cubeSize;
-	this.pz = (z - (C - 1) / 2) * cubeSize;
+	this.px = (x - (C - 1) / 2) * squareSize;
+	this.py = (y - (C - 1) / 2) * squareSize;
+	this.pz = (z - (C - 1) / 2) * squareSize;
 	this.o.position.x = this.px;
 	this.o.position.y = this.py;
 	this.o.position.z = this.pz;
@@ -206,9 +206,9 @@ Piece.prototype.move = function (mx, my) {
 	this.x = x;
 	this.y = y;
 	this.z = z;
-	this.px = (x - C / 2 + 0.5) * cubeSize;
-	this.py = (y - C / 2 + 0.5) * cubeSize;
-	this.pz = (z - C / 2 + 0.5) * cubeSize;
+	this.px = (x - C / 2 + 0.5) * squareSize;
+	this.py = (y - C / 2 + 0.5) * squareSize;
+	this.pz = (z - C / 2 + 0.5) * squareSize;
 
 	this.wrapAroundCube();
 
@@ -328,9 +328,9 @@ function init() {
 			cubes[x][y] = [];
 			for (var z = 0; z < C; z++) {
 				var mesh = new THREE.Mesh(cube, ((x + y + z) % 2) ? boardMat1 : boardMat2);
-				mesh.position.x = (x - C / 2 + 0.5) * cubeSize;
-				mesh.position.y = (y - C / 2 + 0.5) * cubeSize;
-				mesh.position.z = (z - C / 2 + 0.5) * cubeSize;
+				mesh.position.x = (x - C / 2 + 0.5) * squareSize;
+				mesh.position.y = (y - C / 2 + 0.5) * squareSize;
+				mesh.position.z = (z - C / 2 + 0.5) * squareSize;
 				mesh.updateMatrix();
 				mesh.matrixAutoUpdate = false;
 				cubeObject3D.add(mesh);
