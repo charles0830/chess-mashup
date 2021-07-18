@@ -77,10 +77,21 @@ var pieceMat2 = new THREE.MeshPhysicalMaterial({
 	envMapIntensity: 10,
 });
 
-var hoveredBoardMat1 = boardMat1.clone(); hoveredBoardMat1.emissive.add(new THREE.Color(0x000000));
-var hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.emissive.add(new THREE.Color(0x000000));
+// var hoveredBoardMat1 = boardMat1.clone(); hoveredBoardMat1.emissive.add(new THREE.Color(0x000000));
+// var hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.emissive.add(new THREE.Color(0x000000));
 var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x993333));
 var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x333344));
+var hoverDecalMat = new THREE.MeshBasicMaterial({
+	// autocompleted code, might be good/bad
+	color: 0xffffff,
+	transparent: true,
+	opacity: 0.5,
+	depthTest: false,
+	depthWrite: false,
+	side: THREE.DoubleSide,
+});
+
+var hoverDecal;
 
 const stlLoader = new THREE.STLLoader();
 const pieceTypes = [
@@ -339,6 +350,8 @@ function init() {
 		}
 	}
 	scene.add(cubeObject3D);
+	hoverDecal = new THREE.Mesh(new THREE.PlaneBufferGeometry(squareSize, squareSize), hoverDecalMat);
+	scene.add(hoverDecal);
 	//pieces
 	var pieceLocations = [
 		[1, 1],
@@ -425,6 +438,8 @@ function animate() {
 		}
 		hover.hovering = false;
 	}
+	// clear hover state of board
+	hoverDecal.visible = false;
 	// find hovered piece and highlight it
 	hover = null;
 	if (mouse.x != null && mouse.y != null && controls.state === controls.STATE.NONE) {
@@ -437,6 +452,16 @@ function animate() {
 			if (m.geometry == cube) {
 				//console.log("cube at ("+o3.x+","+o3.y+","+o3.z+")");
 				hover = intersects[0].face;
+				hoverDecal.visible = true;
+				// hoverDecal.position.copy(m.position);
+				// hoverDecal.rotation.set(m.uv.x, m.uv.y, 0);
+				hoverDecal.position.copy(intersects[0].point).add(intersects[0].face.normal);
+				hoverDecal.position.divideScalar(squareSize).floor().multiplyScalar(squareSize).addScalar(squareSize / 2);
+				// hoverDecal.rotation.set(intersects[0].face.normal.x, intersects[0].face.normal.y, intersects[0].face.normal.z);
+				// hoverDecal.up.copy(intersects[0].face.normal);
+				var axis = new THREE.Vector3(0, 0, 1);
+				hoverDecal.quaternion.setFromUnitVectors(axis, intersects[0].face.normal/*.clone().normalize()*/);
+
 			} else {
 				for (i = 0; i < hover.children.length; i++) {
 					updateMaterial(hover.children[i], true);
@@ -456,11 +481,12 @@ function animate() {
 
 function updateMaterial(m, hovering) {
 	if (m.geometry == cube) {
-		if (m.material == boardMat1 || m.material == hoveredBoardMat1) {
-			m.material = !hovering ? boardMat1 : hoveredBoardMat1;
-		} else {
-			m.material = !hovering ? boardMat2 : hoveredBoardMat2;
-		}
+		// using a decal instead
+		// if (m.material == boardMat1 || m.material == hoveredBoardMat1) {
+		// 	m.material = !hovering ? boardMat1 : hoveredBoardMat1;
+		// } else {
+		// 	m.material = !hovering ? boardMat2 : hoveredBoardMat2;
+		// }
 	} else {
 		if (m.material == pieceMat1 || m.material == hoveredPieceMat1) {
 			m.material = !hovering ? pieceMat1 : hoveredPieceMat1;
