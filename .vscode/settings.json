@@ -8,6 +8,7 @@
 		"fileapi",
 		"metacube",
 		"metalness",
+		"raycast",
 		"raycaster",
 		"unproject"
 	]

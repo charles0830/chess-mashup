@@ -4,6 +4,7 @@ if (!Detector.webgl) Detector.addGetWebGLMessage();
 var container, stats,
 	camera, controls,
 	scene, renderer;
+var raycastTargets;
 
 var cubes = [], cubeObject3D;
 var pieces = [];
@@ -374,6 +375,8 @@ function init() {
 		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, pieceTypes[i % 6]));
 	}
 
+	raycastTargets = cubes.flat().flat().concat(pieces.map(piece => piece.o));
+
 	// lighting
 
 	// light = new THREE.DirectionalLight(0x112113);
@@ -444,13 +447,15 @@ function animate() {
 	hover = null;
 	if (mouse.x != null && mouse.y != null && controls.state === controls.STATE.NONE) {
 		raycaster.setFromCamera(mouse, camera);
-		var intersects = raycaster.intersectObjects(scene.children, true);
+		// var intersects = raycaster.intersectObjects(scene.children, true);
+		// don't want to include hoverDecal
+		var intersects = raycaster.intersectObjects(raycastTargets, false);
 
 		if (intersects.length > 0) {
 			var m = intersects[0].object;
 			hover = m.parent;
 			if (m.geometry == cube) {
-				//console.log("cube at ("+o3.x+","+o3.y+","+o3.z+")");
+				// console.log("cube at ("+o3.x+","+o3.y+","+o3.z+")");
 				hover = intersects[0].face;
 				hoverDecal.visible = true;
 				// hoverDecal.position.copy(m.position);
