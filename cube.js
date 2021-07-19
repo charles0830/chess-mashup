@@ -83,12 +83,13 @@ var pieceMat2 = new THREE.MeshPhysicalMaterial({
 var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x993333));
 var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x333344));
 var hoverDecalMat = new THREE.MeshStandardMaterial({
-	color: 0x000000,
-	emissive: 0xffffff,
+	color: 0xffffff,
+	emissive: 0x442200,
 	transparent: true,
 	// map: textureLoader.load('./textures/vintage-symmetric-frame-extrapolated.png'), // too high detail
 	// alphaMap: textureLoader.load('./textures/symmetric-checkerboard-frame.jpg'), // funny
-	alphaMap: textureLoader.load('./textures/flower-frame-1436652825nLe.jpg'),
+	// alphaMap: textureLoader.load('./textures/flower-frame-1436652825nLe.jpg'),
+	map: textureLoader.load('./textures/hover-decal-flower-frame-with-outline.png'), // outline for contrast... but from far away it looks bad and reduces contrast!
 	// depthTest: false,
 	// depthWrite: false,
 	// combine: THREE.MultiplyOperation,
@@ -467,12 +468,11 @@ function animate() {
 				var axis = new THREE.Vector3(0, 0, 1);
 				hoverDecal.quaternion.setFromUnitVectors(axis, intersects[0].face.normal);
 				if (m.material === boardMat1) {
-					hoverDecalMat.emissive.set(0xffffcc);
+					// hoverDecalMat.emissive.set(0xffffcc);
+					// hoverDecalMat.emissive.set(0xffccaa);
 				} else {
-					// hoverDecalMat.emissive.set(0x000000);
-					// hoverDecalMat.emissive.set(0x000033);
-					// hoverDecalMat.emissive.set(0x550a0a); // more within the palette but not enough contrast
-					hoverDecalMat.emissive.set(0x220000);
+					// hoverDecalMat.emissive.set(0x220000);
+					// hoverDecalMat.emissive.set(0xffffff);
 				}
 			} else {
 				for (i = 0; i < hover.children.length; i++) {
