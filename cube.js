@@ -224,25 +224,27 @@ Piece.prototype.moveRelative2D = function (mx, my) {
 		return false;
 	}
 
-	return this.moveTo(x, y, z);
-};
-
-Piece.prototype.moveTo = function (x, y, z) {
-	if (pieceAt(x, y, z)) return false;
 	// if there's no ground underneath the new position, wrap around the cube
 	// (ox/oy/oz are orientation)
 	if (!cubeAt(x + this.ox, y + this.oy, z + this.oz)) {
 		// ??? why would this be valid/needed? wouldn't this be... not moving?
 		// is this supposed to be gravity??
-		// if (mx !== 0 && my !== 0) {
+		if (mx !== 0 && my !== 0) {
 			return false;
-		// }
+		}
 		x += this.ox;
 		y += this.oy;
 		z += this.oz;
 		//this.rx += mx * Math.PI/2;
 		//this.rz -= my * Math.PI/2;
 	}
+
+	return this.moveTo(x, y, z);
+};
+
+Piece.prototype.moveTo = function (x, y, z) {
+	if (pieceAt(x, y, z)) return false; // TODO: allow capturing
+
 	this.x = x;
 	this.y = y;
 	this.z = z;
@@ -347,6 +349,9 @@ Piece.prototype.update = function () {
 	this.o.rotation.x += (this.rx - this.o.rotation.x) / 20;
 	this.o.rotation.y += (this.ry - this.o.rotation.y) / 20;
 	this.o.rotation.z += (this.rz - this.o.rotation.z) / 20;
+	// var axis = new THREE.Vector3(0, -1, 0);
+	// this.o.quaternion.setFromUnitVectors(axis, new THREE.Vector3(this.ox, this.oy, this.oz));
+
 	if (selectedPiece === this) {
 		this.o.rotation.z += Math.sin(Date.now() / 500) / 150;
 	}
@@ -383,6 +388,9 @@ function init() {
 				mesh.matrixAutoUpdate = false;
 				cubeObject3D.add(mesh);
 				cubes[x][y][z] = mesh;
+				mesh.cubeX = x;
+				mesh.cubeY = y;
+				mesh.cubeZ = z;
 				raycastTargets.push(mesh);
 			}
 		}
@@ -507,7 +515,8 @@ function animate() {
 					// hoverDecalMat.emissive.set(0xffffff);
 				}
 				// hoveredSpace = m.position.clone().divideScalar(squareSize).add(intersects[0].face.normal);
-				hoveredSpace = m.position.clone().divideScalar(squareSize).floor();
+				// hoveredSpace = m.position.clone().divideScalar(squareSize).floor();
+				hoveredSpace = new THREE.Vector3(m.cubeX, m.cubeY, m.cubeZ).add(intersects[0].face.normal);
 			} else {
 				hoveredPiece = m.parent.piece;
 			}
