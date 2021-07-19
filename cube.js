@@ -82,13 +82,20 @@ var pieceMat2 = new THREE.MeshPhysicalMaterial({
 // var hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.emissive.add(new THREE.Color(0x000000));
 var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x993333));
 var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x333344));
-var hoverDecalMat = new THREE.MeshBasicMaterial({
+var hoverDecalMat = new THREE.MeshStandardMaterial({
 	color: 0xffffff,
 	emissive: 0xffffff,
 	transparent: true,
-	map: textureLoader.load('./textures/vintage-symmetric-frame-extrapolated.png'),
+	// map: textureLoader.load('./textures/vintage-symmetric-frame-extrapolated.png'),
+	// map: textureLoader.load('./textures/1461572.svg'),
+	// map: textureLoader.load('./textures/1769714.svg'),
+	// map: textureLoader.load('./textures/Decorative-Mandala-VI.png'),
+	// map: textureLoader.load('./textures/flower-frame-1436652825nLe.jpg'),
+	// alphaMap: textureLoader.load('./textures/symmetric-checkerboard-frame.jpg'),
+	alphaMap: textureLoader.load('./textures/flower-frame-1436652825nLe.jpg'),
 	// depthTest: false,
 	// depthWrite: false,
+	combine: THREE.MultiplyOperation,
 });
 
 var hoverDecal;
