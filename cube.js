@@ -4,7 +4,7 @@ if (!Detector.webgl) Detector.addGetWebGLMessage();
 var container, stats,
 	camera, controls,
 	scene, renderer;
-var raycastTargets;
+var raycastTargets = [];
 
 var cubes = [], cubeObject3D;
 var pieces = [];
@@ -167,10 +167,13 @@ Piece = function (x, y, z, team, pieceType) {
 	var tempGeometry = new THREE.CylinderGeometry(11, 10, 2, 15, 1, false);
 	var tempMesh = new THREE.Mesh(tempGeometry, mat);
 	this.o.add(tempMesh);
+	raycastTargets.push(tempMesh);
 	geometryPromises[Math.max(0, pieceTypes.indexOf(this.pieceType))].then((geometry) => {
 		var mesh = new THREE.Mesh(geometry, mat);
 		this.o.add(mesh);
 		this.o.remove(tempMesh);
+		raycastTargets.push(mesh);
+		raycastTargets.splice(raycastTargets.indexOf(tempMesh), 1);
 		mesh.rotation.x -= Math.PI / 2;
 		mesh.position.y -= 15;
 	});
@@ -349,6 +352,7 @@ function init() {
 				mesh.matrixAutoUpdate = false;
 				cubeObject3D.add(mesh);
 				cubes[x][y][z] = mesh;
+				raycastTargets.push(mesh);
 			}
 		}
 	}
@@ -376,8 +380,6 @@ function init() {
 		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, pieceTypes[i % 6]));
 		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, pieceTypes[i % 6]));
 	}
-
-	raycastTargets = cubes.flat().flat().concat(pieces.map(piece => piece.o));
 
 	// lighting
 
