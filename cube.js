@@ -4,9 +4,10 @@ if (!Detector.webgl) Detector.addGetWebGLMessage();
 var container, stats,
 	camera, controls,
 	scene, renderer;
-var raycastTargets = [];
+var raycastTargets = []; // don't want to include certain objects like hoverDecal, so we can't just use scene.children
 
-var cubes = [], cubeObject3D;
+var cubes = [];
+var cubeObject3D;
 var pieces = [];
 var col1 = 0xaf0000;
 var col2 = 0xffffff;
@@ -125,7 +126,11 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 var C = 8; // metacube board size in cubes/squares/cells
 
 var turn = false;
-var raycaster, hover;
+var raycaster;
+var intersects = [];
+var hoveredPiece;
+var hoveredSpace;
+// var selectedPiece;
 
 var mouse = { x: null, y: null };
 
@@ -135,8 +140,12 @@ addEventListener('mousemove', function (e) {
 }, true);
 
 addEventListener('mousedown', function (e) {
-	if (hover && hover.piece) {
-		console.log(hover.piece + "");
+	if (hoveredPiece) {
+		console.log(hoveredPiece + "");
+		// hoveredPiece.lift();
+	// 	selectedPiece = hoveredPiece;
+	// } else if (selectedPiece) {
+	// 	selectedPiece.move(hoveredSpace.x, hoveredSpace.y, hoveredSpace.z);
 	}
 }, true);
 
@@ -439,29 +448,31 @@ function animate() {
 		pieces[i].update();
 	}
 	controls.update();
+
 	// clear hover state of previously hovered piece
-	if (hover && hover.children) {
-		for (i = 0; i < hover.children.length; i++) {
-			updateMaterial(hover.children[i], false);
+	if (hoveredPiece) {
+		for (i = 0; i < hoveredPiece.o.children.length; i++) {
+			updateMaterial(hoveredPiece.o.children[i], false);
 		}
-		hover.hovering = false;
+		hoveredPiece.hovering = false;
 	}
+	hoveredPiece = null;
+
 	// clear hover state of board
 	hoverDecal.visible = false;
-	// find hovered piece and highlight it
-	hover = null;
+	hoveredSpace = null;
+
+	// find hovered piece and/or board space and highlight it
 	if (mouse.x != null && mouse.y != null && controls.state === controls.STATE.NONE) {
 		raycaster.setFromCamera(mouse, camera);
-		// var intersects = raycaster.intersectObjects(scene.children, true);
-		// don't want to include hoverDecal
-		var intersects = raycaster.intersectObjects(raycastTargets, false);
+		intersects.length = 0;
+		raycaster.intersectObjects(raycastTargets, false, intersects);
 
 		if (intersects.length > 0) {
 			var m = intersects[0].object;
-			hover = m.parent;
+			// TODO: hover space via piece or visa-versa, depending on state of the game (selecting piece, moving piece)
 			if (m.geometry == cube) {
 				// console.log("cube at ("+o3.x+","+o3.y+","+o3.z+")");
-				hover = intersects[0].face;
 				hoverDecal.visible = true;
 				hoverDecal.position.copy(m.position);
 				hoverDecal.position.add(intersects[0].face.normal.clone().multiplyScalar(squareSize / 2 + 0.01));
@@ -474,18 +485,20 @@ function animate() {
 					// hoverDecalMat.emissive.set(0x220000);
 					// hoverDecalMat.emissive.set(0xffffff);
 				}
+				hoveredSpace = m.position.clone().divideScalar(squareSize).add(intersects[0].face.normal);
 			} else {
-				for (i = 0; i < hover.children.length; i++) {
-					updateMaterial(hover.children[i], true);
-				}
-				var piece = hover.piece;
-				//console.log(piece+" at ("+piece.x+","+piece.y+","+piece.z+")");
+				hoveredPiece = m.parent.piece;
 			}
-			hover.hovering = true;
 		}
 	}
 
-	document.body.style.cursor = hover && hover.piece ? 'pointer' : 'default';
+	if (hoveredPiece) {
+		for (i = 0; i < hoveredPiece.o.children.length; i++) {
+			updateMaterial(hoveredPiece.o.children[i], true);
+		}
+		hoveredPiece.hovering = true;
+	}
+	document.body.style.cursor = hoveredPiece ? 'pointer' : 'default';
 
 	renderer.render(scene, camera);
 }
