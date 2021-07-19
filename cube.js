@@ -163,18 +163,25 @@ addEventListener('blur', function (e) {
 	mouse.y = null;
 }, true);
 
+function worldToGameSpace(worldPosition) {
+	return worldPosition.clone().divide(squareSize).floor();
+}
+function gameToWorldSpace(gamePosition) {
+	// return gamePosition.clone().multiply(squareSize);//.add(new THREE.Vector3(0.5, 0.5, 0.5));
+	return new THREE.Vector3(
+		(gamePosition.x - (C - 1) / 2) * squareSize,
+		(gamePosition.y - (C - 1) / 2) * squareSize,
+		(gamePosition.z - (C - 1) / 2) * squareSize
+	);
+}
 
 class Piece {
 	constructor(x, y, z, team, pieceType) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.rx = 0;
-		this.ry = 0;
-		this.rz = 0;
-		this.ox = 0;
-		this.oy = 0;
-		this.oz = !team * 2 - 1; // ?
+		this.gamePosition = new THREE.Vector3(x, y, z);
+		this.targetWorldPosition = gameToWorldSpace(this.gamePosition);
+		// this.targetOrientation = new THREE.Quaternion();
+		this.towardsGroundVector = new THREE.Vector3();
+		this.smoothedTowardsGroundVector = new THREE.Vector3();
 		this.team = team;
 		this.pieceType = pieceType || "pawn";
 		this.o = new THREE.Object3D();
@@ -192,16 +199,29 @@ class Piece {
 			mesh.rotation.x -= Math.PI / 2;
 			mesh.position.y -= 15;
 		});
-		this.px = (x - (C - 1) / 2) * squareSize;
-		this.py = (y - (C - 1) / 2) * squareSize;
-		this.pz = (z - (C - 1) / 2) * squareSize;
-		this.o.position.x = this.px;
-		this.o.position.y = this.py;
-		this.o.position.z = this.pz;
+		this.o.position.copy(this.targetWorldPosition);
 		this.orientTowardsCube();
-		this.updateRotation();
 		scene.add(this.o);
 		this.o.piece = this;
+	}
+	// TEMPORARY!
+	get ox() {
+		return this.towardsGroundVector.x;
+	}
+	get oy() {
+		return this.towardsGroundVector.y;
+	}
+	get oz() {
+		return this.towardsGroundVector.z;
+	}
+	get x() {
+		return this.gamePosition.x;
+	}
+	get y() {
+		return this.gamePosition.y;
+	}
+	get z() {
+		return this.gamePosition.z;
 	}
 	moveRelative2D(mx, my) {
 		if (mx === 0 && my === 0)
@@ -245,87 +265,33 @@ class Piece {
 		if (pieceAt(x, y, z))
 			return false; // TODO: allow capturing
 
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.px = (x - C / 2 + 0.5) * squareSize;
-		this.py = (y - C / 2 + 0.5) * squareSize;
-		this.pz = (z - C / 2 + 0.5) * squareSize;
+		this.gamePosition.set(x, y, z);
+		this.targetWorldPosition = gameToWorldSpace(this.gamePosition);
 
 		this.orientTowardsCube();
-		this.updateRotation();
 		return true;
 	}
 	orientTowardsCube() {
 		if (this.x < 0) {
-			this.ox = 1, this.oy = 0, this.oz = 0;
+			// this.ox = 1, this.oy = 0, this.oz = 0;
+			this.towardsGroundVector.set(1, 0, 0);
 		} else if (this.y < 0) {
-			this.oy = 1, this.ox = 0, this.oz = 0;
+			// this.oy = 1, this.ox = 0, this.oz = 0;
+			this.towardsGroundVector.set(0, 1, 0);
 		} else if (this.z < 0) {
-			this.oz = 1, this.oy = 0, this.ox = 0;
+			// this.oz = 1, this.oy = 0, this.ox = 0;
+			this.towardsGroundVector.set(0, 0, 1);
 		} else if (this.x >= C) {
-			this.ox = -1, this.oy = 0, this.oz = 0;
+			// this.ox = -1, this.oy = 0, this.oz = 0;
+			this.towardsGroundVector.set(-1, 0, 0);
 		} else if (this.y >= C) {
-			this.oy = -1, this.ox = 0, this.oz = 0;
+			// this.oy = -1, this.ox = 0, this.oz = 0;
+			this.towardsGroundVector.set(0, -1, 0);
 		} else if (this.z >= C) {
-			this.oz = -1, this.oy = 0, this.ox = 0;
+			// this.oz = -1, this.oy = 0, this.ox = 0;
+			this.towardsGroundVector.set(0, 0, -1);
 		} else {
 			console.warn("Weird! IDK!");
-		}
-	}
-	updateRotation() {
-
-		/*
-		this.ry = Math.atan2(this.oy,this.oz);
-		this.rx = Math.atan2(this.ox,this.oz);
-		this.rz = Math.atan2(this.oy,this.ox);
-	    
-		/*this.o.lookAt(new THREE.Vector3(
-			(x-this.ox-C/2+0.5) * cubeSize,
-			(y-this.oy-C/2+0.5) * cubeSize,
-			(z-this.oz-C/2+0.5) * cubeSize
-		));
-		this.rx -= Math.PI/2;
-		this.ry -= Math.PI/2;
-		this.rz -= Math.PI/2;
-		this.rx = Math.PI/2 * this.oy + Math.PI/2 - (this.oz * Math.PI/2);
-		this.rz = 0;
-		this.ry = Math.PI/2 * this.ox;*/
-		if (this.oz == 1) {
-			//white
-			this.ry = 0;
-			this.rx = -Math.PI / 2;
-			this.rz = 0;
-		} else if (this.oz == -1) {
-			//red
-			this.ry = Math.PI / 2;
-			this.rx = 0;
-			this.rz = Math.PI / 2;
-		} else if (this.ox == 1) {
-			//<-
-			this.ry = Math.PI;
-			this.rx = 0;
-			this.rz = -Math.PI / 2;
-		} else if (this.ox == -1) {
-			//->
-			this.ry = 0;
-			this.rx = Math.PI;
-			this.rz = -Math.PI / 2;
-		} else if (this.oy == 1) {
-			//v
-			this.ry = 0;
-			this.rx = Math.PI;
-			this.rz = 0;
-		} else if (this.oy == -1) {
-			//^
-			this.ry = 0;
-			this.rx = Math.PI;
-			this.rz = Math.PI;
-		} else {
-			console.warn("lol");
-			this.ry = Math.PI / 4 + Math.random();
-			this.rx = Math.PI / 4 + Math.random();
-			this.rz = Math.PI / 4 + Math.random();
 		}
 	}
 	// lift () {
@@ -333,17 +299,14 @@ class Piece {
 	update() {
 		//console.log(this.px,this.o.rotation.z);
 		/*this.o.position.x = this.px;
-		this.o.position.y = this.py;
-		this.o.position.z = this.pz;
-		this.o.rotation.x = this.rx;
-		this.o.rotation.y = this.ry;
 		this.o.rotation.z = this.rz+Math.sin(Date.now()/500)/5;*/
 		this.o.position.x += (this.px - this.o.position.x) / 20;
 		this.o.position.y += (this.py - this.o.position.y) / 20;
 		this.o.position.z += (this.pz - this.o.position.z) / 20;
-		this.o.rotation.x += (this.rx - this.o.rotation.x) / 20;
-		this.o.rotation.y += (this.ry - this.o.rotation.y) / 20;
-		this.o.rotation.z += (this.rz - this.o.rotation.z) / 20;
+		// this.o.rotation.x += (this.rx - this.o.rotation.x) / 20;
+		// this.o.rotation.y += (this.ry - this.o.rotation.y) / 20;
+		// this.o.rotation.z += (this.rz - this.o.rotation.z) / 20;
+		this.o.quaternion.x += (this.qx - this.o.quaternion.x) / 20;
 		// var axis = new THREE.Vector3(0, -1, 0);
 		// this.o.quaternion.setFromUnitVectors(axis, new THREE.Vector3(this.ox, this.oy, this.oz));
 		if (selectedPiece === this) {
@@ -584,6 +547,6 @@ function takeTurn() {
 
 init();
 animate();
-setTimeout(()=> {
+setTimeout(() => {
 	setInterval(takeTurn, 1000);
 }, 5000);
