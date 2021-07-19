@@ -147,9 +147,8 @@ addEventListener('mousedown', function (e) {
 	} else if (selectedPiece) {
 		if (hoveredSpace) {
 			selectedPiece.moveTo(hoveredSpace.x, hoveredSpace.y, hoveredSpace.z);
-		} else {
-			selectedPiece = null;
 		}
+		selectedPiece = null;
 	}
 }, true);
 
