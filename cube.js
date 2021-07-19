@@ -83,13 +83,12 @@ var pieceMat2 = new THREE.MeshPhysicalMaterial({
 var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x993333));
 var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x333344));
 var hoverDecalMat = new THREE.MeshBasicMaterial({
-	// autocompleted code, might be good/bad
 	color: 0xffffff,
+	emissive: 0xffffff,
 	transparent: true,
-	opacity: 0.5,
-	depthTest: false,
-	depthWrite: false,
-	side: THREE.DoubleSide,
+	map: textureLoader.load('./textures/vintage-symmetric-frame-extrapolated.png'),
+	// depthTest: false,
+	// depthWrite: false,
 });
 
 var hoverDecal;
