@@ -201,7 +201,7 @@ class Piece {
 		this.orientTowardsCube();
 		this.updateRotation();
 		scene.add(this.o);
-		return this.o.piece = this;
+		this.o.piece = this;
 	}
 	moveRelative2D(mx, my) {
 		if (mx === 0 && my === 0)
