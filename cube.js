@@ -86,16 +86,12 @@ var hoverDecalMat = new THREE.MeshStandardMaterial({
 	color: 0xffffff,
 	emissive: 0xffffff,
 	transparent: true,
-	// map: textureLoader.load('./textures/vintage-symmetric-frame-extrapolated.png'),
-	// map: textureLoader.load('./textures/1461572.svg'),
-	// map: textureLoader.load('./textures/1769714.svg'),
-	// map: textureLoader.load('./textures/Decorative-Mandala-VI.png'),
-	// map: textureLoader.load('./textures/flower-frame-1436652825nLe.jpg'),
-	// alphaMap: textureLoader.load('./textures/symmetric-checkerboard-frame.jpg'),
+	// map: textureLoader.load('./textures/vintage-symmetric-frame-extrapolated.png'), // too high detail
+	// alphaMap: textureLoader.load('./textures/symmetric-checkerboard-frame.jpg'), // funny
 	alphaMap: textureLoader.load('./textures/flower-frame-1436652825nLe.jpg'),
 	// depthTest: false,
 	// depthWrite: false,
-	combine: THREE.MultiplyOperation,
+	// combine: THREE.MultiplyOperation,
 });
 
 var hoverDecal;
