@@ -140,6 +140,7 @@ addEventListener('mousemove', function (e) {
 }, true);
 
 addEventListener('mousedown', function (e) {
+	if (e.button !== 0) return;
 	if (hoveredPiece) {
 		console.log(hoveredPiece + "");
 		// hoveredPiece.lift();
