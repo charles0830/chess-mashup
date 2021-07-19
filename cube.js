@@ -300,15 +300,19 @@ class Piece {
 		//console.log(this.px,this.o.rotation.z);
 		/*this.o.position.x = this.px;
 		this.o.rotation.z = this.rz+Math.sin(Date.now()/500)/5;*/
-		this.o.position.x += (this.px - this.o.position.x) / 20;
-		this.o.position.y += (this.py - this.o.position.y) / 20;
-		this.o.position.z += (this.pz - this.o.position.z) / 20;
+		this.o.position.x += (this.targetWorldPosition.x - this.o.position.x) / 20;
+		this.o.position.y += (this.targetWorldPosition.y - this.o.position.y) / 20;
+		this.o.position.z += (this.targetWorldPosition.z - this.o.position.z) / 20;
 		// this.o.rotation.x += (this.rx - this.o.rotation.x) / 20;
 		// this.o.rotation.y += (this.ry - this.o.rotation.y) / 20;
 		// this.o.rotation.z += (this.rz - this.o.rotation.z) / 20;
-		this.o.quaternion.x += (this.qx - this.o.quaternion.x) / 20;
-		// var axis = new THREE.Vector3(0, -1, 0);
-		// this.o.quaternion.setFromUnitVectors(axis, new THREE.Vector3(this.ox, this.oy, this.oz));
+		// this.smoothedTowardsGroundVector.add(this.towardsGroundVector.clone().sub(this.towardsGroundVector).multiplyScalar(0.1));
+		this.smoothedTowardsGroundVector.x += (this.towardsGroundVector.x - this.smoothedTowardsGroundVector.x) / 20;
+		this.smoothedTowardsGroundVector.y += (this.towardsGroundVector.y - this.smoothedTowardsGroundVector.y) / 20;
+		this.smoothedTowardsGroundVector.z += (this.towardsGroundVector.z - this.smoothedTowardsGroundVector.z) / 20;
+		var axis = new THREE.Vector3(0, -1, 0);
+		this.o.quaternion.setFromUnitVectors(axis, this.smoothedTowardsGroundVector);
+		// this.o.quaternion.setFromUnitVectors(axis, this.towardsGroundVector);
 		if (selectedPiece === this) {
 			this.o.rotation.z += Math.sin(Date.now() / 500) / 150;
 		}
