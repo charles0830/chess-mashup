@@ -458,15 +458,10 @@ function animate() {
 				// console.log("cube at ("+o3.x+","+o3.y+","+o3.z+")");
 				hover = intersects[0].face;
 				hoverDecal.visible = true;
-				// hoverDecal.position.copy(m.position);
-				// hoverDecal.rotation.set(m.uv.x, m.uv.y, 0);
-				hoverDecal.position.copy(intersects[0].point).add(intersects[0].face.normal);
-				hoverDecal.position.divideScalar(squareSize).floor().multiplyScalar(squareSize).addScalar(squareSize / 2);
-				// hoverDecal.rotation.set(intersects[0].face.normal.x, intersects[0].face.normal.y, intersects[0].face.normal.z);
-				// hoverDecal.up.copy(intersects[0].face.normal);
+				hoverDecal.position.copy(m.position);
+				hoverDecal.position.add(intersects[0].face.normal.clone().multiplyScalar(squareSize / 2 + 0.01));
 				var axis = new THREE.Vector3(0, 0, 1);
-				hoverDecal.quaternion.setFromUnitVectors(axis, intersects[0].face.normal/*.clone().normalize()*/);
-
+				hoverDecal.quaternion.setFromUnitVectors(axis, intersects[0].face.normal);
 			} else {
 				for (i = 0; i < hover.children.length; i++) {
 					updateMaterial(hover.children[i], true);
