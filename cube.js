@@ -333,7 +333,7 @@ function init() {
 	controls.noPan = true; // panning already doesn't work but this makes it not give state === STATE.PANNING (with my modifications)
 
 	scene = new THREE.Scene();
-	scene.fog = new THREE.FogExp2(0x000000, 0.002);
+	// scene.fog = new THREE.FogExp2(0x000000, 0.002);
 
 	raycaster = new THREE.Raycaster();
 
@@ -406,7 +406,7 @@ function init() {
 	// renderer
 
 	renderer = new THREE.WebGLRenderer();
-	renderer.setClearColor(scene.fog.color, 1);
+	// renderer.setClearColor(scene.fog.color, 1);
 	renderer.setSize(window.innerWidth, window.innerHeight);
 
 	container = document.body;
