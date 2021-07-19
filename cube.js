@@ -197,7 +197,7 @@ Piece = function (x, y, z, team, pieceType) {
 	this.o.position.x = this.px;
 	this.o.position.y = this.py;
 	this.o.position.z = this.pz;
-	this.wrapAroundCube();
+	this.orientTowardsCube();
 	this.updateRotation();
 	scene.add(this.o);
 	return this.o.piece = this;
@@ -227,8 +227,7 @@ Piece.prototype.moveRelative2D = function (mx, my) {
 	// if there's no ground underneath the new position, wrap around the cube
 	// (ox/oy/oz are orientation)
 	if (!cubeAt(x + this.ox, y + this.oy, z + this.oz)) {
-		// ??? why would this be valid/needed? wouldn't this be... not moving?
-		// is this supposed to be gravity??
+		// don't move diagonally off the edge of the board cube
 		if (mx !== 0 && my !== 0) {
 			return false;
 		}
@@ -252,15 +251,12 @@ Piece.prototype.moveTo = function (x, y, z) {
 	this.py = (y - C / 2 + 0.5) * squareSize;
 	this.pz = (z - C / 2 + 0.5) * squareSize;
 
-	this.wrapAroundCube();
-
+	this.orientTowardsCube();
 	this.updateRotation();
 	return true;
 };
 
-// oops, I renamed this wrapAroundCube but the actual wrapping is done in moveTo
-// this just updates the orientation
-Piece.prototype.wrapAroundCube = function () {
+Piece.prototype.orientTowardsCube = function () {
 	if (this.x < 0) {
 		this.ox = 1, this.oy = 0, this.oz = 0;
 	} else if (this.y < 0) {
