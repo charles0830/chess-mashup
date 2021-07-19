@@ -467,12 +467,12 @@ function animate() {
 				var axis = new THREE.Vector3(0, 0, 1);
 				hoverDecal.quaternion.setFromUnitVectors(axis, intersects[0].face.normal);
 				if (m.material === boardMat1) {
-					// hoverDecalMat.color.set(0xffffff);
 					hoverDecalMat.emissive.set(0xffffcc);
 				} else {
-					// hoverDecalMat.color.set(0x000000);
-					hoverDecalMat.emissive.set(0x000033);
+					// hoverDecalMat.emissive.set(0x000000);
+					// hoverDecalMat.emissive.set(0x000033);
 					// hoverDecalMat.emissive.set(0x550a0a); // more within the palette but not enough contrast
+					hoverDecalMat.emissive.set(0x220000);
 				}
 			} else {
 				for (i = 0; i < hover.children.length; i++) {
