@@ -130,7 +130,7 @@ var raycaster;
 var intersects = [];
 var hoveredPiece;
 var hoveredSpace;
-// var selectedPiece;
+var selectedPiece;
 
 var mouse = { x: null, y: null };
 
@@ -143,9 +143,13 @@ addEventListener('mousedown', function (e) {
 	if (hoveredPiece) {
 		console.log(hoveredPiece + "");
 		// hoveredPiece.lift();
-	// 	selectedPiece = hoveredPiece;
-	// } else if (selectedPiece) {
-	// 	selectedPiece.move(hoveredSpace.x, hoveredSpace.y, hoveredSpace.z);
+		selectedPiece = hoveredPiece;
+	} else if (selectedPiece) {
+		if (hoveredSpace) {
+			selectedPiece.moveTo(hoveredSpace.x, hoveredSpace.y, hoveredSpace.z);
+		} else {
+			selectedPiece = null;
+		}
 	}
 }, true);
 
@@ -199,7 +203,7 @@ Piece = function (x, y, z, team, pieceType) {
 	return this.o.piece = this;
 };
 
-Piece.prototype.move = function (mx, my) {
+Piece.prototype.moveRelative2D = function (mx, my) {
 	if (mx === 0 && my === 0) return false;
 	//if(cubeAt(x,y,z))return false;
 	var x, y, z;
@@ -219,11 +223,20 @@ Piece.prototype.move = function (mx, my) {
 		console.warn("Weird orientation...");
 		return false;
 	}
+
+	return this.moveTo(x, y, z);
+};
+
+Piece.prototype.moveTo = function (x, y, z) {
 	if (pieceAt(x, y, z)) return false;
+	// if there's no ground underneath the new position, wrap around the cube
+	// (ox/oy/oz are orientation)
 	if (!cubeAt(x + this.ox, y + this.oy, z + this.oz)) {
-		if (mx !== 0 && my !== 0) {
+		// ??? why would this be valid/needed? wouldn't this be... not moving?
+		// is this supposed to be gravity??
+		// if (mx !== 0 && my !== 0) {
 			return false;
-		}
+		// }
 		x += this.ox;
 		y += this.oy;
 		z += this.oz;
@@ -243,6 +256,8 @@ Piece.prototype.move = function (mx, my) {
 	return true;
 };
 
+// oops, I renamed this wrapAroundCube but the actual wrapping is done in moveTo
+// this just updates the orientation
 Piece.prototype.wrapAroundCube = function () {
 	if (this.x < 0) {
 		this.ox = 1, this.oy = 0, this.oz = 0;
@@ -315,6 +330,9 @@ Piece.prototype.updateRotation = function () {
 		this.rz = Math.PI / 4 + Math.random();
 	}
 };
+// Piece.prototype.lift = function () {
+
+// };
 Piece.prototype.update = function () {
 	//console.log(this.px,this.o.rotation.z);
 	/*this.o.position.x = this.px;
@@ -329,6 +347,9 @@ Piece.prototype.update = function () {
 	this.o.rotation.x += (this.rx - this.o.rotation.x) / 20;
 	this.o.rotation.y += (this.ry - this.o.rotation.y) / 20;
 	this.o.rotation.z += (this.rz - this.o.rotation.z) / 20;
+	if (selectedPiece === this) {
+		this.o.rotation.z += Math.sin(Date.now() / 500) / 150;
+	}
 };
 Piece.prototype.toString = function () {
 	return `${!this.team ? "Red" : "White"} ${this.pieceType} at (${this.x},${this.y},${this.z})`;
@@ -485,7 +506,8 @@ function animate() {
 					// hoverDecalMat.emissive.set(0x220000);
 					// hoverDecalMat.emissive.set(0xffffff);
 				}
-				hoveredSpace = m.position.clone().divideScalar(squareSize).add(intersects[0].face.normal);
+				// hoveredSpace = m.position.clone().divideScalar(squareSize).add(intersects[0].face.normal);
+				hoveredSpace = m.position.clone().divideScalar(squareSize).floor();
 			} else {
 				hoveredPiece = m.parent.piece;
 			}
@@ -538,13 +560,12 @@ function pieceAt(x, y, z) {
 
 function takeTurn() {
 	//AI!
-	var team = turn;
 	turn = !turn;
 	var timeout = 100;
 	while (timeout--) {
 		var p = pieces[Math.floor(Math.random() * pieces.length)];
 		if (p.team == turn && Math.random() < 4) {
-			if (p.move(r(), r())) {
+			if (p.moveRelative2D(r(), r())) {
 				return true;
 			}
 		}
@@ -559,18 +580,6 @@ function takeTurn() {
 
 init();
 animate();
-setTimeout(function () {
-	setInterval(
-		takeTurn ||
-		function () {
-			//AI!
-			for (var i = 0; i < pieces.length; i++) {
-				var p = pieces[i];
-				p.move(r(), r());
-				//p.move((i%3)-1,((i*2)%3)-1);
-			}
-			function r() {
-				return Math.floor(Math.random() * 3) - 1;
-			}
-		}, 1000);
+setTimeout(()=> {
+	setInterval(takeTurn, 1000);
 }, 5000);
