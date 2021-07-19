@@ -326,12 +326,25 @@ function init() {
 
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
 	camera.position.z = 500;
+	camera.near = 0.1;
+	camera.far = 1000;
 
 	controls = new THREE.CubeControls(camera);
 	controls.noPan = true; // panning already doesn't work but this makes it not give state === STATE.PANNING (with my modifications)
 
 	scene = new THREE.Scene();
 	// scene.fog = new THREE.FogExp2(0x000000, 0.002);
+
+	let theme = "default";
+	try {
+		theme = localStorage.getItem("3d-theme");
+	} catch (e) {
+		console.warn("Couldn't read 3d-theme from local storage");
+	}
+	if (theme === "wireframe") {
+		scene.overrideMaterial = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true })
+		scene.fog = new THREE.FogExp2(0x000000, 0.003);
+	}
 
 	raycaster = new THREE.Raycaster();
 
