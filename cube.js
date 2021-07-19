@@ -83,7 +83,7 @@ var pieceMat2 = new THREE.MeshPhysicalMaterial({
 var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x993333));
 var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x333344));
 var hoverDecalMat = new THREE.MeshStandardMaterial({
-	color: 0xffffff,
+	color: 0x000000,
 	emissive: 0xffffff,
 	transparent: true,
 	// map: textureLoader.load('./textures/vintage-symmetric-frame-extrapolated.png'), // too high detail
@@ -466,6 +466,14 @@ function animate() {
 				hoverDecal.position.add(intersects[0].face.normal.clone().multiplyScalar(squareSize / 2 + 0.01));
 				var axis = new THREE.Vector3(0, 0, 1);
 				hoverDecal.quaternion.setFromUnitVectors(axis, intersects[0].face.normal);
+				if (m.material === boardMat1) {
+					// hoverDecalMat.color.set(0xffffff);
+					hoverDecalMat.emissive.set(0xffffcc);
+				} else {
+					// hoverDecalMat.color.set(0x000000);
+					hoverDecalMat.emissive.set(0x000033);
+					// hoverDecalMat.emissive.set(0x550a0a); // more within the palette but not enough contrast
+				}
 			} else {
 				for (i = 0; i < hover.children.length; i++) {
 					updateMaterial(hover.children[i], true);
