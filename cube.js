@@ -111,13 +111,18 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 	stlLoader.load(
 		url,
 		resolve, // Success callback
-		(xhr) => {
+		(progressEvent) => {
 			// Progress callback
+			// console.log(`${url}: ${Math.floor(progressEvent.loaded / progressEvent.total * 100)}%`);
 		},
-		(xhr) => {
-			// Failure callback
-			// Reject the promise with the failure
-			reject(new Error('Could not load ' + url));
+		(errorOrEvent) => {
+			// Failure callback, gets a ProgressEvent in case of a file download failure
+			if (errorOrEvent instanceof Error) {
+				reject(errorOrEvent);
+			} else {
+				const xhr = errorOrEvent.currentTarget;
+				reject(new Error(`Could not load ${url}: ${xhr.status} ${xhr.statusText}`));
+			}
 		}
 	);
 }));
@@ -177,7 +182,7 @@ class Piece {
 		this.pieceType = pieceType || "pawn";
 		this.o = new THREE.Object3D();
 		const mat = !team ? pieceMat1 : pieceMat2;
-		const tempGeometry = new THREE.CylinderGeometry(11, 10, 2, 15, 1, false);
+		const tempGeometry = new THREE.CylinderGeometry(10, 10, 30, 15, 1, false);
 		const tempMesh = new THREE.Mesh(tempGeometry, mat);
 		this.o.add(tempMesh);
 		raycastTargets.push(tempMesh);
