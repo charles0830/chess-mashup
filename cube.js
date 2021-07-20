@@ -9,11 +9,11 @@ const raycastTargets = []; // don't want to include certain objects like hoverDe
 const cubes = [];
 let cubeObject3D;
 const pieces = [];
-const col1 = 0xaf0000;
-const col2 = 0xffffff;
+const color1 = 0xaf0000;
+const color2 = 0xffffff;
 
 const squareSize = 30;
-const cube = new THREE.BoxGeometry(squareSize, squareSize, squareSize);
+const cubeGeometry = new THREE.BoxGeometry(squareSize, squareSize, squareSize);
 
 const textureLoader = new THREE.TextureLoader();
 
@@ -25,14 +25,14 @@ reflectionTexture.encoding = THREE.sRGBEncoding;
 
 /*const material1 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble2.jpg'),
-	color:col1, ambient:col1, opacity: 0.7, transparent: true
+	color:color1, ambient:color1, opacity: 0.7, transparent: true
 });
 const material2 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble1'),
-	color:col2, ambient:col2, opacity: 0.7, transparent: true
+	color:color2, ambient:color2, opacity: 0.7, transparent: true
 });*/
 const boardMat1 = new THREE.MeshPhysicalMaterial({
-	color: col1,
+	color: color1,
 	roughness: 0.2,
 	metalness: 0.1,
 	transmission: 0.5,
@@ -43,7 +43,7 @@ const boardMat1 = new THREE.MeshPhysicalMaterial({
 	// map: marbleTexture,
 });
 const boardMat2 = new THREE.MeshPhysicalMaterial({
-	color: col2,
+	color: color2,
 	roughness: 0.2,
 	metalness: 0.4,
 	transmission: 0.5,
@@ -57,21 +57,21 @@ const boardMat2 = new THREE.MeshPhysicalMaterial({
 // const pieceMat1 = new THREE.MeshLambertMaterial({
 // 	color: 0xffffff,
 // 	emissive: 0xd48a8a,
-// 	ambient: col1,
-// 	shading: THREE.SmoothShading,
-// 	shininess: 100.0,
+// 	ambient: color1,
+// 	shininess: 1.0,
 // 	specular: 0xfbbbbb,
-// 	map: textureLoader.load('./Seamless-White-Marble-Texture.webp'),
+// 	// map: textureLoader.load('./Seamless-White-Marble-Texture.webp'),
+// 	envMap: reflectionTexture,
 // });
 const pieceMat1 = new THREE.MeshPhysicalMaterial({
-	color: col1,
+	color: color1,
 	roughness: 0.2,
 	metalness: 0.4,
 	envMap: reflectionTexture,
 	envMapIntensity: 10,
 });
 const pieceMat2 = new THREE.MeshPhysicalMaterial({
-	color: col2,
+	color: color2,
 	// emissive: 0x3f3f3f,
 	roughness: 0.2,
 	metalness: 0.4,
@@ -341,7 +341,7 @@ function init() {
 		for (let y = 0; y < C; y++) {
 			cubes[x][y] = [];
 			for (let z = 0; z < C; z++) {
-				const mesh = new THREE.Mesh(cube, ((x + y + z) % 2) ? boardMat1 : boardMat2);
+				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat2);
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
@@ -438,7 +438,7 @@ function animate() {
 		if (intersects.length > 0) {
 			const m = intersects[0].object;
 			// TODO: hover space via piece or visa-versa, depending on state of the game (selecting piece, moving piece)
-			if (m.geometry == cube) {
+			if (m.geometry == cubeGeometry) {
 				hoverDecal.visible = true;
 				hoverDecal.position.copy(m.position);
 				hoverDecal.position.add(intersects[0].face.normal.clone().multiplyScalar(squareSize / 2 + 0.01));
