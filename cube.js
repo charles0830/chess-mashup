@@ -149,7 +149,7 @@ addEventListener('mousedown', function (e) {
 		selectedPiece = hoveredPiece;
 	} else if (selectedPiece) {
 		if (hoveredSpace) {
-			selectedPiece.moveTo(hoveredSpace.x, hoveredSpace.y, hoveredSpace.z);
+			selectedPiece.moveTo(hoveredSpace);
 		}
 		selectedPiece = null;
 	}
@@ -219,49 +219,11 @@ class Piece {
 	get z() {
 		return this.gamePosition.z;
 	}
-	moveRelative2D(mx, my) {
-		if (mx === 0 && my === 0)
-			return false;
-		//if(cubeAt(x,y,z))return false;
-		let x, y, z;
-		if (this.ox === 0 && this.oy === 0) {
-			z = this.z;
-			x = this.x + mx;
-			y = this.y + my;
-		} else if (this.ox === 0 && this.oz === 0) {
-			y = this.y;
-			x = this.x + mx;
-			z = this.z + my;
-		} else if (this.oz === 0 && this.oy === 0) {
-			x = this.x;
-			z = this.z + mx;
-			y = this.y + my;
-		} else {
-			console.warn("Weird orientation...");
-			return false;
-		}
-
-		// if there's no ground underneath the new position, wrap around the cube
-		// (ox/oy/oz are orientation)
-		if (!cubeAt(x + this.ox, y + this.oy, z + this.oz)) {
-			// don't move diagonally off the edge of the board cube
-			if (mx !== 0 && my !== 0) {
-				return false;
-			}
-			x += this.ox;
-			y += this.oy;
-			z += this.oz;
-			//this.rx += mx * Math.PI/2;
-			//this.rz -= my * Math.PI/2;
-		}
-
-		return this.moveTo(x, y, z);
-	}
-	moveTo(x, y, z) {
-		if (pieceAt(x, y, z))
+	moveTo(gamePosition) {
+		if (pieceAtGamePosition(gamePosition))
 			return false; // TODO: allow capturing
 
-		this.gamePosition.set(x, y, z);
+		this.gamePosition.copy(gamePosition);
 		this.targetWorldPosition = gameToWorldSpace(this.gamePosition);
 
 		this.orientTowardsCube();
@@ -460,18 +422,45 @@ function animate() {
 	renderer.render(scene, camera);
 }
 
-function cubeAt(x, y, z) {
+function cubeAtGamePosition(gamePosition) {
+	const { x, y, z } = gamePosition;
 	if (x < 0 || y < 0 || z < 0) return false;
 	if (x >= C || y >= C || z >= C) return false;
 	return true;
 }
-function pieceAt(x, y, z) {
-	for (let i = 0; i < pieces.length; i++) {
-		if (pieces[i].x == x && pieces[i].y == y && pieces[i].z == z) {
-			return true;
-		}
+function pieceAtGamePosition(gamePosition) {
+	return pieces.find((piece) => piece.gamePosition.equals(gamePosition));
+}
+
+function get3DPositionsFrom2DRelativeMove(startingPos, towardsGroundVector, deltaX, deltaY) {
+	if (deltaX === 0 && deltaY === 0)
+		return [];
+	// if (cubeAt(startingPos)) return [];
+	let pos = startingPos.clone();
+	if (towardsGroundVector.x === 0 && towardsGroundVector.y === 0) {
+		pos.x += deltaX;
+		pos.y += deltaY;
+	} else if (towardsGroundVector.x === 0 && towardsGroundVector.z === 0) {
+		pos.x += deltaX;
+		pos.z += deltaY;
+	} else if (towardsGroundVector.z === 0 && towardsGroundVector.y === 0) {
+		pos.z += deltaX;
+		pos.y += deltaY;
+	} else {
+		console.warn("Weird orientation...");
+		return [];
 	}
-	return false;
+
+	// if there's no ground underneath the new position, wrap around the cube
+	if (!cubeAtGamePosition(pos.clone().add(towardsGroundVector))) {
+		// don't move diagonally off the edge of the board cube
+		if (deltaX !== 0 && deltaY !== 0) {
+			return [];
+		}
+		pos.add(towardsGroundVector);
+	}
+
+	return [pos];
 }
 
 function getMoves2D(piece) {
@@ -514,8 +503,12 @@ function takeTurn() {
 			const moves = getMoves2D(piece);
 			shuffle(moves);
 			for (const move of moves) {
-				if (piece.moveRelative2D(...move)) {
-					return true;
+				const newPositions = get3DPositionsFrom2DRelativeMove(piece.gamePosition, piece.towardsGroundVector, move[0], move[1]);
+				shuffle(newPositions);
+				for (const newPosition of newPositions) {
+					if (piece.moveTo(newPosition)) {
+						return true;
+					}
 				}
 			}
 		}
