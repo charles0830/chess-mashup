@@ -126,15 +126,19 @@ let hoverDecalMat = new THREE.MeshStandardMaterial({
 	fog: false,
 });
 
-if (theme === "wireframe") {
+if (theme === "wireframe" || theme === "perf") {
 	color1 = 0xffffff;
 	color2 = 0xff0000;
 	boardMat1 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true });
 	boardMat2 = new THREE.MeshBasicMaterial({ color: "green", wireframe: true });
 	// boardMat1 = new THREE.MeshBasicMaterial({ color: "white", wireframe: true });
 	// boardMat2 = new THREE.MeshBasicMaterial({ color: "black", wireframe: true });
-	// boardMat1 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true  });
-	// boardMat2 = new THREE.MeshBasicMaterial({ color: "green", transparent: true, opacity: 0.5});
+	if (theme === "perf") {
+		// boardMat1 = new THREE.MeshBasicMaterial({ color: "lime" });
+		// boardMat2 = new THREE.MeshBasicMaterial({ color: "green" });
+		boardMat1 = new THREE.MeshBasicMaterial({ color: 0xaa0000 });
+		boardMat2 = new THREE.MeshBasicMaterial({ color: 0xcccccc });
+	}
 	pieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true });
 	pieceMat2 = new THREE.MeshBasicMaterial({ color: color2, wireframe: true });
 	hoveredPieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true, fog: false });
@@ -343,7 +347,7 @@ function init() {
 	scene = new THREE.Scene();
 	// scene.fog = new THREE.FogExp2(0x000000, 0.002);
 
-	if (theme === "wireframe") {
+	if (theme === "wireframe" || theme === "perf") {
 		scene.fog = new THREE.FogExp2(0x000000, 0.002);
 	}
 
