@@ -1,37 +1,37 @@
 
 if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-var container, stats,
+let container, stats,
 	camera, controls,
 	scene, renderer;
-var raycastTargets = []; // don't want to include certain objects like hoverDecal, so we can't just use scene.children
+const raycastTargets = []; // don't want to include certain objects like hoverDecal, so we can't just use scene.children
 
-var cubes = [];
-var cubeObject3D;
-var pieces = [];
-var col1 = 0xaf0000;
-var col2 = 0xffffff;
+const cubes = [];
+let cubeObject3D;
+const pieces = [];
+const col1 = 0xaf0000;
+const col2 = 0xffffff;
 
-var squareSize = 30;
-var cube = new THREE.BoxGeometry(squareSize, squareSize, squareSize);
+const squareSize = 30;
+const cube = new THREE.BoxGeometry(squareSize, squareSize, squareSize);
 
 const textureLoader = new THREE.TextureLoader();
 
 // const marbleTexture = textureLoader.load("textures/Seamless-White-Marble-Texture.webp");
 
-var reflectionTexture = textureLoader.load('textures/2294472375_24a3b8ef46_o.jpg');
+const reflectionTexture = textureLoader.load('textures/2294472375_24a3b8ef46_o.jpg');
 reflectionTexture.mapping = THREE.EquirectangularReflectionMapping;
 reflectionTexture.encoding = THREE.sRGBEncoding;
 
-/*var material1 = new THREE.MeshLambertMaterial({
+/*const material1 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble2.jpg'),
 	color:col1, ambient:col1, opacity: 0.7, transparent: true
 });
-var material2 = new THREE.MeshLambertMaterial({
+const material2 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble1'),
 	color:col2, ambient:col2, opacity: 0.7, transparent: true
 });*/
-var boardMat1 = new THREE.MeshPhysicalMaterial({
+const boardMat1 = new THREE.MeshPhysicalMaterial({
 	color: col1,
 	roughness: 0.2,
 	metalness: 0.1,
@@ -42,7 +42,7 @@ var boardMat1 = new THREE.MeshPhysicalMaterial({
 	envMapIntensity: 40,
 	// map: marbleTexture,
 });
-var boardMat2 = new THREE.MeshPhysicalMaterial({
+const boardMat2 = new THREE.MeshPhysicalMaterial({
 	color: col2,
 	roughness: 0.2,
 	metalness: 0.4,
@@ -54,7 +54,7 @@ var boardMat2 = new THREE.MeshPhysicalMaterial({
 	// map: marbleTexture,
 });
 
-// var pieceMat1 = new THREE.MeshLambertMaterial({
+// const pieceMat1 = new THREE.MeshLambertMaterial({
 // 	color: 0xffffff,
 // 	emissive: 0xd48a8a,
 // 	ambient: col1,
@@ -63,14 +63,14 @@ var boardMat2 = new THREE.MeshPhysicalMaterial({
 // 	specular: 0xfbbbbb,
 // 	map: textureLoader.load('./Seamless-White-Marble-Texture.webp'),
 // });
-var pieceMat1 = new THREE.MeshPhysicalMaterial({
+const pieceMat1 = new THREE.MeshPhysicalMaterial({
 	color: col1,
 	roughness: 0.2,
 	metalness: 0.4,
 	envMap: reflectionTexture,
 	envMapIntensity: 10,
 });
-var pieceMat2 = new THREE.MeshPhysicalMaterial({
+const pieceMat2 = new THREE.MeshPhysicalMaterial({
 	color: col2,
 	// emissive: 0x3f3f3f,
 	roughness: 0.2,
@@ -79,11 +79,11 @@ var pieceMat2 = new THREE.MeshPhysicalMaterial({
 	envMapIntensity: 10,
 });
 
-// var hoveredBoardMat1 = boardMat1.clone(); hoveredBoardMat1.emissive.add(new THREE.Color(0x000000));
-// var hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.emissive.add(new THREE.Color(0x000000));
-var hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x993333));
-var hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x333344));
-var hoverDecalMat = new THREE.MeshStandardMaterial({
+// const hoveredBoardMat1 = boardMat1.clone(); hoveredBoardMat1.emissive.add(new THREE.Color(0x000000));
+// const hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.emissive.add(new THREE.Color(0x000000));
+const hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x993333));
+const hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x333344));
+const hoverDecalMat = new THREE.MeshStandardMaterial({
 	color: 0xffffff,
 	emissive: 0x442200,
 	transparent: true,
@@ -96,7 +96,7 @@ var hoverDecalMat = new THREE.MeshStandardMaterial({
 	// combine: THREE.MultiplyOperation,
 });
 
-var hoverDecal;
+const hoverDecal = new THREE.Mesh(new THREE.PlaneBufferGeometry(squareSize, squareSize), hoverDecalMat);
 
 const stlLoader = new THREE.STLLoader();
 const pieceTypes = [
@@ -123,16 +123,16 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 	);
 }));
 
-var C = 8; // metacube board size in cubes/squares/cells
+const C = 8; // metacube board size in cubes/squares/cells
 
-var turn = false;
-var raycaster;
-var intersects = [];
-var hoveredPiece;
-var hoveredSpace;
-var selectedPiece;
+let turn = false;
+let raycaster;
+const intersects = [];
+let hoveredPiece;
+let hoveredSpace;
+let selectedPiece;
 
-var mouse = { x: null, y: null };
+const mouse = { x: null, y: null };
 
 addEventListener('mousemove', function (e) {
 	mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -177,13 +177,13 @@ class Piece {
 		this.team = team;
 		this.pieceType = pieceType || "pawn";
 		this.o = new THREE.Object3D();
-		var mat = !team ? pieceMat1 : pieceMat2;
-		var tempGeometry = new THREE.CylinderGeometry(11, 10, 2, 15, 1, false);
-		var tempMesh = new THREE.Mesh(tempGeometry, mat);
+		const mat = !team ? pieceMat1 : pieceMat2;
+		const tempGeometry = new THREE.CylinderGeometry(11, 10, 2, 15, 1, false);
+		const tempMesh = new THREE.Mesh(tempGeometry, mat);
 		this.o.add(tempMesh);
 		raycastTargets.push(tempMesh);
 		geometryPromises[Math.max(0, pieceTypes.indexOf(this.pieceType))].then((geometry) => {
-			var mesh = new THREE.Mesh(geometry, mat);
+			const mesh = new THREE.Mesh(geometry, mat);
 			this.o.add(mesh);
 			this.o.remove(tempMesh);
 			raycastTargets.push(mesh);
@@ -219,7 +219,7 @@ class Piece {
 		if (mx === 0 && my === 0)
 			return false;
 		//if(cubeAt(x,y,z))return false;
-		var x, y, z;
+		let x, y, z;
 		if (this.ox === 0 && this.oy === 0) {
 			z = this.z;
 			x = this.x + mx;
@@ -341,7 +341,7 @@ function init() {
 		for (let y = 0; y < C; y++) {
 			cubes[x][y] = [];
 			for (let z = 0; z < C; z++) {
-				var mesh = new THREE.Mesh(cube, ((x + y + z) % 2) ? boardMat1 : boardMat2);
+				const mesh = new THREE.Mesh(cube, ((x + y + z) % 2) ? boardMat1 : boardMat2);
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
@@ -353,10 +353,10 @@ function init() {
 		}
 	}
 	scene.add(cubeObject3D);
-	hoverDecal = new THREE.Mesh(new THREE.PlaneBufferGeometry(squareSize, squareSize), hoverDecalMat);
 	scene.add(hoverDecal);
-	//pieces
-	var pieceLocations = [
+
+	// pieces
+	const pieceLocations = [
 		[1, 1],
 		[1, C - 2],
 		[C - 2, 1],
@@ -378,7 +378,7 @@ function init() {
 	}
 
 	// lighting
-	var ambientLight = new THREE.AmbientLight(0xeeeeee);
+	const ambientLight = new THREE.AmbientLight(0xeeeeee);
 	scene.add(ambientLight);
 
 
@@ -436,22 +436,14 @@ function animate() {
 		raycaster.intersectObjects(raycastTargets, false, intersects);
 
 		if (intersects.length > 0) {
-			var m = intersects[0].object;
+			const m = intersects[0].object;
 			// TODO: hover space via piece or visa-versa, depending on state of the game (selecting piece, moving piece)
 			if (m.geometry == cube) {
-				// console.log("cube at ("+o3.x+","+o3.y+","+o3.z+")");
 				hoverDecal.visible = true;
 				hoverDecal.position.copy(m.position);
 				hoverDecal.position.add(intersects[0].face.normal.clone().multiplyScalar(squareSize / 2 + 0.01));
-				var axis = new THREE.Vector3(0, 0, 1);
+				const axis = new THREE.Vector3(0, 0, 1);
 				hoverDecal.quaternion.setFromUnitVectors(axis, intersects[0].face.normal);
-				if (m.material === boardMat1) {
-					// hoverDecalMat.emissive.set(0xffffcc);
-					// hoverDecalMat.emissive.set(0xffccaa);
-				} else {
-					// hoverDecalMat.emissive.set(0x220000);
-					// hoverDecalMat.emissive.set(0xffffff);
-				}
 				hoveredSpace = new THREE.Vector3().addVectors(m.gamePosition, intersects[0].face.normal);
 			} else {
 				hoveredPiece = m.parent.piece;
@@ -485,9 +477,9 @@ function pieceAt(x, y, z) {
 function takeTurn() {
 	//AI!
 	turn = !turn;
-	var timeout = 100;
+	let timeout = 100;
 	while (timeout--) {
-		var p = pieces[Math.floor(Math.random() * pieces.length)];
+		const p = pieces[Math.floor(Math.random() * pieces.length)];
 		if (p.team == turn && Math.random() < 4) {
 			if (p.moveRelative2D(r(), r())) {
 				return true;
