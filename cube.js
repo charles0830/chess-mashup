@@ -110,7 +110,12 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 	const url = `models/classic_${pieceType}.stl`;
 	stlLoader.load(
 		url,
-		resolve, // Success callback
+		(geometry) => { // Success callback
+			geometry = THREE.BufferGeometryUtils.mergeVertices(geometry, 0.8);
+			geometry.computeVertexNormals();
+			// geometry.computeFaceNormals();
+			resolve(geometry);
+		},
 		(progressEvent) => {
 			// Progress callback
 			// console.log(`${url}: ${Math.floor(progressEvent.loaded / progressEvent.total * 100)}%`);
