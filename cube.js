@@ -295,6 +295,14 @@ class Piece {
 			this.o.position.add(this.towardsGroundVector.clone().multiplyScalar(-0.5));
 		}
 	}
+	updateHovering(hovering) {
+		const mesh = this.o.children[0];
+		if (!this.team) {
+			mesh.material = !hovering ? pieceMat1 : hoveredPieceMat1;
+		} else {
+			mesh.material = !hovering ? pieceMat2 : hoveredPieceMat2;
+		}
+	}
 	toString() {
 		return `${!this.team ? "Red" : "White"} ${this.pieceType} at (${this.x},${this.y},${this.z})`;
 	}
@@ -416,10 +424,7 @@ function animate() {
 
 	// clear hover state of previously hovered piece
 	if (hoveredPiece) {
-		for (let i = 0; i < hoveredPiece.o.children.length; i++) {
-			updateMaterial(hoveredPiece.o.children[i], false);
-		}
-		hoveredPiece.hovering = false;
+		hoveredPiece.updateHovering(false);
 	}
 	hoveredPiece = null;
 
@@ -460,32 +465,11 @@ function animate() {
 	}
 
 	if (hoveredPiece) {
-		for (let i = 0; i < hoveredPiece.o.children.length; i++) {
-			updateMaterial(hoveredPiece.o.children[i], true);
-		}
-		hoveredPiece.hovering = true;
+		hoveredPiece.updateHovering(true);
 	}
 	document.body.style.cursor = hoveredPiece ? 'pointer' : 'default';
 
 	renderer.render(scene, camera);
-}
-
-
-function updateMaterial(m, hovering) {
-	if (m.geometry == cube) {
-		// using a decal instead
-		// if (m.material == boardMat1 || m.material == hoveredBoardMat1) {
-		// 	m.material = !hovering ? boardMat1 : hoveredBoardMat1;
-		// } else {
-		// 	m.material = !hovering ? boardMat2 : hoveredBoardMat2;
-		// }
-	} else {
-		if (m.material == pieceMat1 || m.material == hoveredPieceMat1) {
-			m.material = !hovering ? pieceMat1 : hoveredPieceMat1;
-		} else {
-			m.material = !hovering ? pieceMat2 : hoveredPieceMat2;
-		}
-	}
 }
 
 function cubeAt(x, y, z) {
