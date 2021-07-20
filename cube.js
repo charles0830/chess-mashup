@@ -326,6 +326,7 @@ class Piece {
 		// this.o.quaternion.setFromUnitVectors(axis, this.towardsGroundVector);
 		if (selectedPiece === this) {
 			this.o.rotation.z += Math.sin(Date.now() / 500) / 150;
+			this.o.position.add(this.towardsGroundVector.clone().multiplyScalar(-0.5));
 		}
 	}
 	toString() {
