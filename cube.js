@@ -111,7 +111,11 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 	stlLoader.load(
 		url,
 		(geometry) => { // Success callback
-			geometry = THREE.BufferGeometryUtils.mergeVertices(geometry, 0.8);
+			geometry.deleteAttribute("normal");
+			// geometry.deleteAttribute("uv");
+			// geometry.deleteAttribute("uv2");
+			// geometry.deleteAttribute("tangent");
+			geometry = THREE.BufferGeometryUtils.mergeVertices(geometry);
 			geometry.computeVertexNormals();
 			// geometry.computeFaceNormals();
 			resolve(geometry);
