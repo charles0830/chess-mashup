@@ -179,7 +179,7 @@ class Piece {
 	constructor(x, y, z, team, pieceType) {
 		this.gamePosition = new THREE.Vector3(x, y, z);
 		this.targetWorldPosition = gameToWorldSpace(this.gamePosition);
-		// this.targetOrientation = new THREE.Quaternion();
+		this.targetOrientation = new THREE.Quaternion();
 		this.towardsGroundVector = new THREE.Vector3();
 		this.smoothedTowardsGroundVector = new THREE.Vector3();
 		this.team = team;
@@ -293,6 +293,10 @@ class Piece {
 		} else {
 			console.warn("Weird! IDK!");
 		}
+		this.targetOrientation.setFromUnitVectors(
+			new THREE.Vector3(0, -1, 0),
+			this.towardsGroundVector.clone(),
+		);
 	}
 	// lift () {
 	// }
@@ -307,11 +311,18 @@ class Piece {
 		// this.o.rotation.y += (this.ry - this.o.rotation.y) / 20;
 		// this.o.rotation.z += (this.rz - this.o.rotation.z) / 20;
 		// this.smoothedTowardsGroundVector.add(this.towardsGroundVector.clone().sub(this.towardsGroundVector).multiplyScalar(0.1));
-		this.smoothedTowardsGroundVector.x += (this.towardsGroundVector.x - this.smoothedTowardsGroundVector.x) / 20;
-		this.smoothedTowardsGroundVector.y += (this.towardsGroundVector.y - this.smoothedTowardsGroundVector.y) / 20;
-		this.smoothedTowardsGroundVector.z += (this.towardsGroundVector.z - this.smoothedTowardsGroundVector.z) / 20;
-		var axis = new THREE.Vector3(0, -1, 0);
-		this.o.quaternion.setFromUnitVectors(axis, this.smoothedTowardsGroundVector);
+		// this.smoothedTowardsGroundVector.x += (this.towardsGroundVector.x - this.smoothedTowardsGroundVector.x) / 20;
+		// this.smoothedTowardsGroundVector.y += (this.towardsGroundVector.y - this.smoothedTowardsGroundVector.y) / 20;
+		// this.smoothedTowardsGroundVector.z += (this.towardsGroundVector.z - this.smoothedTowardsGroundVector.z) / 20;
+		// this.o.quaternion.x += (this.targetOrientation.x - this.o.quaternion.x) / 20;
+		// this.o.quaternion.y += (this.targetOrientation.y - this.o.quaternion.y) / 20;
+		// this.o.quaternion.z += (this.targetOrientation.z - this.o.quaternion.z) / 20;
+		// this.o.quaternion.w += (this.targetOrientation.w - this.o.quaternion.w) / 20;
+		this.o.quaternion.slerp(this.targetOrientation, 1/20);
+		// this.o.quaternion.rotateTowards(this.targetOrientation, 0.05);
+
+		// var axis = new THREE.Vector3(0, -1, 0);
+		// this.o.quaternion.setFromUnitVectors(axis, this.smoothedTowardsGroundVector);
 		// this.o.quaternion.setFromUnitVectors(axis, this.towardsGroundVector);
 		if (selectedPiece === this) {
 			this.o.rotation.z += Math.sin(Date.now() / 500) / 150;
