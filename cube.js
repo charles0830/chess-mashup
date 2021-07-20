@@ -257,6 +257,7 @@ class Piece {
 		});
 		this.o.position.copy(this.targetWorldPosition);
 		this.orientTowardsCube();
+		this.o.quaternion.copy(this.targetOrientation);
 		scene.add(this.o);
 		this.o.piece = this;
 	}
