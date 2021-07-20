@@ -142,8 +142,6 @@ addEventListener('mousemove', function (e) {
 addEventListener('mousedown', function (e) {
 	if (e.button !== 0) return;
 	if (hoveredPiece) {
-		console.log(hoveredPiece + "");
-		// hoveredPiece.lift();
 		selectedPiece = hoveredPiece;
 	} else if (selectedPiece) {
 		if (hoveredSpace) {
@@ -163,16 +161,11 @@ addEventListener('blur', function (e) {
 	mouse.y = null;
 }, true);
 
-function worldToGameSpace(worldPosition) {
-	return worldPosition.clone().divide(squareSize).floor();
-}
+// function worldToGameSpace(worldPosition) {
+// 	return worldPosition.clone().divideScalar(squareSize).floor();
+// }
 function gameToWorldSpace(gamePosition) {
-	// return gamePosition.clone().multiply(squareSize);//.add(new THREE.Vector3(0.5, 0.5, 0.5));
-	return new THREE.Vector3(
-		(gamePosition.x - (C - 1) / 2) * squareSize,
-		(gamePosition.y - (C - 1) / 2) * squareSize,
-		(gamePosition.z - (C - 1) / 2) * squareSize
-	);
+	return gamePosition.clone().subScalar((C - 1) / 2).multiplyScalar(squareSize);
 }
 
 class Piece {
@@ -181,7 +174,6 @@ class Piece {
 		this.targetWorldPosition = gameToWorldSpace(this.gamePosition);
 		this.targetOrientation = new THREE.Quaternion();
 		this.towardsGroundVector = new THREE.Vector3();
-		this.smoothedTowardsGroundVector = new THREE.Vector3();
 		this.team = team;
 		this.pieceType = pieceType || "pawn";
 		this.o = new THREE.Object3D();
@@ -273,57 +265,31 @@ class Piece {
 	}
 	orientTowardsCube() {
 		if (this.x < 0) {
-			// this.ox = 1, this.oy = 0, this.oz = 0;
 			this.towardsGroundVector.set(1, 0, 0);
 		} else if (this.y < 0) {
-			// this.oy = 1, this.ox = 0, this.oz = 0;
 			this.towardsGroundVector.set(0, 1, 0);
 		} else if (this.z < 0) {
-			// this.oz = 1, this.oy = 0, this.ox = 0;
 			this.towardsGroundVector.set(0, 0, 1);
 		} else if (this.x >= C) {
-			// this.ox = -1, this.oy = 0, this.oz = 0;
 			this.towardsGroundVector.set(-1, 0, 0);
 		} else if (this.y >= C) {
-			// this.oy = -1, this.ox = 0, this.oz = 0;
 			this.towardsGroundVector.set(0, -1, 0);
 		} else if (this.z >= C) {
-			// this.oz = -1, this.oy = 0, this.ox = 0;
 			this.towardsGroundVector.set(0, 0, -1);
 		} else {
-			console.warn("Weird! IDK!");
+			console.warn("Oh no, piece is inside cube!");
 		}
 		this.targetOrientation.setFromUnitVectors(
 			new THREE.Vector3(0, -1, 0),
 			this.towardsGroundVector.clone(),
 		);
 	}
-	// lift () {
-	// }
 	update() {
-		//console.log(this.px,this.o.rotation.z);
-		/*this.o.position.x = this.px;
-		this.o.rotation.z = this.rz+Math.sin(Date.now()/500)/5;*/
 		this.o.position.x += (this.targetWorldPosition.x - this.o.position.x) / 20;
 		this.o.position.y += (this.targetWorldPosition.y - this.o.position.y) / 20;
 		this.o.position.z += (this.targetWorldPosition.z - this.o.position.z) / 20;
-		// this.o.rotation.x += (this.rx - this.o.rotation.x) / 20;
-		// this.o.rotation.y += (this.ry - this.o.rotation.y) / 20;
-		// this.o.rotation.z += (this.rz - this.o.rotation.z) / 20;
-		// this.smoothedTowardsGroundVector.add(this.towardsGroundVector.clone().sub(this.towardsGroundVector).multiplyScalar(0.1));
-		// this.smoothedTowardsGroundVector.x += (this.towardsGroundVector.x - this.smoothedTowardsGroundVector.x) / 20;
-		// this.smoothedTowardsGroundVector.y += (this.towardsGroundVector.y - this.smoothedTowardsGroundVector.y) / 20;
-		// this.smoothedTowardsGroundVector.z += (this.towardsGroundVector.z - this.smoothedTowardsGroundVector.z) / 20;
-		// this.o.quaternion.x += (this.targetOrientation.x - this.o.quaternion.x) / 20;
-		// this.o.quaternion.y += (this.targetOrientation.y - this.o.quaternion.y) / 20;
-		// this.o.quaternion.z += (this.targetOrientation.z - this.o.quaternion.z) / 20;
-		// this.o.quaternion.w += (this.targetOrientation.w - this.o.quaternion.w) / 20;
-		this.o.quaternion.slerp(this.targetOrientation, 1/20);
+		this.o.quaternion.slerp(this.targetOrientation, 1 / 20);
 		// this.o.quaternion.rotateTowards(this.targetOrientation, 0.05);
-
-		// var axis = new THREE.Vector3(0, -1, 0);
-		// this.o.quaternion.setFromUnitVectors(axis, this.smoothedTowardsGroundVector);
-		// this.o.quaternion.setFromUnitVectors(axis, this.towardsGroundVector);
 		if (selectedPiece === this) {
 			this.o.rotation.z += Math.sin(Date.now() / 500) / 150;
 			this.o.position.add(this.towardsGroundVector.clone().multiplyScalar(-0.5));
@@ -362,11 +328,11 @@ function init() {
 
 	// metacube
 	cubeObject3D = new THREE.Object3D();
-	for (var x = 0; x < C; x++) {
+	for (let x = 0; x < C; x++) {
 		cubes[x] = [];
-		for (var y = 0; y < C; y++) {
+		for (let y = 0; y < C; y++) {
 			cubes[x][y] = [];
-			for (var z = 0; z < C; z++) {
+			for (let z = 0; z < C; z++) {
 				var mesh = new THREE.Mesh(cube, ((x + y + z) % 2) ? boardMat1 : boardMat2);
 				mesh.position.x = (x - C / 2 + 0.5) * squareSize;
 				mesh.position.y = (y - C / 2 + 0.5) * squareSize;
@@ -402,31 +368,14 @@ function init() {
 		[C - 2, 3],
 		[C - 4, C - 2],
 	];
-	for (i in pieceLocations) {
+	for (let i in pieceLocations) {
 		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, pieceTypes[i % 6]));
 		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, pieceTypes[i % 6]));
 	}
 
 	// lighting
-
-	// light = new THREE.DirectionalLight(0x112113);
-	// light.position.set(15, 52, 16);
-	// scene.add(light);
-
-	// light = new THREE.DirectionalLight(0x111121);
-	// light.position.set(15, 16, 52);
-	// scene.add(light);
-
-	// light = new THREE.DirectionalLight(0x111112);
-	// light.position.set(-52, -15, -16);
-	// scene.add(light);
-
-	// light = new THREE.DirectionalLight(0x111211);
-	// light.position.set(-52, 15, -76);
-	// scene.add(light);
-
-	light = new THREE.AmbientLight(0xeeeeee);
-	scene.add(light);
+	var ambientLight = new THREE.AmbientLight(0xeeeeee);
+	scene.add(ambientLight);
 
 
 	// renderer
@@ -460,14 +409,14 @@ function animate() {
 	requestAnimationFrame(animate);
 	stats.update();
 
-	for (var i = 0; i < pieces.length; i++) {
+	for (let i = 0; i < pieces.length; i++) {
 		pieces[i].update();
 	}
 	controls.update();
 
 	// clear hover state of previously hovered piece
 	if (hoveredPiece) {
-		for (i = 0; i < hoveredPiece.o.children.length; i++) {
+		for (let i = 0; i < hoveredPiece.o.children.length; i++) {
 			updateMaterial(hoveredPiece.o.children[i], false);
 		}
 		hoveredPiece.hovering = false;
@@ -511,7 +460,7 @@ function animate() {
 	}
 
 	if (hoveredPiece) {
-		for (i = 0; i < hoveredPiece.o.children.length; i++) {
+		for (let i = 0; i < hoveredPiece.o.children.length; i++) {
 			updateMaterial(hoveredPiece.o.children[i], true);
 		}
 		hoveredPiece.hovering = true;
@@ -546,7 +495,7 @@ function cubeAt(x, y, z) {
 	//return cubes[x][y][z];
 }
 function pieceAt(x, y, z) {
-	for (var i = 0; i < pieces.length; i++) {
+	for (let i = 0; i < pieces.length; i++) {
 		if (pieces[i].x == x && pieces[i].y == y && pieces[i].z == z) {
 			return true;
 		}

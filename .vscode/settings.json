@@ -10,6 +10,8 @@
 		"metalness",
 		"raycast",
 		"raycaster",
-		"unproject"
+		"slerp",
+		"unproject",
+		"wireframe"
 	]
 }
