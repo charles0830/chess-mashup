@@ -395,7 +395,9 @@ function init() {
 
 	// renderer
 
-	renderer = new THREE.WebGLRenderer();
+	renderer = new THREE.WebGLRenderer({
+		antialias: theme === "wireframe" ? false : true
+	});
 	// renderer.setClearColor(scene.fog.color, 1);
 	renderer.setSize(window.innerWidth, window.innerHeight);
 
