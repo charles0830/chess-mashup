@@ -110,6 +110,8 @@ let hoveredPieceMat2 = new THREE.MeshPhysicalMaterial({
 	envMap: reflectionTexture,
 	envMapIntensity: 30,
 });
+const hoverDecalTexture = textureLoader.load('./textures/hover-decal-flower-frame-with-outline.png');
+
 let hoverDecalMat = new THREE.MeshStandardMaterial({
 	color: 0xffffff,
 	emissive: 0x442200,
@@ -117,7 +119,7 @@ let hoverDecalMat = new THREE.MeshStandardMaterial({
 	// map: textureLoader.load('./textures/vintage-symmetric-frame-extrapolated.png'), // too high detail
 	// alphaMap: textureLoader.load('./textures/symmetric-checkerboard-frame.jpg'), // funny
 	// alphaMap: textureLoader.load('./textures/flower-frame-1436652825nLe.jpg'),
-	map: textureLoader.load('./textures/hover-decal-flower-frame-with-outline.png'), // outline for contrast... but from far away it looks bad and reduces contrast!
+	map: hoverDecalTexture,
 	// depthTest: false,
 	// depthWrite: false,
 	// combine: THREE.MultiplyOperation,
@@ -413,6 +415,12 @@ function init() {
 	//
 
 	window.addEventListener('resize', onWindowResize, false);
+
+	// this texture can look really bad without anisotropic filtering
+	// at an angle or from far away,
+	// due to the black border around the white ornamentation
+	const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+	hoverDecalTexture.anisotropy = maxAnisotropy;
 
 }
 
