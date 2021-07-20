@@ -6,10 +6,17 @@ let container, stats,
 	scene, renderer;
 const raycastTargets = []; // don't want to include certain objects like hoverDecal, so we can't just use scene.children
 
+let theme = "default";
+try {
+	theme = localStorage.getItem("3d-theme");
+} catch (e) {
+	console.warn("Couldn't read 3d-theme from local storage");
+}
+
 let cubeObject3D;
 const pieces = [];
-const color1 = 0xaf0000;
-const color2 = 0xffffff;
+let color1 = 0xaf0000;
+let color2 = 0xffffff;
 
 const squareSize = 30;
 const cubeGeometry = new THREE.BoxGeometry(squareSize, squareSize, squareSize);
@@ -30,7 +37,7 @@ const material2 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble1'),
 	color:color2, ambient:color2, opacity: 0.7, transparent: true
 });*/
-const boardMat1 = new THREE.MeshPhysicalMaterial({
+let boardMat1 = new THREE.MeshPhysicalMaterial({
 	color: color1,
 	roughness: 0.2,
 	metalness: 0.1,
@@ -41,7 +48,7 @@ const boardMat1 = new THREE.MeshPhysicalMaterial({
 	envMapIntensity: 40,
 	// map: marbleTexture,
 });
-const boardMat2 = new THREE.MeshPhysicalMaterial({
+let boardMat2 = new THREE.MeshPhysicalMaterial({
 	color: color2,
 	roughness: 0.2,
 	metalness: 0.4,
@@ -62,7 +69,7 @@ const boardMat2 = new THREE.MeshPhysicalMaterial({
 // 	envMapIntensity: 10,
 // });
 
-// const pieceMat1 = new THREE.MeshLambertMaterial({
+// let pieceMat1 = new THREE.MeshLambertMaterial({
 // 	color: 0xffffff,
 // 	emissive: 0xd48a8a,
 // 	ambient: color1,
@@ -71,14 +78,14 @@ const boardMat2 = new THREE.MeshPhysicalMaterial({
 // 	// map: textureLoader.load('./Seamless-White-Marble-Texture.webp'),
 // 	envMap: reflectionTexture,
 // });
-const pieceMat1 = new THREE.MeshPhysicalMaterial({
+let pieceMat1 = new THREE.MeshPhysicalMaterial({
 	color: color1,
 	roughness: 0.01,
 	metalness: 0.5,
 	envMap: reflectionTexture,
 	envMapIntensity: 10,
 });
-const pieceMat2 = new THREE.MeshPhysicalMaterial({
+let pieceMat2 = new THREE.MeshPhysicalMaterial({
 	color: color2,
 	// emissive: 0x3f3f3f,
 	roughness: 0.2,
@@ -87,17 +94,14 @@ const pieceMat2 = new THREE.MeshPhysicalMaterial({
 	envMapIntensity: 10,
 });
 
-// const hoveredBoardMat1 = boardMat1.clone(); hoveredBoardMat1.emissive.add(new THREE.Color(0x000000));
-// const hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.emissive.add(new THREE.Color(0x000000));
-const hoveredPieceMat1 = new THREE.MeshPhysicalMaterial({
+let hoveredPieceMat1 = new THREE.MeshPhysicalMaterial({
 	color: color1,
 	roughness: 0.01,
 	metalness: 0.1,
 	envMap: reflectionTexture,
 	envMapIntensity: 100,
 });
-const hoveredPieceMat2 = //pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x333344));
-new THREE.MeshPhysicalMaterial({
+let hoveredPieceMat2 = new THREE.MeshPhysicalMaterial({
 	color: color2,
 	// emissive: 0x333344,
 	roughness: 0.2,
@@ -105,7 +109,7 @@ new THREE.MeshPhysicalMaterial({
 	envMap: reflectionTexture,
 	envMapIntensity: 30,
 });
-const hoverDecalMat = new THREE.MeshStandardMaterial({
+let hoverDecalMat = new THREE.MeshStandardMaterial({
 	color: 0xffffff,
 	emissive: 0x442200,
 	transparent: true,
@@ -116,7 +120,22 @@ const hoverDecalMat = new THREE.MeshStandardMaterial({
 	// depthTest: false,
 	// depthWrite: false,
 	// combine: THREE.MultiplyOperation,
+	fog: false,
 });
+
+if (theme === "wireframe") {
+	color1 = 0xffffff;
+	color2 = 0xff0000;
+	boardMat1 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true });
+	boardMat2 = new THREE.MeshBasicMaterial({ color: "green", wireframe: true });
+	// boardMat1 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true  });
+	// boardMat2 = new THREE.MeshBasicMaterial({ color: "green", transparent: true, opacity: 0.5});
+	pieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true });
+	pieceMat2 = new THREE.MeshBasicMaterial({ color: color2, wireframe: true });
+	hoveredPieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true, fog: false });
+	hoveredPieceMat2 = new THREE.MeshBasicMaterial({ color: color2, wireframe: true, fog: false });
+	hoverDecalMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, fog: false });
+}
 
 const hoverDecal = new THREE.Mesh(new THREE.PlaneBufferGeometry(squareSize, squareSize), hoverDecalMat);
 
@@ -319,15 +338,8 @@ function init() {
 	scene = new THREE.Scene();
 	// scene.fog = new THREE.FogExp2(0x000000, 0.002);
 
-	let theme = "default";
-	try {
-		theme = localStorage.getItem("3d-theme");
-	} catch (e) {
-		console.warn("Couldn't read 3d-theme from local storage");
-	}
 	if (theme === "wireframe") {
-		scene.overrideMaterial = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true })
-		scene.fog = new THREE.FogExp2(0x000000, 0.003);
+		scene.fog = new THREE.FogExp2(0x000000, 0.002);
 	}
 
 	raycaster = new THREE.Raycaster();
