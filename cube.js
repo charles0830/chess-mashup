@@ -53,6 +53,15 @@ const boardMat2 = new THREE.MeshPhysicalMaterial({
 	// map: marbleTexture,
 });
 
+// const tarnishedBrass = new THREE.MeshPhysicalMaterial({
+// 	color: 0xf0f0a0,
+// 	// emissive: 0x333344,
+// 	roughness: 0.1,
+// 	metalness: 0.9,
+// 	envMap: reflectionTexture,
+// 	envMapIntensity: 10,
+// });
+
 // const pieceMat1 = new THREE.MeshLambertMaterial({
 // 	color: 0xffffff,
 // 	emissive: 0xd48a8a,
@@ -64,8 +73,8 @@ const boardMat2 = new THREE.MeshPhysicalMaterial({
 // });
 const pieceMat1 = new THREE.MeshPhysicalMaterial({
 	color: color1,
-	roughness: 0.2,
-	metalness: 0.4,
+	roughness: 0.01,
+	metalness: 0.5,
 	envMap: reflectionTexture,
 	envMapIntensity: 10,
 });
@@ -80,8 +89,22 @@ const pieceMat2 = new THREE.MeshPhysicalMaterial({
 
 // const hoveredBoardMat1 = boardMat1.clone(); hoveredBoardMat1.emissive.add(new THREE.Color(0x000000));
 // const hoveredBoardMat2 = boardMat2.clone(); hoveredBoardMat2.emissive.add(new THREE.Color(0x000000));
-const hoveredPieceMat1 = pieceMat1.clone(); hoveredPieceMat1.emissive.add(new THREE.Color(0x993333));
-const hoveredPieceMat2 = pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x333344));
+const hoveredPieceMat1 = new THREE.MeshPhysicalMaterial({
+	color: color1,
+	roughness: 0.01,
+	metalness: 0.1,
+	envMap: reflectionTexture,
+	envMapIntensity: 100,
+});
+const hoveredPieceMat2 = //pieceMat2.clone(); hoveredPieceMat2.emissive.add(new THREE.Color(0x333344));
+new THREE.MeshPhysicalMaterial({
+	color: color2,
+	// emissive: 0x333344,
+	roughness: 0.2,
+	metalness: 0.3,
+	envMap: reflectionTexture,
+	envMapIntensity: 30,
+});
 const hoverDecalMat = new THREE.MeshStandardMaterial({
 	color: 0xffffff,
 	emissive: 0x442200,
