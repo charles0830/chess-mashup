@@ -19,7 +19,8 @@ let color1 = 0xaf0000;
 let color2 = 0xffffff;
 
 const squareSize = 30;
-const cubeGeometry = new THREE.BoxGeometry(squareSize, squareSize, squareSize);
+const cubeSegments = theme === "wireframe" ? 8 : 1;
+const cubeGeometry = new THREE.BoxGeometry(squareSize, squareSize, squareSize, cubeSegments, cubeSegments, cubeSegments);
 
 const textureLoader = new THREE.TextureLoader();
 
