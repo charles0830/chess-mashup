@@ -474,15 +474,49 @@ function pieceAt(x, y, z) {
 	return false;
 }
 
+function getMoves2D(piece) {
+	const moves = [];
+	const canGoManySpaces = ["queen", "rook", "bishop"].indexOf(piece.pieceType) !== -1;
+	const movementDirections = [];
+	if (piece.pieceType === "king" || piece.pieceType === "queen" || piece.pieceType === "rook") {
+		movementDirections.push([1, 0], [-1, 0], [0, 1], [0, -1]);
+	}
+	if (piece.pieceType === "king" || piece.pieceType === "queen" || piece.pieceType === "bishop") {
+		movementDirections.push([1, 1], [-1, 1], [1, -1], [-1, -1]);
+	}
+	if (piece.pieceType === "knight") {
+		movementDirections.push([2, 1], [2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]);
+	}
+	if (piece.pieceType === "pawn") {
+		movementDirections.push([1, 0]);
+		// TODO: a pawn can move two spaces if it is the first move
+		// TODO: attack diagonally, and only move forward if there is no piece in the way
+	}
+	for (let jump = 1; jump <= (canGoManySpaces ? C - 1 : 1); jump++) {
+		for (const direction of movementDirections) {
+			moves.push(direction.map(coord => coord * jump));
+		}
+	}
+	// console.log(moves, piece.pieceType, movementDirections	);
+	// for (const move of moves) {
+	// 	move.valid = true;
+	// }
+	return moves;
+}
+
 function takeTurn() {
 	//AI!
 	turn = !turn;
 	let timeout = 100;
 	while (timeout--) {
-		const p = pieces[Math.floor(Math.random() * pieces.length)];
-		if (p.team == turn && Math.random() < 4) {
-			if (p.moveRelative2D(r(), r())) {
-				return true;
+		const piece = pieces[Math.floor(Math.random() * pieces.length)];
+		if (piece.team == turn && Math.random() < 4) {
+			const moves = getMoves2D(piece);
+			shuffle(moves);
+			for (const move of moves) {
+				if (piece.moveRelative2D(...move)) {
+					return true;
+				}
 			}
 		}
 	}
@@ -491,6 +525,13 @@ function takeTurn() {
 
 	function r() {
 		return Math.floor(Math.random() * 3) - 1;
+	}
+}
+
+function shuffle(array) {
+	for (let i = array.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[array[i], array[j]] = [array[j], array[i]];
 	}
 }
 
