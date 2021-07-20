@@ -6,7 +6,6 @@ let container, stats,
 	scene, renderer;
 const raycastTargets = []; // don't want to include certain objects like hoverDecal, so we can't just use scene.children
 
-const cubes = [];
 let cubeObject3D;
 const pieces = [];
 const color1 = 0xaf0000;
@@ -337,9 +336,7 @@ function init() {
 	// metacube
 	cubeObject3D = new THREE.Object3D();
 	for (let x = 0; x < C; x++) {
-		cubes[x] = [];
 		for (let y = 0; y < C; y++) {
-			cubes[x][y] = [];
 			for (let z = 0; z < C; z++) {
 				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat2);
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
@@ -347,7 +344,6 @@ function init() {
 				mesh.updateMatrix();
 				mesh.matrixAutoUpdate = false;
 				cubeObject3D.add(mesh);
-				cubes[x][y][z] = mesh;
 				raycastTargets.push(mesh);
 			}
 		}
@@ -463,7 +459,6 @@ function cubeAt(x, y, z) {
 	if (x < 0 || y < 0 || z < 0) return false;
 	if (x >= C || y >= C || z >= C) return false;
 	return true;
-	//return cubes[x][y][z];
 }
 function pieceAt(x, y, z) {
 	for (let i = 0; i < pieces.length; i++) {
