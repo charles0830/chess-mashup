@@ -342,16 +342,12 @@ function init() {
 			cubes[x][y] = [];
 			for (let z = 0; z < C; z++) {
 				var mesh = new THREE.Mesh(cube, ((x + y + z) % 2) ? boardMat1 : boardMat2);
-				mesh.position.x = (x - C / 2 + 0.5) * squareSize;
-				mesh.position.y = (y - C / 2 + 0.5) * squareSize;
-				mesh.position.z = (z - C / 2 + 0.5) * squareSize;
+				mesh.gamePosition = new THREE.Vector3(x, y, z);
+				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
 				mesh.matrixAutoUpdate = false;
 				cubeObject3D.add(mesh);
 				cubes[x][y][z] = mesh;
-				mesh.cubeX = x;
-				mesh.cubeY = y;
-				mesh.cubeZ = z;
 				raycastTargets.push(mesh);
 			}
 		}
@@ -456,9 +452,7 @@ function animate() {
 					// hoverDecalMat.emissive.set(0x220000);
 					// hoverDecalMat.emissive.set(0xffffff);
 				}
-				// hoveredSpace = m.position.clone().divideScalar(squareSize).add(intersects[0].face.normal);
-				// hoveredSpace = m.position.clone().divideScalar(squareSize).floor();
-				hoveredSpace = new THREE.Vector3(m.cubeX, m.cubeY, m.cubeZ).add(intersects[0].face.normal);
+				hoveredSpace = new THREE.Vector3().addVectors(m.gamePosition, intersects[0].face.normal);
 			} else {
 				hoveredPiece = m.parent.piece;
 			}
