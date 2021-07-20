@@ -117,11 +117,11 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 		},
 		(errorOrEvent) => {
 			// Failure callback, gets a ProgressEvent in case of a file download failure
-			if (errorOrEvent instanceof Error) {
-				reject(errorOrEvent);
-			} else {
+			if (errorOrEvent instanceof Event) {
 				const xhr = errorOrEvent.currentTarget;
 				reject(new Error(`Could not load ${url}: ${xhr.status} ${xhr.statusText}`));
+			} else {
+				reject(errorOrEvent);
 			}
 		}
 	);
