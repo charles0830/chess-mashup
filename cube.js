@@ -129,6 +129,8 @@ if (theme === "wireframe") {
 	color2 = 0xff0000;
 	boardMat1 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true });
 	boardMat2 = new THREE.MeshBasicMaterial({ color: "green", wireframe: true });
+	// boardMat1 = new THREE.MeshBasicMaterial({ color: "white", wireframe: true });
+	// boardMat2 = new THREE.MeshBasicMaterial({ color: "black", wireframe: true });
 	// boardMat1 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true  });
 	// boardMat2 = new THREE.MeshBasicMaterial({ color: "green", transparent: true, opacity: 0.5});
 	pieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true });
@@ -351,6 +353,7 @@ function init() {
 		for (let y = 0; y < C; y++) {
 			for (let z = 0; z < C; z++) {
 				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat2);
+				mesh.visible = x === 0 || x === C - 1 || y === 0 || y === C - 1 || z === 0 || z === C - 1;
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
