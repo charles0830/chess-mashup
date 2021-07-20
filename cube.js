@@ -242,7 +242,7 @@ class Piece {
 		this.pieceType = pieceType || "pawn";
 		this.o = new THREE.Object3D();
 		const mat = !team ? pieceMat1 : pieceMat2;
-		const tempGeometry = new THREE.CylinderGeometry(10, 10, 30, 15, 1, false);
+		const tempGeometry = new THREE.CylinderGeometry(10, 10, 30, 8, 1, false);
 		const tempMesh = new THREE.Mesh(tempGeometry, mat);
 		this.o.add(tempMesh);
 		raycastTargets.push(tempMesh);
