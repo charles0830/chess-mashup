@@ -349,6 +349,7 @@ class Piece {
 		}
 
 		this.gamePosition.copy(move.gamePosition);
+		this.animating = true;
 		let animIndex = 0;
 		const iid = setInterval(() => {
 			const { gamePosition, towardsGroundVector } = move.keyframes[animIndex];
@@ -360,6 +361,11 @@ class Piece {
 			animIndex++;
 			if (animIndex >= move.keyframes.length) {
 				clearInterval(iid);
+				// it hasn't quite stopped animating yet
+				// there's still the transition to the final position
+				setTimeout(() => {
+					this.animating = false;
+				}, 300);
 			}
 		}, 300);
 
@@ -381,9 +387,17 @@ class Piece {
 		this.o.position.z += (this.targetWorldPosition.z - this.o.position.z) / slowness;
 		this.o.quaternion.slerp(this.targetOrientation, 1 / slowness);
 		// this.o.quaternion.rotateTowards(this.targetOrientation, 0.05);
+		// lift the piece up when selected, or when animating
+		if (selectedPiece === this || this.animating) {
+			// this.o.position.add(this.towardsGroundVector.clone().multiplyScalar(-0.5));
+
+			const lift = new THREE.Vector3(0, 0.5, 0);
+			lift.applyQuaternion(this.targetOrientation);
+			this.o.position.add(lift);
+		}
+		// wiggle the piece gently when it's selected
 		if (selectedPiece === this) {
 			this.o.rotation.z += Math.sin(Date.now() / 500) / 150;
-			this.o.position.add(this.towardsGroundVector.clone().multiplyScalar(-0.5));
 		}
 	}
 	updateHovering(hovering) {
@@ -620,7 +634,7 @@ function getMoves(piece) {
 				console.warn("Weird orientation...");
 				break;
 			}
-		
+
 			// if there's no ground underneath the new position, wrap around the cube
 			if (!cubeAtGamePosition(pos.clone().add(towardsGroundVector))) {
 				// don't move diagonally off the edge of the board cube for now
@@ -644,7 +658,7 @@ function getMoves(piece) {
 				pos.add(towardsGroundVector);
 				towardsGroundVector = getTowardsGroundVector(pos);
 			}
-		
+
 			const pieceAtPos = pieceAtGamePosition(pos);
 			if (pieceAtPos && pieceAtPos.team === piece.team) {
 				// can't move onto a friendly piece
