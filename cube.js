@@ -656,6 +656,7 @@ function getMoves(piece) {
 	for (const direction of movementDirections) {
 		let pos = piece.gamePosition.clone();
 		let towardsGroundVector = piece.towardsGroundVector.clone();
+		let quaternion = piece.targetOrientation.clone();
 		let keyframes = []; // for animating the piece's movement
 		keyframes.push({
 			gamePosition: pos.clone(),
@@ -672,23 +673,15 @@ function getMoves(piece) {
 			}
 
 			for (const subStep of subSteps) {
-				// TODO: keep piece facing and heading in the same direction when wrapping around the board
 				// TODO: handle multiple new positions (e.g. a rook in a voxel world can either jump over a gap or wrap around a ledge)
 				// (can use recursion to do this)
-				if (towardsGroundVector.x === 0 && towardsGroundVector.y === 0) {
-					pos.x += subStep[0];
-					pos.y += subStep[1];
-				} else if (towardsGroundVector.x === 0 && towardsGroundVector.z === 0) {
-					pos.x += subStep[0];
-					pos.z += subStep[1];
-				} else if (towardsGroundVector.z === 0 && towardsGroundVector.y === 0) {
-					pos.z += subStep[0];
-					pos.y += subStep[1];
-				} else {
-					console.warn("Weird orientation...");
-					break;
-				}
 
+				// Note: applyQuaternion() gives imprecise results,
+				// and breaks move equality checking when clicking to make a move,
+				// especially with the Rook, if we don't round this.
+				const forward = new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round();
+				pos.add(forward);
+				
 				const diagonalMovement = Math.abs(direction[0]) === 1 && Math.abs(direction[1]) === 1;
 				if (!diagonalMovement) {
 					keyframes.push({
@@ -716,6 +709,10 @@ function getMoves(piece) {
 					// move down off the edge of the board cube
 					pos.add(towardsGroundVector);
 					towardsGroundVector = getTowardsGroundVector(pos);
+					quaternion.multiply(new THREE.Quaternion().setFromUnitVectors(
+						new THREE.Vector3(0, -1, 0),
+						new THREE.Vector3(-subStep[0], 0, -subStep[1]),
+					));
 				}
 			}
 
