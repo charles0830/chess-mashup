@@ -662,7 +662,7 @@ function getMoves(piece) {
 			gamePosition: pos.clone(),
 			towardsGroundVector: towardsGroundVector.clone()
 		});
-		for (let i = 1; i <= (canGoManySpaces ? C - 1 : 1); i++) {
+		for (let i = 1; i <= (canGoManySpaces ? C * 4 : 1); i++) {
 			// sub-steps don't count for collision, i.e. the piece can jump over other pieces in a sub-step
 			const subSteps = [];
 			for (let x = 0; x < Math.abs(direction[0]); x++) {
