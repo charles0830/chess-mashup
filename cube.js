@@ -125,6 +125,22 @@ let hoverDecalMat = new THREE.MeshStandardMaterial({
 	// combine: THREE.MultiplyOperation,
 	fog: false,
 });
+let validMoveDecalMat = new THREE.MeshStandardMaterial({
+	color: 0xaaaaaa,
+	emissive: 0x442200,
+	transparent: true,
+	opacity: 0.8,
+	map: hoverDecalTexture,
+	fog: false,
+});
+let invalidMoveDecalMat = new THREE.MeshStandardMaterial({
+	color: 0xffaa00,
+	emissive: 0x442200,
+	transparent: true,
+	opacity: 0.8,
+	map: hoverDecalTexture,
+	fog: false,
+});
 
 if (theme === "wireframe" || theme === "perf") {
 	color1 = 0xffffff;
@@ -144,9 +160,22 @@ if (theme === "wireframe" || theme === "perf") {
 	hoveredPieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true, fog: false });
 	hoveredPieceMat2 = new THREE.MeshBasicMaterial({ color: color2, wireframe: true, fog: false });
 	hoverDecalMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, fog: false });
+	validMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
+	invalidMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, opacity: 0.5, transparent: true });
 }
 
-const hoverDecal = new THREE.Mesh(new THREE.PlaneBufferGeometry(squareSize, squareSize), hoverDecalMat);
+function makeDecal(material) {
+	return new THREE.Mesh(new THREE.PlaneBufferGeometry(squareSize, squareSize), material);
+}
+function positionDecalWorldSpace(decalMesh, worldPosition, faceNormal) {
+	decalMesh.position.copy(worldPosition);
+	decalMesh.position.add(faceNormal.clone().multiplyScalar(squareSize / 2 + 0.01));
+	const axis = new THREE.Vector3(0, 0, 1);
+	decalMesh.quaternion.setFromUnitVectors(axis, faceNormal);
+}
+
+
+const hoverDecal = makeDecal(hoverDecalMat);
 
 const stlLoader = new THREE.STLLoader();
 const pieceTypes = [
@@ -195,6 +224,7 @@ const intersects = [];
 let hoveredPiece;
 let hoveredSpace;
 let selectedPiece;
+let movementDecals = [];
 
 const mouse = { x: null, y: null };
 
@@ -207,11 +237,30 @@ addEventListener('mousedown', function (e) {
 	if (e.button !== 0) return;
 	if (hoveredPiece) {
 		selectedPiece = hoveredPiece;
+		const moves = getMoves2D(hoveredPiece, hoveredSpace);
+		console.log(moves);
+		for (const move of moves) {
+			const newPositions = get3DPositionsFrom2DRelativeMove(selectedPiece.gamePosition, selectedPiece.towardsGroundVector, move[0], move[1]);
+			shuffle(newPositions);
+			for (const newPosition of newPositions) {
+				const decal = makeDecal(validMoveDecalMat);
+				const towardsGroundVector = getTowardsGroundVector(newPosition);
+				const awayFromGroundVector = towardsGroundVector.clone().negate();
+				const decalWorldPosition = gameToWorldSpace(newPosition.clone().add(towardsGroundVector));
+				positionDecalWorldSpace(decal, decalWorldPosition, awayFromGroundVector);
+				movementDecals.push(decal);
+				scene.add(decal);
+			}
+		}
 	} else if (selectedPiece) {
 		if (hoveredSpace) {
 			selectedPiece.moveTo(hoveredSpace);
 		}
 		selectedPiece = null;
+		for (const decal of movementDecals) {
+			scene.remove(decal);
+		}
+		movementDecals.length = 0;
 	}
 }, true);
 
@@ -291,21 +340,7 @@ class Piece {
 		return true;
 	}
 	orientTowardsCube() {
-		if (this.x < 0) {
-			this.towardsGroundVector.set(1, 0, 0);
-		} else if (this.y < 0) {
-			this.towardsGroundVector.set(0, 1, 0);
-		} else if (this.z < 0) {
-			this.towardsGroundVector.set(0, 0, 1);
-		} else if (this.x >= C) {
-			this.towardsGroundVector.set(-1, 0, 0);
-		} else if (this.y >= C) {
-			this.towardsGroundVector.set(0, -1, 0);
-		} else if (this.z >= C) {
-			this.towardsGroundVector.set(0, 0, -1);
-		} else {
-			console.warn("Oh no, piece is inside cube!");
-		}
+		this.towardsGroundVector.copy(getTowardsGroundVector(this.gamePosition));
 		this.targetOrientation.setFromUnitVectors(
 			new THREE.Vector3(0, -1, 0),
 			this.towardsGroundVector.clone(),
@@ -332,6 +367,25 @@ class Piece {
 	}
 	toString() {
 		return `${!this.team ? "Red" : "White"} ${this.pieceType} at (${this.x},${this.y},${this.z})`;
+	}
+}
+
+function getTowardsGroundVector(gamePosition) {
+	if (gamePosition.x < 0) {
+		return new THREE.Vector3(1, 0, 0);
+	} else if (gamePosition.y < 0) {
+		return new THREE.Vector3(0, 1, 0);
+	} else if (gamePosition.z < 0) {
+		return new THREE.Vector3(0, 0, 1);
+	} else if (gamePosition.x >= C) {
+		return new THREE.Vector3(-1, 0, 0);
+	} else if (gamePosition.y >= C) {
+		return new THREE.Vector3(0, -1, 0);
+	} else if (gamePosition.z >= C) {
+		return new THREE.Vector3(0, 0, -1);
+	} else {
+		console.warn("Oh no, gamePosition is inside cube!");
+		return new THREE.Vector3(0, 0, 1);
 	}
 }
 
@@ -466,10 +520,7 @@ function animate() {
 			// TODO: hover space via piece or visa-versa, depending on state of the game (selecting piece, moving piece)
 			if (m.geometry == cubeGeometry) {
 				hoverDecal.visible = true;
-				hoverDecal.position.copy(m.position);
-				hoverDecal.position.add(intersects[0].face.normal.clone().multiplyScalar(squareSize / 2 + 0.01));
-				const axis = new THREE.Vector3(0, 0, 1);
-				hoverDecal.quaternion.setFromUnitVectors(axis, intersects[0].face.normal);
+				positionDecalWorldSpace(hoverDecal, m.position, intersects[0].face.normal);
 				hoveredSpace = new THREE.Vector3().addVectors(m.gamePosition, intersects[0].face.normal);
 			} else {
 				hoveredPiece = m.parent.piece;
