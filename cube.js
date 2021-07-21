@@ -294,7 +294,8 @@ function gameToWorldSpace(gamePosition) {
 
 class Piece {
 	constructor(x, y, z, team, pieceType) {
-		this.gamePosition = new THREE.Vector3(x, y, z);
+		this.startingGamePosition = new THREE.Vector3(x, y, z);
+		this.gamePosition = this.startingGamePosition.clone();
 		this.targetWorldPosition = gameToWorldSpace(this.gamePosition);
 		this.targetOrientation = new THREE.Quaternion();
 		this.towardsGroundVector = new THREE.Vector3();
@@ -604,7 +605,10 @@ function getMoves(piece) {
 	}
 	if (piece.pieceType === "pawn") {
 		movementDirections.push([1, 0], [1, 1], [1, -1]);
-		// TODO: a pawn can move two spaces if it is the first move
+		// a pawn can move two spaces if it is the first move the pawn makes
+		if (piece.gamePosition.equals(piece.startingGamePosition)) {
+			movementDirections.push([2, 0]);
+		}
 	}
 	for (const direction of movementDirections) {
 		let pos = piece.gamePosition.clone();
