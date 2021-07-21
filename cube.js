@@ -655,6 +655,10 @@ function getMoves(piece) {
 		let pos = piece.gamePosition.clone();
 		let towardsGroundVector = piece.towardsGroundVector.clone();
 		let keyframes = []; // for animating the piece's movement
+		keyframes.push({
+			gamePosition: pos.clone(),
+			towardsGroundVector: towardsGroundVector.clone()
+		});
 		for (let i = 1; i <= (canGoManySpaces ? C - 1 : 1); i++) {
 			// sub-steps don't count for collision, i.e. the piece can jump over other pieces in a sub-step
 			const subSteps = [];
@@ -683,14 +687,24 @@ function getMoves(piece) {
 					break;
 				}
 
-				// if there's no ground underneath the new position, wrap around the cube
-				if (!cubeAtGamePosition(pos.clone().add(towardsGroundVector))) {
-					// to avoid the piece sliding through the board,
-					// add a keyframe where the piece is over the edge of the board
+				const diagonalMovement = Math.abs(direction[0]) === 1 && Math.abs(direction[1]) === 1;
+				if (!diagonalMovement) {
 					keyframes.push({
 						gamePosition: pos.clone(),
 						towardsGroundVector: towardsGroundVector.clone()
 					});
+				}
+
+				// if there's no ground underneath the new position, wrap around the cube
+				if (!cubeAtGamePosition(pos.clone().add(towardsGroundVector))) {
+					// to avoid the piece sliding through the board,
+					// add a keyframe where the piece is over the edge of the board
+					if (diagonalMovement) { // (otherwise already added a keyframe)
+						keyframes.push({
+							gamePosition: pos.clone(),
+							towardsGroundVector: towardsGroundVector.clone()
+						});
+					}
 					// and another keyframe with the new orientation
 					const newTowardsGroundVector = getTowardsGroundVector(pos.clone().add(towardsGroundVector));
 					keyframes.push({
