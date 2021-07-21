@@ -265,7 +265,10 @@ addEventListener('mousedown', function (e) {
 		}
 	} else if (selectedPiece) {
 		if (hoveredSpace) {
-			selectedPiece.moveTo(hoveredSpace);
+			const moves = getMoves(selectedPiece, hoveredSpace);
+			if (moves.some((move) => move.valid && move.gamePosition.equals(hoveredSpace))) {
+				selectedPiece.moveTo(hoveredSpace);
+			}
 		}
 		selectedPiece = null;
 		clearMovementDecals();
