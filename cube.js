@@ -263,7 +263,7 @@ addEventListener('mousedown', function (e) {
 	if (hoveredPiece && teamTypes[hoveredPiece.team] === "human" && turn % 2 === hoveredPiece.team) {
 		selectedPiece = hoveredPiece;
 		clearMovementDecals();
-		const moves = getMoves(hoveredPiece, hoveredSpace);
+		const moves = getMoves(hoveredPiece);
 		// console.log(moves);
 		for (const move of moves) {
 			const decal = makeDecal(move.valid ? validMoveDecalMat : invalidMoveDecalMat);
@@ -302,7 +302,7 @@ addEventListener('mousedown', function (e) {
 		}
 	} else if (selectedPiece) {
 		if (hoveredSpace) {
-			const moves = getMoves(selectedPiece, hoveredSpace);
+			const moves = getMoves(selectedPiece);
 			const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
 			if (move) {
 				selectedPiece.makeMove(move, takeTurn);
