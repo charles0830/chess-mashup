@@ -259,6 +259,7 @@ addEventListener('mousemove', function (e) {
 
 addEventListener('mousedown', function (e) {
 	if (e.button !== 0) return;
+	console.log(`Clicked piece: ${hoveredPiece}`);
 	if (hoveredPiece && teamTypes[hoveredPiece.team] === "human" && turn % 2 === hoveredPiece.team) {
 		selectedPiece = hoveredPiece;
 		clearMovementDecals();
@@ -314,7 +315,7 @@ class Piece {
 		this.team = team;
 		this.pieceType = pieceType || "pawn";
 		this.o = new THREE.Object3D();
-		const mat = !team ? pieceMat1 : pieceMat2;
+		const mat = team == 0 ? pieceMat1 : pieceMat2;
 		const tempGeometry = new THREE.CylinderGeometry(10, 10, 30, 8, 1, false);
 		const tempMesh = new THREE.Mesh(tempGeometry, mat);
 		this.o.add(tempMesh);
@@ -415,14 +416,14 @@ class Piece {
 	}
 	updateHovering(hovering) {
 		const mesh = this.o.children[0];
-		if (!this.team) {
+		if (this.team == 0) {
 			mesh.material = !hovering ? pieceMat1 : hoveredPieceMat1;
 		} else {
 			mesh.material = !hovering ? pieceMat2 : hoveredPieceMat2;
 		}
 	}
 	toString() {
-		return `${!this.team ? "Red" : "White"} ${this.pieceType} at (${this.x},${this.y},${this.z})`;
+		return `${teamNames[this.team]} ${this.pieceType} at (${this.x},${this.y},${this.z})`;
 	}
 }
 
@@ -720,7 +721,7 @@ function getMoves(piece) {
 function takeTurn() {
 	const team = turn % 2;
 	turnIndicator.textContent = turnMessages[team];
-	console.log("takeTurn", turn, team, teamTypes[team]);
+	console.log(`Turn ${turn} is ${teamNames[team]}'s turn (${teamTypes[team]})`);
 	if (teamTypes[team] !== "computer") {
 		return;
 	}
