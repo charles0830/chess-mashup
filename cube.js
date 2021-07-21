@@ -341,14 +341,15 @@ class Piece {
 		return this.gamePosition.z;
 	}
 	moveTo(gamePosition) {
-		if (pieceAtGamePosition(gamePosition))
-			return false; // TODO: allow capturing
+		const capturingPiece = pieceAtGamePosition(gamePosition);
+		if (capturingPiece) {
+			scene.remove(capturingPiece.o);
+		}
 
 		this.gamePosition.copy(gamePosition);
 		this.targetWorldPosition = gameToWorldSpace(this.gamePosition);
 
 		this.orientTowardsCube();
-		return true;
 	}
 	orientTowardsCube() {
 		this.towardsGroundVector.copy(getTowardsGroundVector(this.gamePosition));
@@ -618,6 +619,10 @@ function getMoves(piece) {
 			}
 			pos = newPositions[0];
 			towardsGroundVector = getTowardsGroundVector(pos);
+			const pieceAtPos = pieceAtGamePosition(pos);
+			if (pieceAtPos && pieceAtPos.team === piece.team) {
+				break;
+			}
 			positions.push(pos);
 			moves.push({
 				piece: piece,
@@ -625,6 +630,9 @@ function getMoves(piece) {
 				gamePositions: positions,
 				towardsGroundVector: towardsGroundVector,
 			});
+			if (pieceAtPos) {
+				break;
+			}
 		}
 	}
 	// console.log(moves, piece.pieceType, movementDirections);
@@ -645,9 +653,8 @@ function takeTurn() {
 			shuffle(moves);
 			for (const move of moves) {
 				if (move.valid) {
-					if (piece.moveTo(move.gamePosition)) {
-						return true;
-					}
+					piece.moveTo(move.gamePosition);
+					return;
 				}
 			}
 		}
