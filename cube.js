@@ -568,37 +568,6 @@ function pieceAtGamePosition(gamePosition) {
 	return pieces.find((piece) => piece.gamePosition.equals(gamePosition));
 }
 
-function get3DPositionsFrom2DRelativeMove(startingPos, towardsGroundVector, deltaX, deltaY) {
-	if (deltaX === 0 && deltaY === 0)
-		return [];
-	// if (cubeAt(startingPos)) return [];
-	let pos = startingPos.clone();
-	if (towardsGroundVector.x === 0 && towardsGroundVector.y === 0) {
-		pos.x += deltaX;
-		pos.y += deltaY;
-	} else if (towardsGroundVector.x === 0 && towardsGroundVector.z === 0) {
-		pos.x += deltaX;
-		pos.z += deltaY;
-	} else if (towardsGroundVector.z === 0 && towardsGroundVector.y === 0) {
-		pos.z += deltaX;
-		pos.y += deltaY;
-	} else {
-		console.warn("Weird orientation...");
-		return [];
-	}
-
-	// if there's no ground underneath the new position, wrap around the cube
-	if (!cubeAtGamePosition(pos.clone().add(towardsGroundVector))) {
-		// don't move diagonally off the edge of the board cube
-		if (deltaX !== 0 && deltaY !== 0) {
-			return [];
-		}
-		pos.add(towardsGroundVector);
-	}
-
-	return [pos];
-}
-
 function getMoves(piece) {
 	const moves = [];
 	const canGoManySpaces = ["queen", "rook", "bishop"].indexOf(piece.pieceType) !== -1;
@@ -624,22 +593,46 @@ function getMoves(piece) {
 		let towardsGroundVector = piece.towardsGroundVector.clone();
 		let positions = [];
 		for (let i = 1; i <= (canGoManySpaces ? C - 1 : 1); i++) {
-			const newPositions = get3DPositionsFrom2DRelativeMove(pos, towardsGroundVector, direction[0], direction[1]);
-			if (newPositions.length === 0) {
-				break;
-			}
+			// TODO: keep piece facing and heading in the same direction when wrapping around the board
 			// TODO: handle multiple new positions (e.g. a rook in a voxel world can either jump over a gap or wrap around a ledge)
 			// (can use recursion to do this)
-			pos = newPositions[0];
+			if (towardsGroundVector.x === 0 && towardsGroundVector.y === 0) {
+				pos.x += direction[0];
+				pos.y += direction[1];
+			} else if (towardsGroundVector.x === 0 && towardsGroundVector.z === 0) {
+				pos.x += direction[0];
+				pos.z += direction[1];
+			} else if (towardsGroundVector.z === 0 && towardsGroundVector.y === 0) {
+				pos.z += direction[0];
+				pos.y += direction[1];
+			} else {
+				console.warn("Weird orientation...");
+				break;
+			}
+		
+			// if there's no ground underneath the new position, wrap around the cube
+			if (!cubeAtGamePosition(pos.clone().add(towardsGroundVector))) {
+				// don't move diagonally off the edge of the board cube
+				if (direction[0] !== 0 && direction[1] !== 0) {
+					break;
+				}
+				// these positions are for animating the piece's movement
+				// add an interim position where the piece is over the edge of the board cube
+				positions.push(pos.clone());
+				// move down off the edge of the board cube
+				pos.add(towardsGroundVector);
+			}
+		
 			towardsGroundVector = getTowardsGroundVector(pos);
 			const pieceAtPos = pieceAtGamePosition(pos);
 			if (pieceAtPos && pieceAtPos.team === piece.team) {
+				// can't move onto a friendly piece
 				break;
 			}
-			positions.push(pos);
+			positions.push(pos.clone());
 			moves.push({
 				piece: piece,
-				gamePosition: pos,
+				gamePosition: pos.clone(),
 				gamePositions: [...positions], // make copy so each move has its own list of positions that ends with the gamePosition of the move
 				towardsGroundVector,
 				direction,
