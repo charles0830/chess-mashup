@@ -176,7 +176,7 @@ function makeDecal(material) {
 }
 function positionDecalWorldSpace(decalMesh, worldPosition, faceNormal) {
 	decalMesh.position.copy(worldPosition);
-	decalMesh.position.add(faceNormal.clone().multiplyScalar(squareSize / 2 + 0.01));
+	decalMesh.position.add(faceNormal.clone().multiplyScalar(squareSize / 2 + 0.05));
 	const axis = new THREE.Vector3(0, 0, 1);
 	decalMesh.quaternion.setFromUnitVectors(axis, faceNormal);
 }
