@@ -124,6 +124,11 @@ let hoverDecalMat = new THREE.MeshStandardMaterial({
 	// depthWrite: false,
 	// combine: THREE.MultiplyOperation,
 	fog: false,
+	// hover decal should always be on top of other decals
+	// (I have not played around with these values, but it seems to work)
+	polygonOffset: true,
+	polygonOffsetFactor: -1.0,
+	polygonOffsetUnits: -4.0
 });
 let validMoveDecalMat = new THREE.MeshStandardMaterial({
 	color: 0xaaaaaa,
