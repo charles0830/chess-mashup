@@ -588,7 +588,7 @@ function getMoves2D(piece) {
 		movementDirections.push([1, 1], [-1, 1], [1, -1], [-1, -1]);
 	}
 	if (piece.pieceType === "knight") {
-		movementDirections.push([2, 1], [2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]);
+		movementDirections.push([1, 2], [1, -2], [-1, 2], [-1, -2], [2, 1], [2, -1], [-2, 1], [-2, -1]);
 	}
 	if (piece.pieceType === "pawn") {
 		movementDirections.push([1, 0]);
