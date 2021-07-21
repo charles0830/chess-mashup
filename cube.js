@@ -16,7 +16,9 @@ try {
 }
 
 let cubeObject3D;
-const pieces = [];
+const allPieces = [];
+const livingPieces = [];
+const capturedPieces = [];
 let color1 = 0xaf0000;
 let color2 = 0xffffff;
 
@@ -277,7 +279,7 @@ addEventListener('mousedown', function (e) {
 			const points = move.keyframes.map(
 				({ gamePosition, towardsGroundVector }) =>
 					gameToWorldSpace(gamePosition)
-						//.add(towardsGroundVector.clone().multiplyScalar(squareSize / 2.91))
+				//.add(towardsGroundVector.clone().multiplyScalar(squareSize / 2.91))
 			);
 			// console.log(move.keyframes, points);
 			if (points.length < 3) {
@@ -381,10 +383,12 @@ class Piece {
 		return this.gamePosition.z;
 	}
 	makeMove(move, callback) {
-		const capturingPiece = pieceAtGamePosition(move.gamePosition);
+		const { capturingPiece } = move;
 		if (capturingPiece) {
-			scene.remove(capturingPiece.o);
-			pieces.splice(pieces.indexOf(capturingPiece), 1);
+			// we will remove it from the scene after the animation!
+			// scene.remove(capturingPiece.o);
+			livingPieces.splice(livingPieces.indexOf(capturingPiece), 1);
+			capturedPieces.push(capturingPiece);
 		}
 
 		this.gamePosition.copy(move.gamePosition);
@@ -404,8 +408,15 @@ class Piece {
 				// there's still the transition to the final position
 				setTimeout(() => {
 					this.animating = false;
+					if (capturingPiece) {
+						scene.remove(capturingPiece.o);
+					}
 					callback();
-				}, 300);
+				}, capturingPiece ? 1000 : 300);
+				// animate capturing
+				if (capturingPiece) {
+					capturingPiece.beingCaptured = true;
+				}
 			}
 		}, 300);
 
@@ -438,6 +449,12 @@ class Piece {
 		// wiggle the piece gently when it's selected
 		if (selectedPiece === this) {
 			this.o.rotation.z += Math.sin(Date.now() / 500) / 150;
+		}
+		// capturing animation
+		if (this.beingCaptured) {
+			this.o.rotation.y -= 0.1;
+			this.targetWorldPosition.add(this.towardsGroundVector.clone().multiplyScalar(-0.5));
+			this.o.visible = Math.random() < 0.8;
 		}
 	}
 	updateHovering(hovering) {
@@ -528,9 +545,10 @@ function init() {
 		[C - 4, C - 2],
 	];
 	for (let i in pieceLocations) {
-		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, pieceTypes[i % 6]));
-		pieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, pieceTypes[i % 6]));
+		allPieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, pieceTypes[i % 6]));
+		allPieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, pieceTypes[i % 6]));
 	}
+	livingPieces.push(...allPieces);
 
 	// lighting
 	const ambientLight = new THREE.AmbientLight(0xeeeeee);
@@ -577,8 +595,8 @@ function animate() {
 	requestAnimationFrame(animate);
 	stats.update();
 
-	for (let i = 0; i < pieces.length; i++) {
-		pieces[i].update();
+	for (let i = 0; i < allPieces.length; i++) {
+		allPieces[i].update();
 	}
 	controls.update();
 
@@ -626,7 +644,7 @@ function cubeAtGamePosition(gamePosition) {
 	return true;
 }
 function pieceAtGamePosition(gamePosition) {
-	return pieces.find((piece) => piece.gamePosition.equals(gamePosition));
+	return livingPieces.find((piece) => piece.gamePosition.equals(gamePosition));
 }
 
 function getMoves(piece) {
@@ -682,7 +700,7 @@ function getMoves(piece) {
 				// especially with the Rook, if we don't round this.
 				const forward = new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round();
 				pos.add(forward);
-				
+
 				const diagonalMovement = Math.abs(direction[0]) === 1 && Math.abs(direction[1]) === 1;
 				if (!diagonalMovement) {
 					keyframes.push({
@@ -726,7 +744,8 @@ function getMoves(piece) {
 			}
 			keyframes.push({
 				gamePosition: pos.clone(),
-				towardsGroundVector: towardsGroundVector.clone()
+				towardsGroundVector: towardsGroundVector.clone(),
+				capturingPiece: pieceAtPos,
 			});
 			moves.push({
 				piece: piece,
@@ -768,7 +787,7 @@ function takeTurn() {
 		return;
 	}
 	setTimeout(() => {
-		const piecesToTry = [...pieces];
+		const piecesToTry = [...livingPieces];
 		shuffle(piecesToTry);
 		for (const piece of piecesToTry) {
 			if (piece.team == team) {
