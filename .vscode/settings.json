@@ -12,6 +12,7 @@
 		"raycaster",
 		"slerp",
 		"unproject",
+		"voxel",
 		"wireframe"
 	]
 }

@@ -235,6 +235,13 @@ let movementDecals = [];
 
 const mouse = { x: null, y: null };
 
+function clearMovementDecals() {
+	for (const decal of movementDecals) {
+		scene.remove(decal);
+	}
+	movementDecals.length = 0;
+}
+
 addEventListener('mousemove', function (e) {
 	mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
 	mouse.y = 1 - (e.clientY / window.innerHeight) * 2;
@@ -244,30 +251,24 @@ addEventListener('mousedown', function (e) {
 	if (e.button !== 0) return;
 	if (hoveredPiece) {
 		selectedPiece = hoveredPiece;
-		const moves = getMoves2D(hoveredPiece, hoveredSpace);
+		clearMovementDecals();
+		const moves = getMoves(hoveredPiece, hoveredSpace);
 		console.log(moves);
 		for (const move of moves) {
-			const newPositions = get3DPositionsFrom2DRelativeMove(selectedPiece.gamePosition, selectedPiece.towardsGroundVector, move[0], move[1]);
-			shuffle(newPositions);
-			for (const newPosition of newPositions) {
-				const decal = makeDecal(validMoveDecalMat);
-				const towardsGroundVector = getTowardsGroundVector(newPosition);
-				const awayFromGroundVector = towardsGroundVector.clone().negate();
-				const decalWorldPosition = gameToWorldSpace(newPosition.clone().add(towardsGroundVector));
-				positionDecalWorldSpace(decal, decalWorldPosition, awayFromGroundVector);
-				movementDecals.push(decal);
-				scene.add(decal);
-			}
+			const decal = makeDecal(move.valid ? validMoveDecalMat : invalidMoveDecalMat);
+			const towardsGroundVector = getTowardsGroundVector(move.gamePosition);
+			const awayFromGroundVector = towardsGroundVector.clone().negate();
+			const decalWorldPosition = gameToWorldSpace(move.gamePosition.clone().add(towardsGroundVector));
+			positionDecalWorldSpace(decal, decalWorldPosition, awayFromGroundVector);
+			movementDecals.push(decal);
+			scene.add(decal);
 		}
 	} else if (selectedPiece) {
 		if (hoveredSpace) {
 			selectedPiece.moveTo(hoveredSpace);
 		}
 		selectedPiece = null;
-		for (const decal of movementDecals) {
-			scene.remove(decal);
-		}
-		movementDecals.length = 0;
+		clearMovementDecals();
 	}
 }, true);
 
@@ -584,7 +585,7 @@ function get3DPositionsFrom2DRelativeMove(startingPos, towardsGroundVector, delt
 	return [pos];
 }
 
-function getMoves2D(piece) {
+function getMoves(piece) {
 	const moves = [];
 	const canGoManySpaces = ["queen", "rook", "bishop"].indexOf(piece.pieceType) !== -1;
 	const movementDirections = [];
@@ -602,15 +603,31 @@ function getMoves2D(piece) {
 		// TODO: a pawn can move two spaces if it is the first move
 		// TODO: attack diagonally, and only move forward if there is no piece in the way
 	}
-	for (let jump = 1; jump <= (canGoManySpaces ? C - 1 : 1); jump++) {
-		for (const direction of movementDirections) {
-			moves.push(direction.map(coord => coord * jump));
+	for (const direction of movementDirections) {
+		let pos = piece.gamePosition.clone();
+		let towardsGroundVector = piece.towardsGroundVector.clone();
+		let positions = [];
+		for (let i = 1; i <= (canGoManySpaces ? C - 1 : 1); i++) {
+			const newPositions = get3DPositionsFrom2DRelativeMove(pos, piece.towardsGroundVector, direction[0], direction[1]);
+			// TODO: handle multiple new positions (e.g. a rook in a voxel world can either jump over a gap or wrap around a ledge)
+			if (newPositions.length === 0) {
+				break;
+			}
+			pos = newPositions[0];
+			towardsGroundVector = getTowardsGroundVector(pos);
+			positions.push(pos);
+			moves.push({
+				piece: piece,
+				gamePosition: pos,
+				gamePositions: positions,
+				towardsGroundVector: towardsGroundVector,
+			});
 		}
 	}
-	// console.log(moves, piece.pieceType, movementDirections	);
-	// for (const move of moves) {
-	// 	move.valid = true;
-	// }
+	// console.log(moves, piece.pieceType, movementDirections);
+	for (const move of moves) {
+		move.valid = true; // TODO: check if the move is valid
+	}
 	return moves;
 }
 
@@ -621,13 +638,11 @@ function takeTurn() {
 	while (timeout--) {
 		const piece = pieces[Math.floor(Math.random() * pieces.length)];
 		if (piece.team == turn && Math.random() < 4) {
-			const moves = getMoves2D(piece);
+			const moves = getMoves(piece);
 			shuffle(moves);
 			for (const move of moves) {
-				const newPositions = get3DPositionsFrom2DRelativeMove(piece.gamePosition, piece.towardsGroundVector, move[0], move[1]);
-				shuffle(newPositions);
-				for (const newPosition of newPositions) {
-					if (piece.moveTo(newPosition)) {
+				if (move.valid) {
+					if (piece.moveTo(move.gamePosition)) {
 						return true;
 					}
 				}
