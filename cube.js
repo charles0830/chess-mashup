@@ -449,7 +449,7 @@ function getTowardsGroundVector(gamePosition) {
 function init() {
 
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-	camera.position.z = 500;
+	camera.position.z = -500;
 	camera.near = 0.1;
 	camera.far = 1000;
 
