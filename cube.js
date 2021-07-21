@@ -1,6 +1,8 @@
 
 if (!Detector.webgl) Detector.addGetWebGLMessage();
 
+const turnIndicator = document.getElementById("turn-indicator");
+
 let container, stats,
 	camera, controls,
 	scene, renderer;
@@ -230,7 +232,10 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 
 const C = 8; // metacube board size in cubes/squares/cells
 
-let turn = false;
+let teamTypes = ["human", "computer"];
+let teamNames = ["White", "Red"];
+let turnMessages = ["Your turn", "Red's turn"];
+let turn = 0;
 let raycaster;
 const intersects = [];
 let hoveredPiece;
@@ -254,7 +259,7 @@ addEventListener('mousemove', function (e) {
 
 addEventListener('mousedown', function (e) {
 	if (e.button !== 0) return;
-	if (hoveredPiece) {
+	if (hoveredPiece && teamTypes[hoveredPiece.team] === "human" && turn % 2 === hoveredPiece.team) {
 		selectedPiece = hoveredPiece;
 		clearMovementDecals();
 		const moves = getMoves(hoveredPiece, hoveredSpace);
@@ -273,7 +278,8 @@ addEventListener('mousedown', function (e) {
 			const moves = getMoves(selectedPiece, hoveredSpace);
 			const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
 			if (move) {
-				selectedPiece.makeMove(move);
+				selectedPiece.makeMove(move, takeTurn);
+				turn++;
 			}
 		}
 		selectedPiece = null;
@@ -347,7 +353,7 @@ class Piece {
 	get z() {
 		return this.gamePosition.z;
 	}
-	makeMove(move) {
+	makeMove(move, callback) {
 		const capturingPiece = pieceAtGamePosition(move.gamePosition);
 		if (capturingPiece) {
 			scene.remove(capturingPiece.o);
@@ -370,6 +376,7 @@ class Piece {
 				// there's still the transition to the final position
 				setTimeout(() => {
 					this.animating = false;
+					callback();
 				}, 300);
 			}
 		}, 300);
@@ -710,28 +717,30 @@ function getMoves(piece) {
 }
 
 function takeTurn() {
-	//AI!
-	turn = !turn;
-	let timeout = 100;
-	while (timeout--) {
-		const piece = pieces[Math.floor(Math.random() * pieces.length)];
-		if (piece.team == turn && Math.random() < 4) {
-			const moves = getMoves(piece);
-			shuffle(moves);
-			for (const move of moves) {
-				if (move.valid) {
-					piece.makeMove(move);
-					return;
+	const team = turn % 2;
+	turnIndicator.textContent = `${turnMessages[team]} (${teamNames[team]})`;
+	console.log("takeTurn", turn, team, teamTypes[team]);
+	if (teamTypes[team] !== "computer") {
+		return;
+	}
+	setTimeout(() => {
+		const piecesToTry = [...pieces];
+		shuffle(piecesToTry);
+		for (const piece of piecesToTry) {
+			if (piece.team == team) {
+				const moves = getMoves(piece);
+				shuffle(moves);
+				for (const move of moves) {
+					if (move.valid) {
+						piece.makeMove(move, takeTurn);
+						turn++;
+						return;
+					}
 				}
 			}
 		}
-	}
-	console.log("Couldn't find move.");
-	return false;
-
-	function r() {
-		return Math.floor(Math.random() * 3) - 1;
-	}
+		console.log("Couldn't find move.");
+	}, 500);
 }
 
 function shuffle(array) {
@@ -743,6 +752,5 @@ function shuffle(array) {
 
 init();
 animate();
-setTimeout(() => {
-	setInterval(takeTurn, 1000);
-}, 5000);
+takeTurn();
+
