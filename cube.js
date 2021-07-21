@@ -580,15 +580,19 @@ function getMoves(piece) {
 	const canGoManySpaces = ["queen", "rook", "bishop"].indexOf(piece.pieceType) !== -1;
 	const movementDirections = [];
 	if (piece.pieceType === "king" || piece.pieceType === "queen" || piece.pieceType === "rook") {
+		// horizontal and vertical movement
 		movementDirections.push([1, 0], [-1, 0], [0, 1], [0, -1]);
 	}
 	if (piece.pieceType === "king" || piece.pieceType === "queen" || piece.pieceType === "bishop") {
+		// diagonal movement
 		movementDirections.push([1, 1], [-1, 1], [1, -1], [-1, -1]);
 	}
 	if (piece.pieceType === "knight") {
+		// L-shaped movement
 		movementDirections.push([1, 2], [1, -2], [-1, 2], [-1, -2], [2, 1], [2, -1], [-2, 1], [-2, -1]);
 	}
 	if (piece.pieceType === "pawn") {
+		// one space forward, and for attacking, one space diagonally forward
 		movementDirections.push([1, 0], [1, 1], [1, -1]);
 		// a pawn can move two spaces if it is the first move the pawn makes
 		if (piece.gamePosition.equals(piece.startingGamePosition)) {
@@ -619,7 +623,8 @@ function getMoves(piece) {
 		
 			// if there's no ground underneath the new position, wrap around the cube
 			if (!cubeAtGamePosition(pos.clone().add(towardsGroundVector))) {
-				// don't move diagonally off the edge of the board cube
+				// don't move diagonally off the edge of the board cube for now
+				// TODO: break move into smaller moves
 				if (direction[0] !== 0 && direction[1] !== 0) {
 					break;
 				}
