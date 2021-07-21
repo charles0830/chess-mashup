@@ -234,7 +234,7 @@ const C = 8; // metacube board size in cubes/squares/cells
 
 let teamTypes = ["human", "computer"];
 let teamNames = ["White", "Red"];
-let turnMessages = ["Your turn", "Red's turn"];
+let turnMessages = ["Your turn (White)", "Compu-turn (Red)"];
 let turn = 0;
 let raycaster;
 const intersects = [];
@@ -719,7 +719,7 @@ function getMoves(piece) {
 
 function takeTurn() {
 	const team = turn % 2;
-	turnIndicator.textContent = `${turnMessages[team]} (${teamNames[team]})`;
+	turnIndicator.textContent = turnMessages[team];
 	console.log("takeTurn", turn, team, teamTypes[team]);
 	if (teamTypes[team] !== "computer") {
 		return;

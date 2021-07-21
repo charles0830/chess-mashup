@@ -11,14 +11,6 @@
 			padding: 0;
 			overflow: hidden;
 		}
-		#overlay {
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			pointer-events: none;
-		}
 		#turn-indicator {
 			background-color: black;
 			color: white;
@@ -28,15 +20,15 @@
 			position: absolute;
 			top: 0;
 			right: 0;
+			padding: 15px 20px;
+			border-bottom-left-radius: 20px;
 		}
 	</style>
 </head>
 
 <body>
 	<div id="container"></div>
-	<div id="overlay">
-		<span id="turn-indicator"></span>
-	</div>
+	<span id="turn-indicator"></span>
 
 	<script src="lib/three.js"></script>
 	<script src="lib/stats.js"></script>
