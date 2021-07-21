@@ -259,12 +259,12 @@ addEventListener('mousemove', function (e) {
 
 addEventListener('mousedown', function (e) {
 	if (e.button !== 0) return;
-	console.log(`Clicked piece: ${hoveredPiece}`);
+	// console.log(`Clicked piece: ${hoveredPiece}`);
 	if (hoveredPiece && teamTypes[hoveredPiece.team] === "human" && turn % 2 === hoveredPiece.team) {
 		selectedPiece = hoveredPiece;
 		clearMovementDecals();
 		const moves = getMoves(hoveredPiece, hoveredSpace);
-		console.log(moves);
+		// console.log(moves);
 		for (const move of moves) {
 			const decal = makeDecal(move.valid ? validMoveDecalMat : invalidMoveDecalMat);
 			const towardsGroundVector = getTowardsGroundVector(move.gamePosition);
@@ -721,7 +721,7 @@ function getMoves(piece) {
 function takeTurn() {
 	const team = turn % 2;
 	turnIndicator.textContent = turnMessages[team];
-	console.log(`Turn ${turn} is ${teamNames[team]}'s turn (${teamTypes[team]})`);
+	// console.log(`Turn ${turn} is ${teamNames[team]}'s turn (${teamTypes[team]})`);
 	if (teamTypes[team] !== "computer") {
 		return;
 	}
@@ -741,6 +741,7 @@ function takeTurn() {
 				}
 			}
 		}
+		// Stalemate?
 		console.log("Couldn't find move.");
 	}, 500);
 }
