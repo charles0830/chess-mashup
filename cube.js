@@ -361,7 +361,7 @@ class Piece {
 			if (animIndex >= move.keyframes.length) {
 				clearInterval(iid);
 			}
-		}, 500);
+		}, 300);
 
 		this.orientTowardsCube(false);
 	}
@@ -375,10 +375,11 @@ class Piece {
 		}
 	}
 	update() {
-		this.o.position.x += (this.targetWorldPosition.x - this.o.position.x) / 20;
-		this.o.position.y += (this.targetWorldPosition.y - this.o.position.y) / 20;
-		this.o.position.z += (this.targetWorldPosition.z - this.o.position.z) / 20;
-		this.o.quaternion.slerp(this.targetOrientation, 1 / 20);
+		const slowness = 10;
+		this.o.position.x += (this.targetWorldPosition.x - this.o.position.x) / slowness;
+		this.o.position.y += (this.targetWorldPosition.y - this.o.position.y) / slowness;
+		this.o.position.z += (this.targetWorldPosition.z - this.o.position.z) / slowness;
+		this.o.quaternion.slerp(this.targetOrientation, 1 / slowness);
 		// this.o.quaternion.rotateTowards(this.targetOrientation, 0.05);
 		if (selectedPiece === this) {
 			this.o.rotation.z += Math.sin(Date.now() / 500) / 150;
