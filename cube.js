@@ -266,8 +266,9 @@ addEventListener('mousedown', function (e) {
 	} else if (selectedPiece) {
 		if (hoveredSpace) {
 			const moves = getMoves(selectedPiece, hoveredSpace);
-			if (moves.some((move) => move.valid && move.gamePosition.equals(hoveredSpace))) {
-				selectedPiece.moveTo(hoveredSpace);
+			const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
+			if (move) {
+				selectedPiece.makeMove(move);
 			}
 		}
 		selectedPiece = null;
@@ -341,14 +342,22 @@ class Piece {
 	get z() {
 		return this.gamePosition.z;
 	}
-	moveTo(gamePosition) {
-		const capturingPiece = pieceAtGamePosition(gamePosition);
+	makeMove(move) {
+		const capturingPiece = pieceAtGamePosition(move.gamePosition);
 		if (capturingPiece) {
 			scene.remove(capturingPiece.o);
 		}
 
-		this.gamePosition.copy(gamePosition);
-		this.targetWorldPosition = gameToWorldSpace(this.gamePosition);
+		this.gamePosition.copy(move.gamePosition);
+		let animIndex = 0;
+		const iid = setInterval(() => {
+			const targetGamePosition = move.gamePositions[animIndex];
+			this.targetWorldPosition = gameToWorldSpace(targetGamePosition);
+			animIndex++;
+			if (animIndex >= move.gamePositions.length) {
+				clearInterval(iid);
+			}
+		}, 500);
 
 		this.orientTowardsCube();
 	}
@@ -668,7 +677,7 @@ function takeTurn() {
 			shuffle(moves);
 			for (const move of moves) {
 				if (move.valid) {
-					piece.moveTo(move.gamePosition);
+					piece.makeMove(move);
 					return;
 				}
 			}
