@@ -129,7 +129,7 @@ let validMoveDecalMat = new THREE.MeshStandardMaterial({
 	color: 0xaaaaaa,
 	emissive: 0x442200,
 	transparent: true,
-	opacity: 0.8,
+	opacity: 0.7,
 	map: hoverDecalTexture,
 	fog: false,
 });
@@ -137,7 +137,7 @@ let invalidMoveDecalMat = new THREE.MeshStandardMaterial({
 	color: 0xffaa00,
 	emissive: 0x442200,
 	transparent: true,
-	opacity: 0.8,
+	opacity: 0.7,
 	map: hoverDecalTexture,
 	fog: false,
 });
@@ -145,23 +145,30 @@ let invalidMoveDecalMat = new THREE.MeshStandardMaterial({
 if (theme === "wireframe" || theme === "perf") {
 	color1 = 0xffffff;
 	color2 = 0xff0000;
-	boardMat1 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true });
-	boardMat2 = new THREE.MeshBasicMaterial({ color: "green", wireframe: true });
-	// boardMat1 = new THREE.MeshBasicMaterial({ color: "white", wireframe: true });
-	// boardMat2 = new THREE.MeshBasicMaterial({ color: "black", wireframe: true });
 	if (theme === "perf") {
 		// boardMat1 = new THREE.MeshBasicMaterial({ color: "lime" });
 		// boardMat2 = new THREE.MeshBasicMaterial({ color: "green" });
 		boardMat1 = new THREE.MeshBasicMaterial({ color: 0xaa0000 });
 		boardMat2 = new THREE.MeshBasicMaterial({ color: 0xcccccc });
+	} else {
+		boardMat1 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true });
+		boardMat2 = new THREE.MeshBasicMaterial({ color: "green", wireframe: true });
+		// boardMat1 = new THREE.MeshBasicMaterial({ color: "white", wireframe: true });
+		// boardMat2 = new THREE.MeshBasicMaterial({ color: "black", wireframe: true });
 	}
 	pieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true });
 	pieceMat2 = new THREE.MeshBasicMaterial({ color: color2, wireframe: true });
 	hoveredPieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true, fog: false });
 	hoveredPieceMat2 = new THREE.MeshBasicMaterial({ color: color2, wireframe: true, fog: false });
 	hoverDecalMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, fog: false });
-	validMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
-	invalidMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, opacity: 0.5, transparent: true });
+	if (theme === "perf") {
+		validMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
+		invalidMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, opacity: 0.5, transparent: true });
+	} else {
+		validMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true, fog: false });
+		invalidMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, wireframe: true, fog: false });
+	}
+
 }
 
 function makeDecal(material) {
