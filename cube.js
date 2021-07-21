@@ -318,7 +318,7 @@ class Piece {
 			mesh.position.y -= 15;
 		});
 		this.o.position.copy(this.targetWorldPosition);
-		this.orientTowardsCube();
+		this.orientTowardsCube(true);
 		this.o.quaternion.copy(this.targetOrientation);
 		scene.add(this.o);
 		this.o.piece = this;
@@ -351,22 +351,28 @@ class Piece {
 		this.gamePosition.copy(move.gamePosition);
 		let animIndex = 0;
 		const iid = setInterval(() => {
-			const targetGamePosition = move.gamePositions[animIndex];
-			this.targetWorldPosition = gameToWorldSpace(targetGamePosition);
+			const { gamePosition, towardsGroundVector } = move.keyframes[animIndex];
+			this.targetWorldPosition = gameToWorldSpace(gamePosition);
+			this.targetOrientation.setFromUnitVectors(
+				new THREE.Vector3(0, -1, 0),
+				towardsGroundVector.clone(),
+			);
 			animIndex++;
-			if (animIndex >= move.gamePositions.length) {
+			if (animIndex >= move.keyframes.length) {
 				clearInterval(iid);
 			}
 		}, 500);
 
-		this.orientTowardsCube();
+		this.orientTowardsCube(false);
 	}
-	orientTowardsCube() {
+	orientTowardsCube(updateTargetOrientation = true) {
 		this.towardsGroundVector.copy(getTowardsGroundVector(this.gamePosition));
-		this.targetOrientation.setFromUnitVectors(
-			new THREE.Vector3(0, -1, 0),
-			this.towardsGroundVector.clone(),
-		);
+		if (updateTargetOrientation) {
+			this.targetOrientation.setFromUnitVectors(
+				new THREE.Vector3(0, -1, 0),
+				this.towardsGroundVector.clone(),
+			);
+		}
 	}
 	update() {
 		this.o.position.x += (this.targetWorldPosition.x - this.o.position.x) / 20;
@@ -591,7 +597,7 @@ function getMoves(piece) {
 	for (const direction of movementDirections) {
 		let pos = piece.gamePosition.clone();
 		let towardsGroundVector = piece.towardsGroundVector.clone();
-		let positions = [];
+		let keyframes = []; // for animating the piece's movement
 		for (let i = 1; i <= (canGoManySpaces ? C - 1 : 1); i++) {
 			// TODO: keep piece facing and heading in the same direction when wrapping around the board
 			// TODO: handle multiple new positions (e.g. a rook in a voxel world can either jump over a gap or wrap around a ledge)
@@ -616,24 +622,36 @@ function getMoves(piece) {
 				if (direction[0] !== 0 && direction[1] !== 0) {
 					break;
 				}
-				// these positions are for animating the piece's movement
-				// add an interim position where the piece is over the edge of the board cube
-				positions.push(pos.clone());
+				// to avoid the piece sliding through the board,
+				// add a keyframe where the piece is over the edge of the board
+				keyframes.push({
+					gamePosition: pos.clone(),
+					towardsGroundVector: towardsGroundVector.clone()
+				});
+				// and another keyframe with the new orientation
+				const newTowardsGroundVector = getTowardsGroundVector(pos.clone().add(towardsGroundVector));
+				keyframes.push({
+					gamePosition: pos.clone(),
+					towardsGroundVector: newTowardsGroundVector,
+				});
 				// move down off the edge of the board cube
 				pos.add(towardsGroundVector);
+				towardsGroundVector = getTowardsGroundVector(pos);
 			}
 		
-			towardsGroundVector = getTowardsGroundVector(pos);
 			const pieceAtPos = pieceAtGamePosition(pos);
 			if (pieceAtPos && pieceAtPos.team === piece.team) {
 				// can't move onto a friendly piece
 				break;
 			}
-			positions.push(pos.clone());
+			keyframes.push({
+				gamePosition: pos.clone(),
+				towardsGroundVector: towardsGroundVector.clone()
+			});
 			moves.push({
 				piece: piece,
 				gamePosition: pos.clone(),
-				gamePositions: [...positions], // make copy so each move has its own list of positions that ends with the gamePosition of the move
+				keyframes: [...keyframes], // make copy so each move has its own list of keyframes that ends with the final position
 				towardsGroundVector,
 				direction,
 				capturingPiece: pieceAtPos,
