@@ -603,9 +603,8 @@ function getMoves(piece) {
 		movementDirections.push([1, 2], [1, -2], [-1, 2], [-1, -2], [2, 1], [2, -1], [-2, 1], [-2, -1]);
 	}
 	if (piece.pieceType === "pawn") {
-		movementDirections.push([1, 0]);
+		movementDirections.push([1, 0], [1, 1], [1, -1]);
 		// TODO: a pawn can move two spaces if it is the first move
-		// TODO: attack diagonally, and only move forward if there is no piece in the way
 	}
 	for (const direction of movementDirections) {
 		let pos = piece.gamePosition.clone();
@@ -628,7 +627,9 @@ function getMoves(piece) {
 				piece: piece,
 				gamePosition: pos,
 				gamePositions: positions,
-				towardsGroundVector: towardsGroundVector,
+				towardsGroundVector,
+				direction,
+				capturingPiece: pieceAtPos,
 			});
 			if (pieceAtPos) {
 				break;
@@ -637,7 +638,17 @@ function getMoves(piece) {
 	}
 	// console.log(moves, piece.pieceType, movementDirections);
 	for (const move of moves) {
-		move.valid = true; // TODO: check if the move is valid
+		// TODO: generate more invalid moves? e.g. moving onto a friendly piece
+		move.valid = true;
+		if (move.piece.pieceType === "pawn") {
+			if (move.direction[1] === 0) {
+				if (move.capturingPiece) {
+					move.valid = false;
+				}
+			} else if (!move.capturingPiece) {
+				move.valid = false;
+			}
+		}
 	}
 	return moves;
 }
