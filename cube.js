@@ -413,10 +413,12 @@ class Piece {
 					}
 					callback();
 				}, capturingPiece ? 1000 : 300);
-				// animate capturing
-				if (capturingPiece) {
+			}
+			// animate capturing as the piece moves into the final position
+			if (capturingPiece && animIndex === move.keyframes.length - 2) {
+				setTimeout(() => {
 					capturingPiece.beingCaptured = true;
-				}
+				}, 200);
 			}
 		}, 300);
 
