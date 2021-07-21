@@ -625,10 +625,11 @@ function getMoves(piece) {
 		let positions = [];
 		for (let i = 1; i <= (canGoManySpaces ? C - 1 : 1); i++) {
 			const newPositions = get3DPositionsFrom2DRelativeMove(pos, towardsGroundVector, direction[0], direction[1]);
-			// TODO: handle multiple new positions (e.g. a rook in a voxel world can either jump over a gap or wrap around a ledge)
 			if (newPositions.length === 0) {
 				break;
 			}
+			// TODO: handle multiple new positions (e.g. a rook in a voxel world can either jump over a gap or wrap around a ledge)
+			// (can use recursion to do this)
 			pos = newPositions[0];
 			towardsGroundVector = getTowardsGroundVector(pos);
 			const pieceAtPos = pieceAtGamePosition(pos);
@@ -639,7 +640,7 @@ function getMoves(piece) {
 			moves.push({
 				piece: piece,
 				gamePosition: pos,
-				gamePositions: positions,
+				gamePositions: [...positions], // make copy so each move has its own list of positions that ends with the gamePosition of the move
 				towardsGroundVector,
 				direction,
 				capturingPiece: pieceAtPos,
