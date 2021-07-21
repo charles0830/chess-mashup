@@ -357,6 +357,7 @@ class Piece {
 		const capturingPiece = pieceAtGamePosition(move.gamePosition);
 		if (capturingPiece) {
 			scene.remove(capturingPiece.o);
+			pieces.splice(pieces.indexOf(capturingPiece), 1);
 		}
 
 		this.gamePosition.copy(move.gamePosition);
