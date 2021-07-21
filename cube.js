@@ -273,6 +273,30 @@ addEventListener('mousedown', function (e) {
 			positionDecalWorldSpace(decal, decalWorldPosition, awayFromGroundVector);
 			movementDecals.push(decal);
 			scene.add(decal);
+			// also show the path of the move, in 3D
+			const points = move.keyframes.map(
+				({ gamePosition }) => gameToWorldSpace(gamePosition)
+			);
+			console.log(move.keyframes, points);
+			if (points.length < 3) {
+				points.push(points[0].clone().add(new THREE.Vector3(0, 0, 0.1)));
+			}
+			if (points.length < 3) {
+				points.push(points[0].clone().add(new THREE.Vector3(0, 0.1, 0)));
+			}
+			// const spline = new THREE.CatmullRomCurve3(points);
+			const lineGeometry = new THREE.BufferGeometry();
+			const pointData = new Float32Array(points.length * 3);
+			for (let i = 0; i < points.length; i++) {
+				pointData[i * 3] = points[i].x;
+				pointData[i * 3 + 1] = points[i].y;
+				pointData[i * 3 + 2] = points[i].z;
+			}
+			lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(pointData, 3));
+			const path = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color: 0xffffff }));
+			// path.position.copy(decalWorldPosition);
+			scene.add(path);
+			movementDecals.push(path);
 		}
 	} else if (selectedPiece) {
 		if (hoveredSpace) {
@@ -640,7 +664,7 @@ function getMoves(piece) {
 			for (let y = 0; y < Math.abs(direction[1]); y++) {
 				subSteps.push([0, Math.sign(direction[1])]);
 			}
-			
+
 			for (const subStep of subSteps) {
 				// TODO: keep piece facing and heading in the same direction when wrapping around the board
 				// TODO: handle multiple new positions (e.g. a rook in a voxel world can either jump over a gap or wrap around a ledge)
