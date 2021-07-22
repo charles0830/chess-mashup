@@ -282,6 +282,7 @@ let teamNames = ["White", "Red"];
 let turnMessages = ["Your turn (White)", "Compu-turn (Red)"];
 let turn = 0;
 let gameOver = false;
+let moveInProgress = false;
 let raycaster;
 const intersects = [];
 let hoveredPiece;
@@ -309,9 +310,12 @@ addEventListener('mousedown', function (e) {
 	// console.log(`Clicked piece: ${hoveredPiece}`);
 	if (hoveredPiece &&
 		(
-			(teamTypes[hoveredPiece.team] === "human" &&
-				turn % 2 === hoveredPiece.team
-			) || gameOver
+			(
+				teamTypes[hoveredPiece.team] === "human" &&
+				turn % 2 === hoveredPiece.team &&
+				!moveInProgress
+			) ||
+			gameOver
 		)
 	) {
 		selectedPiece = hoveredPiece;
@@ -402,6 +406,11 @@ class Piece {
 		if (gameOver) {
 			return;
 		}
+		if (moveInProgress) {
+			return;
+		}
+		moveInProgress = true;
+
 		const { capturingPiece } = move;
 		if (capturingPiece) {
 			// we will remove it from the scene after the animation!
@@ -430,6 +439,7 @@ class Piece {
 				// there's still the transition to the final position
 				setTimeout(() => {
 					this.animating = false;
+					moveInProgress = false;
 					if (capturingPiece) {
 						capturingPiece.destroy();
 					}
