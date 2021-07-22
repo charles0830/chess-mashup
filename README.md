@@ -3,12 +3,19 @@
 
 Finally, a perfect information game with poor visibility.
 
+No fog of war, or anything *silly* like that. 🌫️⚔️💣
+Sure there's *3-D chess* and *N-D chess*, where it's hard to wrap your head around it, 🤯  
+but in this game, it's hard to hard to wrap your *eyes* around it. 👀  
+It's innovative. 🍷🤔
+
 or...
 
-# Chessgocala
+# Chessgocala, or: Frankenstein's Board Game, or: What Game Should We Play?
 
 Board game mashup. How many abstract board games can you play on the same board?
 How many rule sets can you combine?
+
+♟️♙️♖️♘️♗️♔️♕️🃏🎲👾🅂🄲🅁🄰🄱🄱🄻🄴🎯🎱🎳🎮⬮⬯●○⬬⬭⬬⬭⬬⬭
 
 or...
 
