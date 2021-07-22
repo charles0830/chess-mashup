@@ -975,7 +975,8 @@ function takeTurn() {
 		for (const piece of piecesToTry) {
 			moves.push(...getMoves(piece).filter(move => move.valid));
 		}
-		shuffle(moves);
+		shuffle(moves); // make the AI a little less predictable
+		moves.sort((a, b) => a.distance - b.distance); // make AI more polite by taking shorter moves
 		moves.sort((a, b) => judgeMove(b) - judgeMove(a));
 		const move = moves[0];
 		if (move) {
