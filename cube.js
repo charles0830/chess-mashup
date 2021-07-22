@@ -394,12 +394,14 @@ class Piece {
 		this.object3d = new THREE.Object3D();
 		this.defaultMaterial = team == 0 ? pieceMat0 : pieceMat1;
 		this.hoverMaterial = team == 0 ? hoveredPieceMat0 : hoveredPieceMat1;
-		const tempGeometry = new THREE.CylinderGeometry(10, 10, 30, 8, 1, false);
+		const tempGeometry = new THREE.CylinderGeometry(10, 10, 1, 8, 1, false);
 		const tempMesh = new THREE.Mesh(tempGeometry, this.defaultMaterial);
+		tempMesh.scale.y = 30;
+		tempMesh.position.y = (tempMesh.scale.y - squareSize) / 2;
 		this.object3d.add(tempMesh);
-		// TODO: try leaving temp mesh in scene as a raycast target, but hide it
-		this.raycastTarget = tempMesh;
-		raycastTargets.push(this.raycastTarget);
+		this.raycastMesh = tempMesh;
+		this.visualMesh = tempMesh;
+		raycastTargets.push(this.raycastMesh);
 		this.setPieceType(pieceType);
 		this.object3d.position.copy(this.targetWorldPosition);
 		this.orientTowardsCube(true);
@@ -410,18 +412,25 @@ class Piece {
 	}
 	destroy() {
 		scene.remove(this.object3d);
-		raycastTargets.splice(raycastTargets.indexOf(this.raycastTarget), 1);
+		raycastTargets.splice(raycastTargets.indexOf(this.raycastMesh), 1);
 	}
 	setPieceType(pieceType) {
 		this.pieceType = pieceType;
 		const index = pieceTypes.indexOf(this.pieceType);
 		geometryPromises[Math.max(0, index)].then((geometry) => {
 			const mesh = new THREE.Mesh(geometry, this.defaultMaterial);
+			geometry.computeBoundingBox();
+			this.raycastMesh.scale.y = geometry.boundingBox.max.z - geometry.boundingBox.min.z;
+			this.raycastMesh.position.y = this.raycastMesh.scale.y / 2 - 15;
 			this.object3d.add(mesh);
-			this.object3d.remove(this.raycastTarget);
-			raycastTargets.splice(raycastTargets.indexOf(this.raycastTarget), 1);
-			this.raycastTarget = mesh;
-			raycastTargets.push(this.raycastTarget);
+			this.raycastMesh.visible = false;
+			if (this.visualMesh !== this.raycastMesh) {
+				this.object3d.remove(this.visualMesh);
+			}
+			// raycastTargets.splice(raycastTargets.indexOf(this.raycastMesh), 1);
+			// this.raycastMesh = mesh;
+			// raycastTargets.push(this.raycastMesh);
+			this.visualMesh = mesh;
 			mesh.rotation.x -= Math.PI / 2;
 			mesh.position.y -= 15;
 		});
@@ -525,8 +534,7 @@ class Piece {
 		}
 	}
 	updateHovering(hovering) {
-		const mesh = this.object3d.children[0];
-		mesh.material = !hovering ? this.defaultMaterial : this.hoverMaterial;
+		this.visualMesh.material = !hovering ? this.defaultMaterial : this.hoverMaterial;
 	}
 	toString() {
 		const { x, y, z } = this.gamePosition;
