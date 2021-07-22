@@ -945,6 +945,14 @@ function takeTurn() {
 	turnIndicator.textContent = turnMessages[team] + (inCheck ? " CHECK" : "");
 	// console.log(`Turn ${turn} is ${teamNames[team]}'s turn (${teamTypes[team]})`);
 	setTimeout(() => {
+		if (!livingPieces.some(piece => piece.team === team && piece.pieceType === "king")) {
+			// this should never happen in normal chess, but we're experimenting with weird chess variants, so...
+			const winningTeam = +!team;
+			turnIndicator.textContent = `Assassin-mate! ${teamNames[winningTeam]} wins!`
+			gameOver = true;
+			return;
+		}
+
 		const piecesToTry = livingPieces.filter(piece => piece.team === team);
 		const moves = [];
 		for (const piece of piecesToTry) {
