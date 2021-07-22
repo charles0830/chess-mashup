@@ -207,6 +207,32 @@ function positionDecalWorldSpace(decalMesh, worldPosition, faceNormal) {
 	decalMesh.quaternion.setFromUnitVectors(axis, faceNormal);
 }
 
+function makeMovePath(move) {
+	const points = move.keyframes.map(
+		({ gamePosition, towardsGroundVector }) =>
+			gameToWorldSpace(gamePosition)
+		//.add(towardsGroundVector.clone().multiplyScalar(squareSize / 2.91))
+	);
+	// console.log(move.keyframes, points);
+	if (points.length < 3) {
+		points.push(points[0].clone().add(new THREE.Vector3(0, 0, 0.1)));
+	}
+	if (points.length < 3) {
+		points.push(points[0].clone().add(new THREE.Vector3(0, 0.1, 0)));
+	}
+	// const spline = new THREE.CatmullRomCurve3(points);
+	const lineGeometry = new THREE.BufferGeometry();
+	const pointData = new Float32Array(points.length * 3);
+	for (let i = 0; i < points.length; i++) {
+		pointData[i * 3] = points[i].x;
+		pointData[i * 3 + 1] = points[i].y;
+		pointData[i * 3 + 2] = points[i].z;
+	}
+	lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(pointData, 3));
+	const path = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color: 0xffffff }));
+	return path;
+}
+
 
 const hoverDecal = makeDecal(hoverDecalMat);
 
@@ -292,30 +318,7 @@ addEventListener('mousedown', function (e) {
 			positionDecalWorldSpace(decal, decalWorldPosition, awayFromGroundVector);
 			movementDecals.push(decal);
 			scene.add(decal);
-			// also show the path of the move, in 3D
-			const points = move.keyframes.map(
-				({ gamePosition, towardsGroundVector }) =>
-					gameToWorldSpace(gamePosition)
-				//.add(towardsGroundVector.clone().multiplyScalar(squareSize / 2.91))
-			);
-			// console.log(move.keyframes, points);
-			if (points.length < 3) {
-				points.push(points[0].clone().add(new THREE.Vector3(0, 0, 0.1)));
-			}
-			if (points.length < 3) {
-				points.push(points[0].clone().add(new THREE.Vector3(0, 0.1, 0)));
-			}
-			// const spline = new THREE.CatmullRomCurve3(points);
-			const lineGeometry = new THREE.BufferGeometry();
-			const pointData = new Float32Array(points.length * 3);
-			for (let i = 0; i < points.length; i++) {
-				pointData[i * 3] = points[i].x;
-				pointData[i * 3 + 1] = points[i].y;
-				pointData[i * 3 + 2] = points[i].z;
-			}
-			lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(pointData, 3));
-			const path = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color: 0xffffff }));
-			// path.position.copy(decalWorldPosition);
+			const path = makeMovePath(move);
 			scene.add(path);
 			movementDecals.push(path);
 		}
@@ -391,10 +394,13 @@ class Piece {
 		const { capturingPiece } = move;
 		if (capturingPiece) {
 			// we will remove it from the scene after the animation!
-			// scene.remove(capturingPiece.o);
+			// update the game state immediately, so it's easier to implement consistent mechanics
 			livingPieces.splice(livingPieces.indexOf(capturingPiece), 1);
 			capturedPieces.push(capturingPiece);
 		}
+
+		const path = makeMovePath(move);
+		scene.add(path);
 
 		this.gamePosition.copy(move.gamePosition);
 		this.animating = true;
@@ -416,6 +422,7 @@ class Piece {
 					if (capturingPiece) {
 						capturingPiece.destroy();
 					}
+					scene.remove(path);
 					callback();
 				}, capturingPiece ? 1000 : 300);
 			}
