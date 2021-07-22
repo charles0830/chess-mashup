@@ -415,10 +415,19 @@ class Piece {
 				}, capturingPiece ? 1000 : 300);
 			}
 			// animate capturing as the piece moves into the final position
-			if (capturingPiece && animIndex === move.keyframes.length - 2) {
-				setTimeout(() => {
-					capturingPiece.beingCaptured = true;
-				}, 200);
+			if (capturingPiece && animIndex === move.keyframes.length - 1) {
+				capturingPiece.beingCaptured = true;
+				// console.log(move.keyframes);
+				// TODO: why does this need -2 and -3 rather than -1 and -2?
+				// maybe calculate this earlier, separate from keyframes
+				const attackDirection = new THREE.Vector3().subVectors(
+					move.keyframes[move.keyframes.length - 2].gamePosition,
+					move.keyframes[move.keyframes.length - 3].gamePosition,
+				);
+				console.log(attackDirection);
+				capturingPiece.targetWorldPosition.add(
+					attackDirection.multiplyScalar(squareSize),
+				);
 			}
 		}, 300);
 
@@ -455,6 +464,8 @@ class Piece {
 		// capturing animation
 		if (this.beingCaptured) {
 			this.o.rotation.y -= 0.1;
+			this.o.rotation.z -= 0.1;
+			this.o.rotation.x -= 0.1;
 			this.targetWorldPosition.add(this.towardsGroundVector.clone().multiplyScalar(-0.5));
 			this.o.visible = Math.random() < 0.8;
 		}
