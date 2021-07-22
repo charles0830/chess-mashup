@@ -207,7 +207,7 @@ function positionDecalWorldSpace(decalMesh, worldPosition, faceNormal) {
 	decalMesh.quaternion.setFromUnitVectors(axis, faceNormal);
 }
 
-function makeMovePath(move, color=0xffffff) {
+function makeMovePath(move, material) {
 	const points = move.keyframes.map(
 		({ gamePosition, towardsGroundVector }) =>
 			gameToWorldSpace(gamePosition)
@@ -229,7 +229,7 @@ function makeMovePath(move, color=0xffffff) {
 		pointData[i * 3 + 2] = points[i].z;
 	}
 	lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(pointData, 3));
-	const path = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color, linewidth: 2 }));
+	const path = new THREE.Line(lineGeometry, material || new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3 }));
 	return path;
 }
 
@@ -673,7 +673,7 @@ function animate() {
 			} else {
 				const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && !move.valid);
 				if (move && move.checkMove) {
-					const path = makeMovePath(move.checkMove, 0xff0000);
+					const path = makeMovePath(move.checkMove, new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 3, opacity: 0.2 }));
 					scene.add(path);
 					movementDecals.push(path);
 				}
