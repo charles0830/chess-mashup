@@ -20,7 +20,7 @@ const allPieces = [];
 const livingPieces = [];
 const capturedPieces = [];
 let color1 = 0xaf0000;
-let color2 = 0xffffff;
+let color0 = 0xffffff;
 
 const squareSize = 30;
 const cubeSegments = theme === "wireframe" ? 8 : 1;
@@ -53,8 +53,8 @@ let boardMat1 = new THREE.MeshPhysicalMaterial({
 	envMapIntensity: 40,
 	// map: marbleTexture,
 });
-let boardMat2 = new THREE.MeshPhysicalMaterial({
-	color: color2,
+let boardMat0 = new THREE.MeshPhysicalMaterial({
+	color: color0,
 	roughness: 0.2,
 	metalness: 0.4,
 	transmission: 0.5,
@@ -90,8 +90,8 @@ let pieceMat1 = new THREE.MeshPhysicalMaterial({
 	envMap: reflectionTexture,
 	envMapIntensity: 10,
 });
-let pieceMat2 = new THREE.MeshPhysicalMaterial({
-	color: color2,
+let pieceMat0 = new THREE.MeshPhysicalMaterial({
+	color: color0,
 	// emissive: 0x3f3f3f,
 	roughness: 0.2,
 	metalness: 0.4,
@@ -106,8 +106,8 @@ let hoveredPieceMat1 = new THREE.MeshPhysicalMaterial({
 	envMap: reflectionTexture,
 	envMapIntensity: 100,
 });
-let hoveredPieceMat2 = new THREE.MeshPhysicalMaterial({
-	color: color2,
+let hoveredPieceMat0 = new THREE.MeshPhysicalMaterial({
+	color: color0,
 	// emissive: 0x333344,
 	roughness: 0.2,
 	metalness: 0.3,
@@ -153,22 +153,22 @@ let invalidMoveDecalMat = new THREE.MeshStandardMaterial({
 
 if (theme === "wireframe" || theme === "perf") {
 	color1 = 0xffffff;
-	color2 = 0xff0000;
+	color0 = 0xff0000;
 	if (theme === "perf") {
 		// boardMat1 = new THREE.MeshBasicMaterial({ color: "lime" });
-		// boardMat2 = new THREE.MeshBasicMaterial({ color: "green" });
+		// boardMat0 = new THREE.MeshBasicMaterial({ color: "green" });
 		boardMat1 = new THREE.MeshBasicMaterial({ color: 0xaa0000 });
-		boardMat2 = new THREE.MeshBasicMaterial({ color: 0xcccccc });
+		boardMat0 = new THREE.MeshBasicMaterial({ color: 0xcccccc });
 	} else {
 		boardMat1 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true });
-		boardMat2 = new THREE.MeshBasicMaterial({ color: "green", wireframe: true });
+		boardMat0 = new THREE.MeshBasicMaterial({ color: "green", wireframe: true });
 		// boardMat1 = new THREE.MeshBasicMaterial({ color: "white", wireframe: true });
-		// boardMat2 = new THREE.MeshBasicMaterial({ color: "black", wireframe: true });
+		// boardMat0 = new THREE.MeshBasicMaterial({ color: "black", wireframe: true });
 	}
-	pieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true });
-	pieceMat2 = new THREE.MeshBasicMaterial({ color: color2, wireframe: true });
-	hoveredPieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true, fog: false });
-	hoveredPieceMat2 = new THREE.MeshBasicMaterial({ color: color2, wireframe: true, fog: false });
+	pieceMat0 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true });
+	pieceMat1 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true });
+	hoveredPieceMat0 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true, fog: false });
+	hoveredPieceMat1 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true, fog: false });
 	hoverDecalMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, fog: false });
 	if (theme === "perf") {
 		validMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
@@ -343,7 +343,7 @@ class Piece {
 		this.team = team;
 		this.pieceType = pieceType || "pawn";
 		this.o = new THREE.Object3D();
-		const mat = team == 0 ? pieceMat1 : pieceMat2;
+		const mat = team == 0 ? pieceMat0 : pieceMat1;
 		const tempGeometry = new THREE.CylinderGeometry(10, 10, 30, 8, 1, false);
 		const tempMesh = new THREE.Mesh(tempGeometry, mat);
 		this.o.add(tempMesh);
@@ -461,9 +461,9 @@ class Piece {
 	updateHovering(hovering) {
 		const mesh = this.o.children[0];
 		if (this.team == 0) {
-			mesh.material = !hovering ? pieceMat1 : hoveredPieceMat1;
+			mesh.material = !hovering ? pieceMat0 : hoveredPieceMat0;
 		} else {
-			mesh.material = !hovering ? pieceMat2 : hoveredPieceMat2;
+			mesh.material = !hovering ? pieceMat1 : hoveredPieceMat1;
 		}
 	}
 	toString() {
@@ -515,7 +515,7 @@ function init() {
 	for (let x = 0; x < C; x++) {
 		for (let y = 0; y < C; y++) {
 			for (let z = 0; z < C; z++) {
-				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat2);
+				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat0);
 				mesh.visible = x === 0 || x === C - 1 || y === 0 || y === C - 1 || z === 0 || z === C - 1;
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
