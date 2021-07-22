@@ -839,7 +839,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			}
 		}
 		if (!checkingCheck) { // avoid infinite recursion
-			const check = wouldBeInCheck(move.piece, move.gamePosition)
+			const check = wouldBeInCheck(move.piece.team, move.piece, move.gamePosition)
 			if (check) {
 				move.valid = false;
 				move.checkMove = check;
@@ -850,11 +850,11 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 	return moves;
 }
 
-function wouldBeInCheck(pieceToMove, targetGamePosition, boardPieces = livingPieces) {
+function wouldBeInCheck(team, pieceToMove, targetGamePosition, boardPieces = livingPieces) {
 	// check if any kings of pieceToMove's team would be attacked in the new world state
 	// (if multiple kings are a thing, should only the last king be vital?)
 	for (const otherPiece of boardPieces) {
-		if (otherPiece.team !== pieceToMove.team) {
+		if (otherPiece.team !== team) {
 			const getPieceAtGamePosition = (checkGamePosition) => {
 				// pretend the piece is at the target position
 				const pieceHere = pieceAtGamePosition(checkGamePosition);
@@ -877,7 +877,7 @@ function wouldBeInCheck(pieceToMove, targetGamePosition, boardPieces = livingPie
 					move.valid &&
 					move.capturingPiece &&
 					move.capturingPiece.pieceType === "king" &&
-					move.capturingPiece.team === pieceToMove.team
+					move.capturingPiece.team === team
 				) {
 					return move;
 				}
@@ -906,6 +906,32 @@ function isCurrentlyInCheck(team, boardPieces = livingPieces) {
 	return false;
 }
 
+function judgeMove(move) {
+	if (!move.valid) {
+		return -1;
+	}
+	if (move.capturingPiece) {
+		if (move.capturingPiece.pieceType === "king") {
+			return 100;
+		} else if (move.capturingPiece.pieceType === "queen") {
+			return 20;
+		} else if (move.capturingPiece.pieceType === "rook") {
+			return 10;
+		} else if (move.capturingPiece.pieceType === "bishop") {
+			return 15;
+		} else if (move.capturingPiece.pieceType === "knight") {
+			return 5;
+		} else if (move.capturingPiece.pieceType === "pawn") {
+			return 1;
+		}
+	}
+	if (wouldBeInCheck(+!move.piece.team, move.piece, move.gamePosition)) {
+		return 12;
+	}
+	return 0;
+}
+
+
 function takeTurn() {
 	const team = turn % 2;
 	const inCheck = isCurrentlyInCheck(team);
@@ -915,20 +941,17 @@ function takeTurn() {
 		return;
 	}
 	setTimeout(() => {
-		const piecesToTry = [...livingPieces];
-		shuffle(piecesToTry);
+		const piecesToTry = livingPieces.filter(piece => piece.team === team);
+		const moves = [];
 		for (const piece of piecesToTry) {
-			if (piece.team == team) {
-				const moves = getMoves(piece);
-				shuffle(moves);
-				for (const move of moves) {
-					if (move.valid) {
-						piece.makeMove(move, takeTurn);
-						turn++;
-						return;
-					}
-				}
-			}
+			moves.push(...getMoves(piece).filter(move => move.valid));
+		}
+		moves.sort((a, b) => judgeMove(b) - judgeMove(a));
+		const move = moves[0];
+		if (move) {
+			move.piece.makeMove(move, takeTurn);
+			turn++;
+			return;
 		}
 		gameOver = true;
 		if (inCheck) {
