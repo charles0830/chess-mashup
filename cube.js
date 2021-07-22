@@ -678,7 +678,7 @@ function animate() {
 		if (selectedPiece) {
 			const moves = getMoves(selectedPiece);
 			const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
-			if (move) {
+			if (move && !gameOver) {
 				pointerCursor = true;
 			} else {
 				const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && !move.valid);
