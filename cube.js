@@ -904,12 +904,12 @@ function isCurrentlyInCheck(team, boardPieces = livingPieces) {
 
 function takeTurn() {
 	const team = turn % 2;
-	turnIndicator.textContent = turnMessages[team];
+	const inCheck = isCurrentlyInCheck(team);
+	turnIndicator.textContent = turnMessages[team] + (inCheck ? " CHECK" : "");
 	// console.log(`Turn ${turn} is ${teamNames[team]}'s turn (${teamTypes[team]})`);
 	if (teamTypes[team] !== "computer") {
 		return;
 	}
-	const inCheck = isCurrentlyInCheck(team);
 	setTimeout(() => {
 		const piecesToTry = [...livingPieces];
 		shuffle(piecesToTry);
