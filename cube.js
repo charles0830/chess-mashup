@@ -281,6 +281,7 @@ let teamTypes = ["human", "computer"];
 let teamNames = ["White", "Red"];
 let turnMessages = ["Your turn (White)", "Compu-turn (Red)"];
 let turn = 0;
+let gameOver = false;
 let raycaster;
 const intersects = [];
 let hoveredPiece;
@@ -306,7 +307,13 @@ addEventListener('mousemove', function (e) {
 addEventListener('mousedown', function (e) {
 	if (e.button !== 0) return;
 	// console.log(`Clicked piece: ${hoveredPiece}`);
-	if (hoveredPiece && teamTypes[hoveredPiece.team] === "human" && turn % 2 === hoveredPiece.team) {
+	if (hoveredPiece &&
+		(
+			(teamTypes[hoveredPiece.team] === "human" &&
+				turn % 2 === hoveredPiece.team
+			) || gameOver
+		)
+	) {
 		selectedPiece = hoveredPiece;
 		clearMovementDecals();
 		const moves = getMoves(hoveredPiece);
@@ -392,6 +399,9 @@ class Piece {
 		raycastTargets.splice(raycastTargets.indexOf(this.raycastTarget), 1);
 	}
 	makeMove(move, callback) {
+		if (gameOver) {
+			return;
+		}
 		const { capturingPiece } = move;
 		if (capturingPiece) {
 			// we will remove it from the scene after the animation!
@@ -873,6 +883,25 @@ function wouldBeInCheck(pieceToMove, targetGamePosition, boardPieces = livingPie
 	return null;
 }
 
+function isCurrentlyInCheck(team, boardPieces = livingPieces) {
+	for (const otherPiece of boardPieces) {
+		if (otherPiece.team !== team) {
+			const moves = getMoves(otherPiece, pieceAtGamePosition, true);
+			for (const move of moves) {
+				if (
+					move.valid &&
+					move.capturingPiece &&
+					move.capturingPiece.pieceType === "king" &&
+					move.capturingPiece.team === team
+				) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 function takeTurn() {
 	const team = turn % 2;
 	turnIndicator.textContent = turnMessages[team];
@@ -880,6 +909,7 @@ function takeTurn() {
 	if (teamTypes[team] !== "computer") {
 		return;
 	}
+	const inCheck = isCurrentlyInCheck(team);
 	setTimeout(() => {
 		const piecesToTry = [...livingPieces];
 		shuffle(piecesToTry);
@@ -896,9 +926,13 @@ function takeTurn() {
 				}
 			}
 		}
-		// Stalemate?
-		console.log("Couldn't find move.");
-		// turnIndicator.textContent = "Stalemate!";
+		gameOver = true;
+		if (inCheck) {
+			const winningTeam = +!team;
+			turnIndicator.textContent = `Checkmate! ${teamNames[winningTeam]} wins!`;
+		} else {
+			turnIndicator.textContent = "Stalemate! It's a draw.";
+		}
 	}, 500);
 }
 
