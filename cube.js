@@ -570,6 +570,8 @@ function init() {
 
 	controls = new THREE.CubeControls(camera);
 	controls.noPan = true; // panning already doesn't work but this makes it not give state === STATE.PANNING (with my modifications)
+	controls.minDistance = squareSize * BOARD_SIZE;
+	controls.maxDistance = squareSize * BOARD_SIZE * 3;
 
 	scene = new THREE.Scene();
 	// scene.fog = new THREE.FogExp2(0x000000, 0.002);
