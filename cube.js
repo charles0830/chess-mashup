@@ -421,7 +421,7 @@ class Piece {
 			const mesh = new THREE.Mesh(geometry, this.defaultMaterial);
 			geometry.computeBoundingBox();
 			this.raycastMesh.scale.y = geometry.boundingBox.max.z - geometry.boundingBox.min.z;
-			this.raycastMesh.position.y = this.raycastMesh.scale.y / 2 - 15;
+			this.raycastMesh.position.y = this.raycastMesh.scale.y / 2 - squareSize / 2;
 			this.object3d.add(mesh);
 			this.raycastMesh.visible = false;
 			if (this.visualMesh !== this.raycastMesh) {
@@ -432,7 +432,7 @@ class Piece {
 			// raycastTargets.push(this.raycastMesh);
 			this.visualMesh = mesh;
 			mesh.rotation.x -= Math.PI / 2;
-			mesh.position.y -= 15;
+			mesh.position.y -= squareSize / 2;
 		});
 	}
 	takeMove(move, callback) {
