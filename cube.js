@@ -339,7 +339,7 @@ addEventListener('mousedown', function (e) {
 			const moves = getMoves(selectedPiece);
 			const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
 			if (move) {
-				selectedPiece.makeMove(move, takeTurn);
+				selectedPiece.takeMove(move, takeTurn);
 				turn++;
 			}
 		}
@@ -402,7 +402,7 @@ class Piece {
 		scene.remove(this.o);
 		raycastTargets.splice(raycastTargets.indexOf(this.raycastTarget), 1);
 	}
-	makeMove(move, callback) {
+	takeMove(move, callback) {
 		if (gameOver) {
 			return;
 		}
@@ -955,7 +955,7 @@ function takeTurn() {
 		const move = moves[0];
 		if (move) {
 			if (teamTypes[team] === "computer") {
-				move.piece.makeMove(move, takeTurn);
+				move.piece.takeMove(move, takeTurn);
 				turn++;
 			}
 			return;
