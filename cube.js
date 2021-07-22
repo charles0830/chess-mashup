@@ -946,6 +946,7 @@ function takeTurn() {
 		for (const piece of piecesToTry) {
 			moves.push(...getMoves(piece).filter(move => move.valid));
 		}
+		shuffle(moves);
 		moves.sort((a, b) => judgeMove(b) - judgeMove(a));
 		const move = moves[0];
 		if (move) {
