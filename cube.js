@@ -685,11 +685,11 @@ function cubeAtGamePosition(gamePosition) {
 	if (x >= C || y >= C || z >= C) return false;
 	return true;
 }
-function pieceAtGamePosition(gamePosition, boardPieces=livingPieces) {
-	return boardPieces.find((piece) => piece.gamePosition.equals(gamePosition));
+function pieceAtGamePosition(gamePosition) {
+	return livingPieces.find((piece) => piece.gamePosition.equals(gamePosition));
 }
 
-function getMoves(piece, boardPieces=livingPieces) {
+function getMoves(piece, getPieceAtGamePosition=pieceAtGamePosition) {
 	const moves = [];
 	const canGoManySpaces = ["queen", "rook", "bishop"].indexOf(piece.pieceType) !== -1;
 	const movementDirections = [];
@@ -782,7 +782,7 @@ function getMoves(piece, boardPieces=livingPieces) {
 				distance += 1;
 			}
 
-			const pieceAtPos = pieceAtGamePosition(pos, boardPieces);
+			const pieceAtPos = getPieceAtGamePosition(pos);
 			if (pieceAtPos && pieceAtPos.team === piece.team) {
 				// can't move onto a friendly piece
 				break;
@@ -825,20 +825,32 @@ function getMoves(piece, boardPieces=livingPieces) {
 	return moves;
 }
 
-function wouldBeAttacked(piece, gamePosition, boardPieces=livingPieces) {
-	// make a new world state with the piece moved to gamePosition
-	piece._this_one = true;
-	boardPieces = JSON.parse(JSON.stringify(boardPieces));
-	delete piece._this_one;
-	piece = boardPieces.find((piece) => piece._this_one);
-	piece.gamePosition = gamePosition;
+function wouldBeAttacked(targetPiece, targetGamePosition, boardPieces=livingPieces) {
+	// // make a new world state with the piece moved to targetGamePosition
+	// targetPiece._this_one = true;
+	// boardPieces = JSON.parse(JSON.stringify(boardPieces));
+	// delete targetPiece._this_one;
+	// targetPiece = boardPieces.find((piece) => piece._this_one);
+	// targetPiece.gamePosition = targetGamePosition;
 
 	// check if the piece would be attacked in the new world state
 	for (const otherPiece of boardPieces) {
-		if (otherPiece.team !== piece.team) {
-			const moves = getMoves(otherPiece, boardPieces);
+		if (otherPiece.team !== targetPiece.team) {
+			const getPieceAtGamePosition = (checkGamePosition) => {
+				// pretend the piece is at the target position
+				const pieceHere = pieceAtGamePosition(checkGamePosition);
+				if (pieceHere === targetPiece) {
+					return null;
+				}
+				if (checkGamePosition.equals(targetGamePosition)) {
+					return targetPiece;
+				}
+				// otherwise the world state is the same
+				return pieceHere;
+			};
+			const moves = getMoves(otherPiece, getPieceAtGamePosition);
 			for (const move of moves) {
-				if (move.capturingPiece === piece) {
+				if (move.capturingPiece === targetPiece) {
 					return true;
 				}
 			}
