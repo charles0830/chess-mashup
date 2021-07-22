@@ -16,9 +16,6 @@ try {
 }
 
 let cubeObject3D;
-const allPieces = [];
-const livingPieces = [];
-const capturedPieces = [];
 let color1 = 0xaf0000;
 let color0 = 0xffffff;
 
@@ -288,6 +285,9 @@ const intersects = [];
 let hoveredPiece;
 let hoveredSpace;
 let selectedPiece;
+const allPieces = [];
+const livingPieces = [];
+const capturedPieces = [];
 let movementDecals = [];
 let spaceHoverDecals = [];
 
