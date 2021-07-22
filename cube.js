@@ -337,7 +337,24 @@ addEventListener('mousedown', function (e) {
 	} else if (selectedPiece) {
 		if (hoveredSpace) {
 			const moves = getMoves(selectedPiece);
-			const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
+			let move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
+			if (e.ctrlKey) {
+				// allow cheating with Ctrl-click
+				move = {
+					gamePosition: hoveredSpace,
+					towardsGroundVector: getTowardsGroundVector(hoveredSpace),
+					keyframes: [{
+						gamePosition: hoveredSpace,
+						towardsGroundVector: getTowardsGroundVector(hoveredSpace),
+					}],
+					piece: selectedPiece,
+					valid: false,
+					capturingPiece: pieceAtGamePosition(hoveredSpace),
+					capturingDirectionVector: getTowardsGroundVector(hoveredSpace).clone().negate(), // fake
+					direction: [1, 0], // fake
+					distance: 1, // fake
+				};
+			}
 			if (move) {
 				selectedPiece.takeMove(move, takeTurn);
 				turn++;
