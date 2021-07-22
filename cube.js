@@ -175,12 +175,7 @@ if (theme === "wireframe" || theme === "perf") {
 	pieceMat1 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true });
 	hoveredPieceMat0 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true, fog: false });
 	hoveredPieceMat1 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true, fog: false });
-	hoverDecalMat = new THREE.MeshBasicMaterial({
-		color: 0xffffff, wireframe: true, fog: false,
-		polygonOffset: true,
-		polygonOffsetFactor: -1.0,
-		polygonOffsetUnits: -4.0,
-	});
+	hoverDecalMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, fog: false, });
 
 	validMoveDecalMat = new THREE.MeshBasicMaterial({
 		color: 0x00ff00,
@@ -188,9 +183,6 @@ if (theme === "wireframe" || theme === "perf") {
 		transparent: theme !== "wireframe",
 		wireframe: theme === "wireframe",
 		fog: theme !== "wireframe",
-		polygonOffset: true,
-		polygonOffsetFactor: -1.0,
-		polygonOffsetUnits: -1.0,
 	});
 	invalidMoveDecalMat = new THREE.MeshBasicMaterial({
 		color: 0xffaa00,
@@ -198,9 +190,6 @@ if (theme === "wireframe" || theme === "perf") {
 		transparent: theme !== "wireframe",
 		wireframe: theme === "wireframe",
 		fog: theme !== "wireframe",
-		polygonOffset: true,
-		polygonOffsetFactor: -1.0,
-		polygonOffsetUnits: -1.0,
 	});
 }
 
