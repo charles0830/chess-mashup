@@ -330,7 +330,7 @@ addEventListener('mousedown', function (e) {
 			positionDecalWorldSpace(decal, decalWorldPosition, awayFromGroundVector);
 			movementDecals.push(decal);
 			scene.add(decal);
-			const path = makeMovePath(move);
+			const path = makeMovePath(move, move.valid ? null : new THREE.LineBasicMaterial({ color: 0xffcc22, linewidth: 3 }));
 			scene.add(path);
 			movementDecals.push(path);
 		}
