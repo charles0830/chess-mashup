@@ -141,6 +141,9 @@ let validMoveDecalMat = new THREE.MeshStandardMaterial({
 	opacity: 0.7,
 	map: hoverDecalTexture,
 	fog: false,
+	polygonOffset: true,
+	polygonOffsetFactor: -1.0,
+	polygonOffsetUnits: -1.0,
 });
 let invalidMoveDecalMat = new THREE.MeshStandardMaterial({
 	color: 0xffaa00,
@@ -149,6 +152,9 @@ let invalidMoveDecalMat = new THREE.MeshStandardMaterial({
 	opacity: 0.7,
 	map: hoverDecalTexture,
 	fog: false,
+	polygonOffset: true,
+	polygonOffsetFactor: -1.0,
+	polygonOffsetUnits: -1.0,
 });
 
 if (theme === "wireframe" || theme === "perf") {
@@ -169,23 +175,45 @@ if (theme === "wireframe" || theme === "perf") {
 	pieceMat1 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true });
 	hoveredPieceMat0 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true, fog: false });
 	hoveredPieceMat1 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true, fog: false });
-	hoverDecalMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, fog: false });
-	if (theme === "perf") {
-		validMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
-		invalidMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, opacity: 0.5, transparent: true });
-	} else {
-		validMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true, fog: false });
-		invalidMoveDecalMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, wireframe: true, fog: false });
-	}
+	hoverDecalMat = new THREE.MeshBasicMaterial({
+		color: 0xffffff, wireframe: true, fog: false,
+		polygonOffset: true,
+		polygonOffsetFactor: -1.0,
+		polygonOffsetUnits: -4.0,
+	});
 
+	validMoveDecalMat = new THREE.MeshBasicMaterial({
+		color: 0x00ff00,
+		opacity: theme === "wireframe" ? 1 : 0.5,
+		transparent: theme !== "wireframe",
+		wireframe: theme === "wireframe",
+		fog: theme !== "wireframe",
+		polygonOffset: true,
+		polygonOffsetFactor: -1.0,
+		polygonOffsetUnits: -1.0,
+	});
+	invalidMoveDecalMat = new THREE.MeshBasicMaterial({
+		color: 0xffaa00,
+		opacity: theme === "wireframe" ? 1 : 0.5,
+		transparent: theme !== "wireframe",
+		wireframe: theme === "wireframe",
+		fog: theme !== "wireframe",
+		polygonOffset: true,
+		polygonOffsetFactor: -1.0,
+		polygonOffsetUnits: -1.0,
+	});
 }
+
 
 function makeDecal(material) {
 	return new THREE.Mesh(new THREE.PlaneBufferGeometry(squareSize, squareSize), material);
 }
 function positionDecalWorldSpace(decalMesh, worldPosition, faceNormal) {
 	decalMesh.position.copy(worldPosition);
-	decalMesh.position.add(faceNormal.clone().multiplyScalar(squareSize / 2 + 0.05));
+	const zFightingOffset =
+		theme === "default" ? 0 :
+			(decalMesh.material === hoverDecalMat ? 1 : 0.5);
+	decalMesh.position.add(faceNormal.clone().multiplyScalar(squareSize / 2 + zFightingOffset));
 	const axis = new THREE.Vector3(0, 0, 1);
 	decalMesh.quaternion.setFromUnitVectors(axis, faceNormal);
 }
