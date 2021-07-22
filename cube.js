@@ -934,9 +934,6 @@ function takeTurn() {
 	const inCheck = isCurrentlyInCheck(team);
 	turnIndicator.textContent = turnMessages[team] + (inCheck ? " CHECK" : "");
 	// console.log(`Turn ${turn} is ${teamNames[team]}'s turn (${teamTypes[team]})`);
-	if (teamTypes[team] !== "computer") {
-		return;
-	}
 	setTimeout(() => {
 		const piecesToTry = livingPieces.filter(piece => piece.team === team);
 		const moves = [];
@@ -947,8 +944,10 @@ function takeTurn() {
 		moves.sort((a, b) => judgeMove(b) - judgeMove(a));
 		const move = moves[0];
 		if (move) {
-			move.piece.makeMove(move, takeTurn);
-			turn++;
+			if (teamTypes[team] === "computer") {
+				move.piece.makeMove(move, takeTurn);
+				turn++;
+			}
 			return;
 		}
 		gameOver = true;
