@@ -735,7 +735,7 @@ function getMoves(piece) {
 				// and breaks move equality checking when clicking to make a move,
 				// especially with the Rook, if we don't round this.
 				const forward = new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round();
-				lastPos = pos.clone();
+				// lastPos = pos.clone();
 				pos.add(forward);
 
 				const diagonalMovement = Math.abs(direction[0]) === 1 && Math.abs(direction[1]) === 1;
