@@ -347,13 +347,16 @@ class Piece {
 		const tempGeometry = new THREE.CylinderGeometry(10, 10, 30, 8, 1, false);
 		const tempMesh = new THREE.Mesh(tempGeometry, mat);
 		this.o.add(tempMesh);
-		raycastTargets.push(tempMesh);
+		// TODO: try leaving temp mesh in scene as a raycast target, but hide it
+		this.raycastTarget = tempMesh;
+		raycastTargets.push(this.raycastTarget);
 		geometryPromises[Math.max(0, pieceTypes.indexOf(this.pieceType))].then((geometry) => {
 			const mesh = new THREE.Mesh(geometry, mat);
 			this.o.add(mesh);
 			this.o.remove(tempMesh);
-			raycastTargets.push(mesh);
-			raycastTargets.splice(raycastTargets.indexOf(tempMesh), 1);
+			raycastTargets.splice(raycastTargets.indexOf(this.raycastTarget), 1);
+			this.raycastTarget = mesh;
+			raycastTargets.push(this.raycastTarget);
 			mesh.rotation.x -= Math.PI / 2;
 			mesh.position.y -= 15;
 		});
@@ -362,6 +365,10 @@ class Piece {
 		this.o.quaternion.copy(this.targetOrientation);
 		scene.add(this.o);
 		this.o.piece = this;
+	}
+	destroy() {
+		scene.remove(this.o);
+		raycastTargets.splice(raycastTargets.indexOf(this.raycastTarget), 1);
 	}
 	// TEMPORARY!
 	get ox() {
@@ -409,7 +416,7 @@ class Piece {
 				setTimeout(() => {
 					this.animating = false;
 					if (capturingPiece) {
-						scene.remove(capturingPiece.o);
+						capturingPiece.destroy();
 					}
 					callback();
 				}, capturingPiece ? 1000 : 300);
