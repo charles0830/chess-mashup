@@ -375,6 +375,16 @@ addEventListener('blur', function (event) {
 	mouse.y = null;
 }, true);
 
+addEventListener('keydown', function (event) {
+	// Escape
+	if (event.keyCode === 27) {
+		if (selectedPiece) {
+			selectedPiece = null;
+			clearMovementDecals();
+		}
+	}
+}, true);
+
 // function worldToGameSpace(worldPosition) {
 // 	return worldPosition.clone().divideScalar(squareSize).floor();
 // }
