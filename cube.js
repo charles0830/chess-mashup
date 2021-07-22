@@ -392,32 +392,39 @@ class Piece {
 		this.team = team;
 		this.pieceType = pieceType || "pawn";
 		this.o = new THREE.Object3D();
-		const mat = team == 0 ? pieceMat0 : pieceMat1;
+		this.defaultMaterial = team == 0 ? pieceMat0 : pieceMat1;
+		this.hoverMaterial = team == 0 ? hoveredPieceMat0 : hoveredPieceMat1;
 		const tempGeometry = new THREE.CylinderGeometry(10, 10, 30, 8, 1, false);
-		const tempMesh = new THREE.Mesh(tempGeometry, mat);
+		const tempMesh = new THREE.Mesh(tempGeometry, this.defaultMaterial);
 		this.o.add(tempMesh);
 		// TODO: try leaving temp mesh in scene as a raycast target, but hide it
 		this.raycastTarget = tempMesh;
 		raycastTargets.push(this.raycastTarget);
-		geometryPromises[Math.max(0, pieceTypes.indexOf(this.pieceType))].then((geometry) => {
-			const mesh = new THREE.Mesh(geometry, mat);
+		this.setPieceType(pieceType);
+		this.o.position.copy(this.targetWorldPosition);
+		this.orientTowardsCube(true);
+		this.o.quaternion.copy(this.targetOrientation);
+		scene.add(this.o);
+		this.o.piece = this;
+		this.distanceForward = 0; // used for pawn promotion
+	}
+	destroy() {
+		scene.remove(this.o);
+		raycastTargets.splice(raycastTargets.indexOf(this.raycastTarget), 1);
+	}
+	setPieceType(pieceType) {
+		this.pieceType = pieceType;
+		const index = pieceTypes.indexOf(this.pieceType);
+		geometryPromises[Math.max(0, index)].then((geometry) => {
+			const mesh = new THREE.Mesh(geometry, this.defaultMaterial);
 			this.o.add(mesh);
-			this.o.remove(tempMesh);
+			this.o.remove(this.raycastTarget);
 			raycastTargets.splice(raycastTargets.indexOf(this.raycastTarget), 1);
 			this.raycastTarget = mesh;
 			raycastTargets.push(this.raycastTarget);
 			mesh.rotation.x -= Math.PI / 2;
 			mesh.position.y -= 15;
 		});
-		this.o.position.copy(this.targetWorldPosition);
-		this.orientTowardsCube(true);
-		this.o.quaternion.copy(this.targetOrientation);
-		scene.add(this.o);
-		this.o.piece = this;
-	}
-	destroy() {
-		scene.remove(this.o);
-		raycastTargets.splice(raycastTargets.indexOf(this.raycastTarget), 1);
 	}
 	takeMove(move, callback) {
 		if (gameOver) {
@@ -435,6 +442,8 @@ class Piece {
 			livingPieces.splice(livingPieces.indexOf(capturingPiece), 1);
 			capturedPieces.push(capturingPiece);
 		}
+
+		this.distanceForward += move.direction[0]; // must correspond to pawn's forward direction!
 
 		const path = makeMovePath(move);
 		scene.add(path);
@@ -461,6 +470,9 @@ class Piece {
 						capturingPiece.destroy();
 					}
 					scene.remove(path);
+					if (move.promotion) {
+						this.setPieceType("queen"); // TODO: choice of piece type
+					}
 					callback();
 				}, capturingPiece ? 1000 : 300);
 			}
@@ -514,11 +526,7 @@ class Piece {
 	}
 	updateHovering(hovering) {
 		const mesh = this.o.children[0];
-		if (this.team == 0) {
-			mesh.material = !hovering ? pieceMat0 : hoveredPieceMat0;
-		} else {
-			mesh.material = !hovering ? pieceMat1 : hoveredPieceMat1;
-		}
+		mesh.material = !hovering ? this.defaultMaterial : this.hoverMaterial;
 	}
 	toString() {
 		const { x, y, z } = this.gamePosition;
@@ -752,6 +760,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 	}
 	if (piece.pieceType === "pawn") {
 		// one space forward, and for attacking, one space diagonally forward
+		// Note: this forward direction must correspond to distanceForward!
 		movementDirections.push([1, 0], [1, 1], [1, -1]);
 		// a pawn can move two spaces if it is the first move the pawn makes
 		if (piece.gamePosition.equals(piece.startingGamePosition)) {
@@ -786,9 +795,9 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				// Note: applyQuaternion() gives imprecise results,
 				// and breaks move equality checking when clicking to make a move,
 				// especially with the Rook, if we don't round this.
-				const forward = new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round();
+				const subStep3D = new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round();
 				// lastPos = pos.clone();
-				pos.add(forward);
+				pos.add(subStep3D);
 
 				const diagonalMovement = Math.abs(direction[0]) === 1 && Math.abs(direction[1]) === 1;
 				if (!diagonalMovement) {
@@ -846,6 +855,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				capturingPiece: pieceAtPos,
 				distance,
 				capturingDirectionVector: new THREE.Vector3().subVectors(pos, lastPos).normalize(),
+				promotion: piece.pieceType === "pawn" && piece.distanceForward === 5, // distance will be incremented when taking the move, to 6, which is equivalent to the 8th rank
 			});
 			if (pieceAtPos) {
 				break;
