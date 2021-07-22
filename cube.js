@@ -685,11 +685,11 @@ function cubeAtGamePosition(gamePosition) {
 	if (x >= C || y >= C || z >= C) return false;
 	return true;
 }
-function pieceAtGamePosition(gamePosition) {
-	return livingPieces.find((piece) => piece.gamePosition.equals(gamePosition));
+function pieceAtGamePosition(gamePosition, boardPieces=livingPieces) {
+	return boardPieces.find((piece) => piece.gamePosition.equals(gamePosition));
 }
 
-function getMoves(piece) {
+function getMoves(piece, boardPieces=livingPieces) {
 	const moves = [];
 	const canGoManySpaces = ["queen", "rook", "bishop"].indexOf(piece.pieceType) !== -1;
 	const movementDirections = [];
@@ -782,7 +782,7 @@ function getMoves(piece) {
 				distance += 1;
 			}
 
-			const pieceAtPos = pieceAtGamePosition(pos);
+			const pieceAtPos = pieceAtGamePosition(pos, boardPieces);
 			if (pieceAtPos && pieceAtPos.team === piece.team) {
 				// can't move onto a friendly piece
 				break;
@@ -823,6 +823,28 @@ function getMoves(piece) {
 	}
 	moves.sort((a, b) => a.distance - b.distance);
 	return moves;
+}
+
+function wouldBeAttacked(piece, gamePosition, boardPieces=livingPieces) {
+	// make a new world state with the piece moved to gamePosition
+	piece._this_one = true;
+	boardPieces = JSON.parse(JSON.stringify(boardPieces));
+	delete piece._this_one;
+	piece = boardPieces.find((piece) => piece._this_one);
+	piece.gamePosition = gamePosition;
+
+	// check if the piece would be attacked in the new world state
+	for (const otherPiece of boardPieces) {
+		if (otherPiece.team !== piece.team) {
+			const moves = getMoves(otherPiece, boardPieces);
+			for (const move of moves) {
+				if (move.capturingPiece === piece) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 function takeTurn() {
