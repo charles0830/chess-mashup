@@ -422,16 +422,8 @@ class Piece {
 			// animate capturing as the piece moves into the final position
 			if (capturingPiece && animIndex === move.keyframes.length - 1) {
 				capturingPiece.beingCaptured = true;
-				// console.log(move.keyframes);
-				// TODO: why does this need -2 and -3 rather than -1 and -2?
-				// maybe calculate this earlier, separate from keyframes
-				const attackDirection = new THREE.Vector3().subVectors(
-					move.keyframes[move.keyframes.length - 2].gamePosition,
-					move.keyframes[move.keyframes.length - 3].gamePosition,
-				);
-				console.log(attackDirection);
 				capturingPiece.targetWorldPosition.add(
-					attackDirection.multiplyScalar(squareSize),
+					move.capturingDirectionVector.clone().multiplyScalar(squareSize),
 				);
 			}
 		}, 300);
@@ -716,6 +708,7 @@ function getMoves(piece) {
 	}
 	for (const direction of movementDirections) {
 		let pos = piece.gamePosition.clone();
+		let lastPos = pos.clone();
 		let towardsGroundVector = piece.towardsGroundVector.clone();
 		let quaternion = piece.targetOrientation.clone();
 		let keyframes = []; // for animating the piece's movement
@@ -742,6 +735,7 @@ function getMoves(piece) {
 				// and breaks move equality checking when clicking to make a move,
 				// especially with the Rook, if we don't round this.
 				const forward = new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round();
+				lastPos = pos.clone();
 				pos.add(forward);
 
 				const diagonalMovement = Math.abs(direction[0]) === 1 && Math.abs(direction[1]) === 1;
@@ -769,6 +763,7 @@ function getMoves(piece) {
 						towardsGroundVector: newTowardsGroundVector,
 					});
 					// move down off the edge of the board cube
+					lastPos = pos.clone();
 					pos.add(towardsGroundVector);
 					towardsGroundVector = getTowardsGroundVector(pos);
 					quaternion.multiply(new THREE.Quaternion().setFromUnitVectors(
@@ -798,6 +793,7 @@ function getMoves(piece) {
 				direction,
 				capturingPiece: pieceAtPos,
 				distance,
+				capturingDirectionVector: new THREE.Vector3().subVectors(pos, lastPos).normalize(),
 			});
 			if (pieceAtPos) {
 				break;
@@ -847,6 +843,7 @@ function takeTurn() {
 		}
 		// Stalemate?
 		console.log("Couldn't find move.");
+		// turnIndicator.textContent = "Stalemate!";
 	}, 500);
 }
 
