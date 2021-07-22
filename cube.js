@@ -906,29 +906,26 @@ function isCurrentlyInCheck(team, boardPieces = livingPieces) {
 	return false;
 }
 
+const materialValues = {
+	"king": 100,
+	"queen": 20,
+	"rook": 10,
+	"bishop": 15,
+	"knight": 5,
+	"pawn": 1,
+};
 function judgeMove(move) {
 	if (!move.valid) {
-		return -1;
+		return -1000;
 	}
+	let score = 0;
 	if (move.capturingPiece) {
-		if (move.capturingPiece.pieceType === "king") {
-			return 100;
-		} else if (move.capturingPiece.pieceType === "queen") {
-			return 20;
-		} else if (move.capturingPiece.pieceType === "rook") {
-			return 10;
-		} else if (move.capturingPiece.pieceType === "bishop") {
-			return 15;
-		} else if (move.capturingPiece.pieceType === "knight") {
-			return 5;
-		} else if (move.capturingPiece.pieceType === "pawn") {
-			return 1;
-		}
+		score += materialValues[move.capturingPiece.pieceType];
 	}
 	if (wouldBeInCheck(+!move.piece.team, move.piece, move.gamePosition)) {
-		return 12;
+		score += 12;
 	}
-	return 0;
+	return score;
 }
 
 
