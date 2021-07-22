@@ -207,7 +207,7 @@ function positionDecalWorldSpace(decalMesh, worldPosition, faceNormal) {
 	decalMesh.quaternion.setFromUnitVectors(axis, faceNormal);
 }
 
-function makeMovePath(move) {
+function makeMovePath(move, color=0xffffff) {
 	const points = move.keyframes.map(
 		({ gamePosition, towardsGroundVector }) =>
 			gameToWorldSpace(gamePosition)
@@ -229,7 +229,7 @@ function makeMovePath(move) {
 		pointData[i * 3 + 2] = points[i].z;
 	}
 	lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(pointData, 3));
-	const path = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color: 0xffffff }));
+	const path = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color, linewidth: 2 }));
 	return path;
 }
 
@@ -287,6 +287,7 @@ let hoveredPiece;
 let hoveredSpace;
 let selectedPiece;
 let movementDecals = [];
+let spaceHoverDecals = [];
 
 const mouse = { x: null, y: null };
 
@@ -669,6 +670,13 @@ function animate() {
 			const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
 			if (move) {
 				pointerCursor = true;
+			} else {
+				const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && !move.valid);
+				if (move && move.checkMove) {
+					const path = makeMovePath(move.checkMove, 0xff0000);
+					scene.add(path);
+					movementDecals.push(path);
+				}
 			}
 		}
 	} else if (hoveredPiece) {
@@ -821,8 +829,10 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			}
 		}
 		if (!checkingCheck) { // avoid infinite recursion
-			if (wouldBeInCheck(move.piece, move.gamePosition)) {
+			const check = wouldBeInCheck(move.piece, move.gamePosition)
+			if (check) {
 				move.valid = false;
+				move.checkMove = check;
 			}
 		}
 	}
@@ -855,15 +865,12 @@ function wouldBeInCheck(pieceToMove, targetGamePosition, boardPieces = livingPie
 					move.capturingPiece.pieceType === "king" &&
 					move.capturingPiece.team === pieceToMove.team
 				) {
-					// const path = makeMovePath(move);
-					// scene.add(path);
-					return true;
-					// return move;
+					return move;
 				}
 			}
 		}
 	}
-	return false;
+	return null;
 }
 
 function takeTurn() {
