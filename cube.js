@@ -370,25 +370,6 @@ class Piece {
 		scene.remove(this.o);
 		raycastTargets.splice(raycastTargets.indexOf(this.raycastTarget), 1);
 	}
-	// TEMPORARY!
-	get ox() {
-		return this.towardsGroundVector.x;
-	}
-	get oy() {
-		return this.towardsGroundVector.y;
-	}
-	get oz() {
-		return this.towardsGroundVector.z;
-	}
-	get x() {
-		return this.gamePosition.x;
-	}
-	get y() {
-		return this.gamePosition.y;
-	}
-	get z() {
-		return this.gamePosition.z;
-	}
 	makeMove(move, callback) {
 		const { capturingPiece } = move;
 		if (capturingPiece) {
@@ -486,7 +467,8 @@ class Piece {
 		}
 	}
 	toString() {
-		return `${teamNames[this.team]} ${this.pieceType} at (${this.x},${this.y},${this.z})`;
+		const { x, y, z } = this.gamePosition;
+		return `${teamNames[this.team]} ${this.pieceType} at (${x},${y},${z})`;
 	}
 }
 
