@@ -620,21 +620,45 @@ function animate() {
 
 		if (intersects.length > 0) {
 			const m = intersects[0].object;
-			// TODO: hover space via piece or visa-versa, depending on state of the game (selecting piece, moving piece)
+			// TODO: different behavior depending on state of the game? (selecting piece, moving piece)
 			if (m.geometry == cubeGeometry) {
-				hoverDecal.visible = true;
-				positionDecalWorldSpace(hoverDecal, m.position, intersects[0].face.normal);
+				// hoverDecal.visible = true;
+				// positionDecalWorldSpace(hoverDecal, m.position, intersects[0].face.normal);
 				hoveredSpace = new THREE.Vector3().addVectors(m.gamePosition, intersects[0].face.normal);
+				hoveredPiece = pieceAtGamePosition(hoveredSpace);
 			} else {
 				hoveredPiece = m.parent.piece;
+				hoveredSpace = hoveredPiece.gamePosition;
 			}
 		}
 	}
 
+	let pointerCursor = false;
 	if (hoveredPiece) {
 		hoveredPiece.updateHovering(true);
+		if (selectedPiece !== hoveredPiece) {
+			pointerCursor = true;
+		}
 	}
-	document.body.style.cursor = hoveredPiece ? 'pointer' : 'default';
+	if (hoveredSpace) {
+		hoverDecal.visible = true;
+		// positionDecalWorldSpace(hoverDecal, m.position, intersects[0].face.normal);
+		const towardsGroundVector = getTowardsGroundVector(hoveredSpace);
+		const awayFromGroundVector = towardsGroundVector.clone().negate();
+		const decalWorldPosition = gameToWorldSpace(hoveredSpace.clone().add(towardsGroundVector));
+		positionDecalWorldSpace(hoverDecal, decalWorldPosition, awayFromGroundVector);
+		// set the cursor if the square is a valid move
+		if (selectedPiece) {
+			const moves = getMoves(selectedPiece);
+			const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
+			if (move) {
+				pointerCursor = true;
+			}
+		}
+	} else if (hoveredPiece) {
+		pointerCursor = true;
+	}
+	document.body.style.cursor = pointerCursor ? 'pointer' : 'default';
 
 	renderer.render(scene, camera);
 }
