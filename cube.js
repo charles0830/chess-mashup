@@ -11,8 +11,8 @@ const raycastTargets = []; // don't want to include certain objects like hoverDe
 let theme = "default";
 try {
 	theme = localStorage.getItem("3d-theme");
-} catch (e) {
-	console.warn("Couldn't read 3d-theme from local storage");
+} catch (error) {
+	console.warn("Couldn't read 3d-theme from local storage", error);
 }
 
 let cubeObject3D;
@@ -275,7 +275,7 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 	);
 }));
 
-const C = 8; // metacube board size in cubes/squares/cells
+const BOARD_SIZE = 8; // metacube board size in cubes/squares/cells
 
 let teamTypes = ["human", "computer"];
 let teamNames = ["White", "Red"];
@@ -300,13 +300,13 @@ function clearMovementDecals() {
 	movementDecals.length = 0;
 }
 
-addEventListener('mousemove', function (e) {
-	mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-	mouse.y = 1 - (e.clientY / window.innerHeight) * 2;
+addEventListener('mousemove', function (event) {
+	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+	mouse.y = 1 - (event.clientY / window.innerHeight) * 2;
 }, true);
 
-addEventListener('mousedown', function (e) {
-	if (e.button !== 0) return;
+addEventListener('mousedown', function (event) {
+	if (event.button !== 0) return;
 	// console.log(`Clicked piece: ${hoveredPiece}`);
 	if (hoveredPiece &&
 		(
@@ -338,7 +338,7 @@ addEventListener('mousedown', function (e) {
 		if (hoveredSpace) {
 			const moves = getMoves(selectedPiece);
 			let move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
-			if (e.ctrlKey) {
+			if (event.ctrlKey) {
 				// allow cheating with Ctrl-click
 				move = {
 					gamePosition: hoveredSpace,
@@ -365,12 +365,12 @@ addEventListener('mousedown', function (e) {
 	}
 }, true);
 
-addEventListener('mouseleave', function (e) {
+addEventListener('mouseleave', function (event) {
 	mouse.x = null;
 	mouse.y = null;
 }, true);
 
-addEventListener('blur', function (e) {
+addEventListener('blur', function (event) {
 	mouse.x = null;
 	mouse.y = null;
 }, true);
@@ -379,7 +379,7 @@ addEventListener('blur', function (e) {
 // 	return worldPosition.clone().divideScalar(squareSize).floor();
 // }
 function gameToWorldSpace(gamePosition) {
-	return gamePosition.clone().subScalar((C - 1) / 2).multiplyScalar(squareSize);
+	return gamePosition.clone().subScalar((BOARD_SIZE - 1) / 2).multiplyScalar(squareSize);
 }
 
 class Piece {
@@ -391,25 +391,25 @@ class Piece {
 		this.towardsGroundVector = new THREE.Vector3();
 		this.team = team;
 		this.pieceType = pieceType || "pawn";
-		this.o = new THREE.Object3D();
+		this.object3d = new THREE.Object3D();
 		this.defaultMaterial = team == 0 ? pieceMat0 : pieceMat1;
 		this.hoverMaterial = team == 0 ? hoveredPieceMat0 : hoveredPieceMat1;
 		const tempGeometry = new THREE.CylinderGeometry(10, 10, 30, 8, 1, false);
 		const tempMesh = new THREE.Mesh(tempGeometry, this.defaultMaterial);
-		this.o.add(tempMesh);
+		this.object3d.add(tempMesh);
 		// TODO: try leaving temp mesh in scene as a raycast target, but hide it
 		this.raycastTarget = tempMesh;
 		raycastTargets.push(this.raycastTarget);
 		this.setPieceType(pieceType);
-		this.o.position.copy(this.targetWorldPosition);
+		this.object3d.position.copy(this.targetWorldPosition);
 		this.orientTowardsCube(true);
-		this.o.quaternion.copy(this.targetOrientation);
-		scene.add(this.o);
-		this.o.piece = this;
+		this.object3d.quaternion.copy(this.targetOrientation);
+		scene.add(this.object3d);
+		this.object3d.piece = this;
 		this.distanceForward = 0; // used for pawn promotion
 	}
 	destroy() {
-		scene.remove(this.o);
+		scene.remove(this.object3d);
 		raycastTargets.splice(raycastTargets.indexOf(this.raycastTarget), 1);
 	}
 	setPieceType(pieceType) {
@@ -417,8 +417,8 @@ class Piece {
 		const index = pieceTypes.indexOf(this.pieceType);
 		geometryPromises[Math.max(0, index)].then((geometry) => {
 			const mesh = new THREE.Mesh(geometry, this.defaultMaterial);
-			this.o.add(mesh);
-			this.o.remove(this.raycastTarget);
+			this.object3d.add(mesh);
+			this.object3d.remove(this.raycastTarget);
 			raycastTargets.splice(raycastTargets.indexOf(this.raycastTarget), 1);
 			this.raycastTarget = mesh;
 			raycastTargets.push(this.raycastTarget);
@@ -498,34 +498,34 @@ class Piece {
 	}
 	update() {
 		const slowness = 10;
-		this.o.position.x += (this.targetWorldPosition.x - this.o.position.x) / slowness;
-		this.o.position.y += (this.targetWorldPosition.y - this.o.position.y) / slowness;
-		this.o.position.z += (this.targetWorldPosition.z - this.o.position.z) / slowness;
-		this.o.quaternion.slerp(this.targetOrientation, 1 / slowness);
-		// this.o.quaternion.rotateTowards(this.targetOrientation, 0.05);
+		this.object3d.position.x += (this.targetWorldPosition.x - this.object3d.position.x) / slowness;
+		this.object3d.position.y += (this.targetWorldPosition.y - this.object3d.position.y) / slowness;
+		this.object3d.position.z += (this.targetWorldPosition.z - this.object3d.position.z) / slowness;
+		this.object3d.quaternion.slerp(this.targetOrientation, 1 / slowness);
+		// this.object3d.quaternion.rotateTowards(this.targetOrientation, 0.05);
 		// lift the piece up when selected, or when animating
 		if (selectedPiece === this || this.animating) {
-			// this.o.position.add(this.towardsGroundVector.clone().multiplyScalar(-0.5));
+			// this.object3d.position.add(this.towardsGroundVector.clone().multiplyScalar(-0.5));
 
 			const lift = new THREE.Vector3(0, 0.5, 0);
 			lift.applyQuaternion(this.targetOrientation);
-			this.o.position.add(lift);
+			this.object3d.position.add(lift);
 		}
 		// wiggle the piece gently when it's selected
 		if (selectedPiece === this) {
-			this.o.rotation.z += Math.sin(Date.now() / 500) / 150;
+			this.object3d.rotation.z += Math.sin(Date.now() / 500) / 150;
 		}
 		// capturing animation
 		if (this.beingCaptured) {
-			this.o.rotation.y -= 0.1;
-			this.o.rotation.z -= 0.1;
-			this.o.rotation.x -= 0.1;
+			this.object3d.rotation.y -= 0.1;
+			this.object3d.rotation.z -= 0.1;
+			this.object3d.rotation.x -= 0.1;
 			this.targetWorldPosition.add(this.towardsGroundVector.clone().multiplyScalar(-0.5));
-			this.o.visible = Math.random() < 0.8;
+			this.object3d.visible = Math.random() < 0.8;
 		}
 	}
 	updateHovering(hovering) {
-		const mesh = this.o.children[0];
+		const mesh = this.object3d.children[0];
 		mesh.material = !hovering ? this.defaultMaterial : this.hoverMaterial;
 	}
 	toString() {
@@ -541,11 +541,11 @@ function getTowardsGroundVector(gamePosition) {
 		return new THREE.Vector3(0, 1, 0);
 	} else if (gamePosition.z < 0) {
 		return new THREE.Vector3(0, 0, 1);
-	} else if (gamePosition.x >= C) {
+	} else if (gamePosition.x >= BOARD_SIZE) {
 		return new THREE.Vector3(-1, 0, 0);
-	} else if (gamePosition.y >= C) {
+	} else if (gamePosition.y >= BOARD_SIZE) {
 		return new THREE.Vector3(0, -1, 0);
-	} else if (gamePosition.z >= C) {
+	} else if (gamePosition.z >= BOARD_SIZE) {
 		return new THREE.Vector3(0, 0, -1);
 	} else {
 		console.warn("Oh no, gamePosition is inside cube!");
@@ -574,11 +574,11 @@ function init() {
 
 	// metacube
 	cubeObject3D = new THREE.Object3D();
-	for (let x = 0; x < C; x++) {
-		for (let y = 0; y < C; y++) {
-			for (let z = 0; z < C; z++) {
+	for (let x = 0; x < BOARD_SIZE; x++) {
+		for (let y = 0; y < BOARD_SIZE; y++) {
+			for (let z = 0; z < BOARD_SIZE; z++) {
 				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat0);
-				mesh.visible = x === 0 || x === C - 1 || y === 0 || y === C - 1 || z === 0 || z === C - 1;
+				mesh.visible = x === 0 || x === BOARD_SIZE - 1 || y === 0 || y === BOARD_SIZE - 1 || z === 0 || z === BOARD_SIZE - 1;
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
@@ -594,23 +594,23 @@ function init() {
 	// pieces
 	const pieceLocations = [
 		[1, 1],
-		[1, C - 2],
-		[C - 2, 1],
-		[C - 2, C - 2],
+		[1, BOARD_SIZE - 2],
+		[BOARD_SIZE - 2, 1],
+		[BOARD_SIZE - 2, BOARD_SIZE - 2],
 
 		[2, 2],
-		[2, C - 3],
-		[C - 3, 2],
-		[C - 3, C - 3],
+		[2, BOARD_SIZE - 3],
+		[BOARD_SIZE - 3, 2],
+		[BOARD_SIZE - 3, BOARD_SIZE - 3],
 
 		[3, 1],
-		[1, C - 4],
-		[C - 2, 3],
-		[C - 4, C - 2],
+		[1, BOARD_SIZE - 4],
+		[BOARD_SIZE - 2, 3],
+		[BOARD_SIZE - 4, BOARD_SIZE - 2],
 	];
 	for (let i in pieceLocations) {
 		allPieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, pieceTypes[i % 6]));
-		allPieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], C, 1, pieceTypes[i % 6]));
+		allPieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], BOARD_SIZE, 1, pieceTypes[i % 6]));
 	}
 	livingPieces.push(...allPieces);
 
@@ -681,15 +681,15 @@ function animate() {
 		raycaster.intersectObjects(raycastTargets, false, intersects);
 
 		if (intersects.length > 0) {
-			const m = intersects[0].object;
+			const mesh = intersects[0].object;
 			// TODO: different behavior depending on state of the game? (selecting piece, moving piece)
-			if (m.geometry == cubeGeometry) {
+			if (mesh.geometry == cubeGeometry) {
 				// hoverDecal.visible = true;
-				// positionDecalWorldSpace(hoverDecal, m.position, intersects[0].face.normal);
-				hoveredSpace = new THREE.Vector3().addVectors(m.gamePosition, intersects[0].face.normal);
+				// positionDecalWorldSpace(hoverDecal, mesh.position, intersects[0].face.normal);
+				hoveredSpace = new THREE.Vector3().addVectors(mesh.gamePosition, intersects[0].face.normal);
 				hoveredPiece = pieceAtGamePosition(hoveredSpace);
 			} else {
-				hoveredPiece = m.parent.piece;
+				hoveredPiece = mesh.parent.piece;
 				hoveredSpace = hoveredPiece.gamePosition;
 			}
 		}
@@ -704,7 +704,7 @@ function animate() {
 	}
 	if (hoveredSpace) {
 		hoverDecal.visible = true;
-		// positionDecalWorldSpace(hoverDecal, m.position, intersects[0].face.normal);
+		// positionDecalWorldSpace(hoverDecal, mesh.position, intersects[0].face.normal);
 		const towardsGroundVector = getTowardsGroundVector(hoveredSpace);
 		const awayFromGroundVector = towardsGroundVector.clone().negate();
 		const decalWorldPosition = gameToWorldSpace(hoveredSpace.clone().add(towardsGroundVector));
@@ -735,7 +735,7 @@ function animate() {
 function cubeAtGamePosition(gamePosition) {
 	const { x, y, z } = gamePosition;
 	if (x < 0 || y < 0 || z < 0) return false;
-	if (x >= C || y >= C || z >= C) return false;
+	if (x >= BOARD_SIZE || y >= BOARD_SIZE || z >= BOARD_SIZE) return false;
 	return true;
 }
 function pieceAtGamePosition(gamePosition) {
@@ -778,7 +778,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			gamePosition: pos.clone(),
 			towardsGroundVector: towardsGroundVector.clone()
 		});
-		for (let i = 1; i <= (canGoManySpaces ? C * 4 : 1); i++) {
+		for (let i = 1; i <= (canGoManySpaces ? BOARD_SIZE * 4 : 1); i++) {
 			// sub-steps don't count for collision, i.e. the piece can jump over other pieces in a sub-step
 			const subSteps = [];
 			for (let x = 0; x < Math.abs(direction[0]); x++) {
