@@ -689,7 +689,7 @@ function pieceAtGamePosition(gamePosition) {
 	return livingPieces.find((piece) => piece.gamePosition.equals(gamePosition));
 }
 
-function getMoves(piece, getPieceAtGamePosition=pieceAtGamePosition) {
+function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingCheck = false) {
 	const moves = [];
 	const canGoManySpaces = ["queen", "rook", "bishop"].indexOf(piece.pieceType) !== -1;
 	const movementDirections = [];
@@ -820,38 +820,45 @@ function getMoves(piece, getPieceAtGamePosition=pieceAtGamePosition) {
 				move.valid = false;
 			}
 		}
+		if (!checkingCheck) { // avoid infinite recursion
+			if (wouldBeInCheck(move.piece, move.gamePosition)) {
+				move.valid = false;
+			}
+		}
 	}
 	moves.sort((a, b) => a.distance - b.distance);
 	return moves;
 }
 
-function wouldBeAttacked(targetPiece, targetGamePosition, boardPieces=livingPieces) {
-	// // make a new world state with the piece moved to targetGamePosition
-	// targetPiece._this_one = true;
-	// boardPieces = JSON.parse(JSON.stringify(boardPieces));
-	// delete targetPiece._this_one;
-	// targetPiece = boardPieces.find((piece) => piece._this_one);
-	// targetPiece.gamePosition = targetGamePosition;
-
-	// check if the piece would be attacked in the new world state
+function wouldBeInCheck(pieceToMove, targetGamePosition, boardPieces = livingPieces) {
+	// check if any kings of pieceToMove's team would be attacked in the new world state
+	// (if multiple kings are a thing, should only the last king be vital?)
 	for (const otherPiece of boardPieces) {
-		if (otherPiece.team !== targetPiece.team) {
+		if (otherPiece.team !== pieceToMove.team) {
 			const getPieceAtGamePosition = (checkGamePosition) => {
 				// pretend the piece is at the target position
 				const pieceHere = pieceAtGamePosition(checkGamePosition);
-				if (pieceHere === targetPiece) {
+				if (pieceHere === pieceToMove) {
 					return null;
 				}
 				if (checkGamePosition.equals(targetGamePosition)) {
-					return targetPiece;
+					return pieceToMove;
 				}
 				// otherwise the world state is the same
 				return pieceHere;
 			};
-			const moves = getMoves(otherPiece, getPieceAtGamePosition);
+			const moves = getMoves(otherPiece, getPieceAtGamePosition, true);
 			for (const move of moves) {
-				if (move.capturingPiece === targetPiece) {
+				if (
+					move.valid &&
+					move.capturingPiece &&
+					move.capturingPiece.pieceType === "king" &&
+					move.capturingPiece.team === pieceToMove.team
+				) {
+					// const path = makeMovePath(move);
+					// scene.add(path);
 					return true;
+					// return move;
 				}
 			}
 		}
