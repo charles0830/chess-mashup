@@ -867,6 +867,10 @@ function wouldBeInCheck(pieceToMove, targetGamePosition, boardPieces = livingPie
 				// otherwise the world state is the same
 				return pieceHere;
 			};
+			if (otherPiece.gamePosition.equals(targetGamePosition)) {
+				// this piece would be captured, ignore
+				continue;
+			}
 			const moves = getMoves(otherPiece, getPieceAtGamePosition, true);
 			for (const move of moves) {
 				if (
