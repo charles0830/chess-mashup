@@ -555,9 +555,9 @@ class Piece {
 		this.setPieceType(data.pieceType);
 		this.distanceForward = data.distanceForward;
 		this.targetWorldPosition = gameToWorldSpace(this.gamePosition);
-		// this.object3d.position.copy(this.targetWorldPosition);
+		this.object3d.position.copy(this.targetWorldPosition);
 		// this.orientTowardsCube(true);
-		// this.object3d.quaternion.copy(this.targetOrientation);
+		this.object3d.quaternion.copy(this.targetOrientation);
 		this.cancelAnimation();
 		this.object3d.visible = true; // reset from capturing animation (in multiple places)
 	}
