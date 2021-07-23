@@ -619,6 +619,7 @@ class Piece {
 			return;
 		}
 		undos.push(serialize());
+		redos.length = 0;
 
 		moveInProgress = true;
 
