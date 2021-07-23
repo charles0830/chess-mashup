@@ -293,6 +293,70 @@ let spaceHoverDecals = [];
 
 const mouse = { x: null, y: null };
 
+let undos = [];
+let redos = [];
+
+function undo() {
+	if (undos.length === 0) {
+		return;
+	}
+	const state = undos.pop();
+	redos.push(state);
+	deserialize(state);
+}
+function redo() {
+	if (redos.length === 0) {
+		return;
+	}
+	const state = redos.pop();
+	undos.push(state);
+	deserialize(state);
+}
+function serialize() {
+	return JSON.stringify({
+		turn: turn,
+		gameOver: gameOver,
+		teamTypes: teamTypes,
+		teamNames: teamNames,
+		turnMessages: turnMessages,
+		livingPieces: livingPieces.map(piece => piece.serialize()),
+		capturedPieces: capturedPieces.map(piece => piece.serialize()),
+	});
+}
+function deserialize(json) {
+	const state = JSON.parse(json);
+	turn = state.turn;
+	gameOver = state.gameOver;
+	teamTypes = state.teamTypes;
+	teamNames = state.teamNames;
+	turnMessages = state.turnMessages;
+
+	for (let serializedPiece of state.livingPieces) {
+		for (const existingPiece of allPieces) {
+			if (existingPiece.id === serializedPiece.id) {
+				if (capturedPieces.includes(existingPiece)) {
+					capturedPieces.splice(capturedPieces.indexOf(existingPiece), 1);
+					livingPieces.push(existingPiece);
+				}
+				existingPiece.deserialize(serializedPiece);
+				break;
+			}
+		}
+	}
+	for (let serializedPiece of state.capturedPieces) {
+		for (const existingPiece of allPieces) {
+			if (existingPiece.id === serializedPiece.id) {
+				if (livingPieces.includes(existingPiece)) {
+					livingPieces.splice(livingPieces.indexOf(existingPiece), 1);
+					capturedPieces.push(existingPiece);
+				}
+				existingPiece.deserialize(serializedPiece);
+				break;
+			}
+		}
+	}
+}
+
 function clearMovementDecals() {
 	for (const decal of movementDecals) {
 		scene.remove(decal);
@@ -383,6 +447,18 @@ addEventListener('keydown', function (event) {
 			clearMovementDecals();
 		}
 	}
+	// Ctrl+Z or Cmd+Z
+	if (event.keyCode === 90 && (event.ctrlKey || event.metaKey)) {
+		undo();
+	}
+	// Ctrl+Y or Cmd+Y
+	if (event.keyCode === 89 && (event.ctrlKey || event.metaKey)) {
+		redo();
+	}
+	// Ctrl+Shift+Z or Cmd+Shift+Z
+	if (event.keyCode === 90 && event.shiftKey && (event.ctrlKey || event.metaKey)) {
+		redo();
+	}
 }, true);
 
 // function worldToGameSpace(worldPosition) {
@@ -392,6 +468,7 @@ function gameToWorldSpace(gamePosition) {
 	return gamePosition.clone().subScalar((BOARD_SIZE - 1) / 2).multiplyScalar(squareSize);
 }
 
+let pieceIdCounter = 0;
 class Piece {
 	constructor(x, y, z, team, pieceType) {
 		this.startingGamePosition = new THREE.Vector3(x, y, z);
@@ -419,10 +496,39 @@ class Piece {
 		scene.add(this.object3d);
 		this.object3d.piece = this;
 		this.distanceForward = 0; // used for pawn promotion
+		this.id = "piece_" + pieceIdCounter++;
 	}
 	destroy() {
 		scene.remove(this.object3d);
 		raycastTargets.splice(raycastTargets.indexOf(this.raycastMesh), 1);
+	}
+	serialize() {
+		return {
+			id: this.id,
+			x: this.gamePosition.x,
+			y: this.gamePosition.y,
+			z: this.gamePosition.z,
+			orientation: this.targetOrientation.toArray(),
+			towardsGroundVector: this.towardsGroundVector.toArray(), // technically redundant with orientation
+			team: this.team,
+			pieceType: this.pieceType,
+			distanceForward: this.distanceForward,
+		};
+	}
+	deserialize(data) {
+		this.id = data.id;
+		this.gamePosition.x = data.x;
+		this.gamePosition.y = data.y;
+		this.gamePosition.z = data.z;
+		this.targetOrientation.fromArray(data.orientation);
+		this.towardsGroundVector.fromArray(data.towardsGroundVector);
+		this.team = data.team;
+		this.setPieceType(data.pieceType);
+		this.distanceForward = data.distanceForward;
+		this.targetWorldPosition = gameToWorldSpace(this.gamePosition);
+		// this.object3d.position.copy(this.targetWorldPosition);
+		// this.orientTowardsCube(true);
+		// this.object3d.quaternion.copy(this.targetOrientation);
 	}
 	setPieceType(pieceType) {
 		this.pieceType = pieceType;
@@ -452,6 +558,8 @@ class Piece {
 		if (moveInProgress) {
 			return;
 		}
+		undos.push(serialize());
+
 		moveInProgress = true;
 
 		const { capturingPiece } = move;

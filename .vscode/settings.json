@@ -13,6 +13,8 @@
 		"raycast",
 		"raycaster",
 		"slerp",
+		"undoable",
+		"undos",
 		"unproject",
 		"voxel",
 		"wireframe"
