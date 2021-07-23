@@ -329,7 +329,7 @@ function undo(secondTime) {
 		undo(true);
 	}
 	if (!secondTime) {
-		takeTurn();
+		handleTurn();
 	}
 }
 function redo() {
@@ -339,7 +339,7 @@ function redo() {
 	const state = redos.pop();
 	undos.push(serialize());
 	deserialize(state);
-	takeTurn();
+	handleTurn();
 }
 function serialize() {
 	return JSON.stringify({
@@ -359,6 +359,8 @@ function deserialize(json) {
 	teamTypes = state.teamTypes;
 	teamNames = state.teamNames;
 	turnMessages = state.turnMessages;
+
+	// TODO: handle different starting pieces, i.e. different set of pieces
 
 	for (let serializedPiece of state.livingPieces) {
 		for (const existingPiece of allPieces) {
@@ -460,7 +462,7 @@ addEventListener('mousedown', function (event) {
 				};
 			}
 			if (move) {
-				selectedPiece.takeMove(move, takeTurn);
+				selectedPiece.takeMove(move, handleTurn);
 				turn++;
 			}
 		}
@@ -1155,13 +1157,14 @@ function judgeMove(move) {
 	return score;
 }
 
-// TODO: rename this... nextTurn?
-function takeTurn() {
+let handleTurnTimerId;
+function handleTurn() {
 	const team = turn % 2;
 	const inCheck = isCurrentlyInCheck(team);
 	turnIndicator.textContent = turnMessages[team] + (inCheck ? " CHECK" : "");
 	// console.log(`Turn ${turn} is ${teamNames[team]}'s turn (${teamTypes[team]})`);
-	setTimeout(() => {
+	clearTimeout(handleTurnTimerId);
+	handleTurnTimerId = setTimeout(() => {
 		if (!livingPieces.some(piece => piece.team === team && piece.pieceType === "king")) {
 			// this should never happen in normal chess, but we're experimenting with weird chess variants, so...
 			const winningTeam = +!team;
@@ -1181,7 +1184,7 @@ function takeTurn() {
 		const move = moves[0];
 		if (move) {
 			if (teamTypes[team] === "computer") {
-				move.piece.takeMove(move, takeTurn);
+				move.piece.takeMove(move, handleTurn);
 				turn++;
 			}
 			return;
@@ -1205,5 +1208,5 @@ function shuffle(array) {
 
 init();
 animate();
-takeTurn();
+handleTurn();
 
