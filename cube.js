@@ -3,6 +3,28 @@ if (!Detector.webgl) Detector.addGetWebGLMessage();
 
 const turnIndicator = document.getElementById("turn-indicator");
 
+// TODO:
+// - menus
+//   - choose game type
+//   - game over
+//   - win/lose tracking system
+// - sound effects
+//   - lift piece, place piece, invalid move, reveal attacking path for invalid move, check, capture, win, lose, draw, undo, redo
+//   - maybe some variations based on theme
+//   - maybe some variations based on human/computer
+//   - option to disable sound effects
+// - music?
+//   - music volume
+// - click pieces of opponent to see their possible moves (I already have this for the end of game)
+// - option to show capturing paths for valid moves
+// - full keyboard controls
+// - persist game state in localStorage
+// - option to switch between themes
+// - try adding a border around the board (beveled wood, or brass)
+//   - OR: to keep the checkerboard pattern consistent,
+//   so that bishops have to stay on their own colors, and so it's easier to visualize where they can go,
+//   try making the edges and corners of the board beveled, in a gameplay-significant way
+
 let container, stats,
 	camera, controls,
 	scene, renderer;
@@ -659,6 +681,8 @@ class Piece {
 		clearInterval(this.timerId);
 		this.animating = false;
 		this.beingCaptured = false;
+		// TODO: persist path so you can see what moved when it was on the other side of the board etc.
+		// but hide it when selecting a piece because it could be confusing
 		scene.remove(this.movePath);
 	}
 	update() {
@@ -1132,7 +1156,7 @@ function judgeMove(move) {
 	return score;
 }
 
-
+// TODO: rename this... nextTurn?
 function takeTurn() {
 	const team = turn % 2;
 	const inCheck = isCurrentlyInCheck(team);
