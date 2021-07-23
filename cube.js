@@ -296,7 +296,7 @@ const mouse = { x: null, y: null };
 let undos = [];
 let redos = [];
 
-function undo() {
+function undo(secondTime) {
 	if (undos.length === 0) {
 		return;
 	}
@@ -304,7 +304,10 @@ function undo() {
 	redos.push(serialize());
 	deserialize(state);
 	if (teamTypes[turn % 2] === "computer") {
-		undo();
+		undo(true);
+	}
+	if (!secondTime) {
+		takeTurn();
 	}
 }
 function redo() {
@@ -314,6 +317,7 @@ function redo() {
 	const state = redos.pop();
 	undos.push(serialize());
 	deserialize(state);
+	takeTurn();
 }
 function serialize() {
 	return JSON.stringify({
