@@ -301,15 +301,18 @@ function undo() {
 		return;
 	}
 	const state = undos.pop();
-	redos.push(state);
+	redos.push(serialize());
 	deserialize(state);
+	if (teamTypes[turn % 2] === "computer") {
+		undo();
+	}
 }
 function redo() {
 	if (redos.length === 0) {
 		return;
 	}
 	const state = redos.pop();
-	undos.push(state);
+	undos.push(serialize());
 	deserialize(state);
 }
 function serialize() {
@@ -337,6 +340,7 @@ function deserialize(json) {
 				if (capturedPieces.includes(existingPiece)) {
 					capturedPieces.splice(capturedPieces.indexOf(existingPiece), 1);
 					livingPieces.push(existingPiece);
+					existingPiece.addBackToScene();
 				}
 				existingPiece.deserialize(serializedPiece);
 				break;
@@ -349,12 +353,18 @@ function deserialize(json) {
 				if (livingPieces.includes(existingPiece)) {
 					livingPieces.splice(livingPieces.indexOf(existingPiece), 1);
 					capturedPieces.push(existingPiece);
+					existingPiece.removeFromScene();
 				}
 				existingPiece.deserialize(serializedPiece);
 				break;
 			}
 		}
 	}
+
+	selectedPiece = null;
+	clearMovementDecals();
+
+	moveInProgress = false;
 }
 
 function clearMovementDecals() {
@@ -448,15 +458,15 @@ addEventListener('keydown', function (event) {
 		}
 	}
 	// Ctrl+Z or Cmd+Z
-	if (event.keyCode === 90 && (event.ctrlKey || event.metaKey)) {
+	if (event.keyCode === 90 && (event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey) {
 		undo();
 	}
 	// Ctrl+Y or Cmd+Y
-	if (event.keyCode === 89 && (event.ctrlKey || event.metaKey)) {
+	if (event.keyCode === 89 && (event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey) {
 		redo();
 	}
 	// Ctrl+Shift+Z or Cmd+Shift+Z
-	if (event.keyCode === 90 && event.shiftKey && (event.ctrlKey || event.metaKey)) {
+	if (event.keyCode === 90 && event.shiftKey && (event.ctrlKey || event.metaKey) && !event.altKey) {
 		redo();
 	}
 }, true);
@@ -498,9 +508,13 @@ class Piece {
 		this.distanceForward = 0; // used for pawn promotion
 		this.id = "piece_" + pieceIdCounter++;
 	}
-	destroy() {
+	removeFromScene() {
 		scene.remove(this.object3d);
 		raycastTargets.splice(raycastTargets.indexOf(this.raycastMesh), 1);
+	}
+	addBackToScene() {
+		scene.add(this.object3d);
+		raycastTargets.push(this.raycastMesh);
 	}
 	serialize() {
 		return {
@@ -529,6 +543,8 @@ class Piece {
 		// this.object3d.position.copy(this.targetWorldPosition);
 		// this.orientTowardsCube(true);
 		// this.object3d.quaternion.copy(this.targetOrientation);
+		this.cancelAnimation();
+		this.object3d.visible = true; // reset from capturing animation (in multiple places)
 	}
 	setPieceType(pieceType) {
 		this.pieceType = pieceType;
@@ -574,11 +590,13 @@ class Piece {
 
 		const path = makeMovePath(move);
 		scene.add(path);
+		this.movePath = path;
 
 		this.gamePosition.copy(move.gamePosition);
 		this.animating = true;
 		let animIndex = 0;
-		const iid = setInterval(() => {
+		clearInterval(this.timerId);
+		this.timerId = setInterval(() => {
 			const { gamePosition, towardsGroundVector } = move.keyframes[animIndex];
 			this.targetWorldPosition = gameToWorldSpace(gamePosition);
 			this.targetOrientation.setFromUnitVectors(
@@ -587,14 +605,16 @@ class Piece {
 			);
 			animIndex++;
 			if (animIndex >= move.keyframes.length) {
-				clearInterval(iid);
+				clearInterval(this.timerId);
 				// it hasn't quite stopped animating yet
 				// there's still the transition to the final position
-				setTimeout(() => {
+				// Note: clearInterval works with setTimeout IDs too!
+				this.timerId = setTimeout(() => {
 					this.animating = false;
 					moveInProgress = false;
 					if (capturingPiece) {
-						capturingPiece.destroy();
+						capturingPiece.removeFromScene();
+						// capturingPiece.object3d.visible = false;
 					}
 					scene.remove(path);
 					if (move.promotion) {
@@ -613,6 +633,12 @@ class Piece {
 		}, 300);
 
 		this.orientTowardsCube(false);
+	}
+	cancelAnimation() {
+		clearInterval(this.timerId);
+		this.animating = false;
+		this.beingCaptured = false;
+		scene.remove(this.movePath);
 	}
 	orientTowardsCube(updateTargetOrientation = true) {
 		this.towardsGroundVector.copy(getTowardsGroundVector(this.gamePosition));

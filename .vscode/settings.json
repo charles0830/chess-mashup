@@ -13,6 +13,7 @@
 		"raycast",
 		"raycaster",
 		"slerp",
+		"undestroy",
 		"undoable",
 		"undos",
 		"unproject",
