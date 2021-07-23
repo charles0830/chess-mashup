@@ -872,7 +872,6 @@ function animate() {
 
 		if (intersects.length > 0) {
 			const mesh = intersects[0].object;
-			// TODO: different behavior depending on state of the game? (selecting piece, moving piece)
 			if (mesh.geometry == cubeGeometry) {
 				// hoverDecal.visible = true;
 				// positionDecalWorldSpace(hoverDecal, mesh.position, intersects[0].face.normal);
