@@ -993,24 +993,25 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				// lastPos = pos.clone();
 				pos.add(subStep3D);
 
-				const diagonalMovement = Math.abs(direction[0]) === 1 && Math.abs(direction[1]) === 1;
-				if (!diagonalMovement) {
+				// to avoid the piece sliding through the board,
+				// add two keyframes where the piece is over the edge of the board,
+				// one with the piece's current orientation,
+				// and one with the piece's new orientation
+
+				// and for rook movement, I might want it to move in an L shape,
+				// but for other diagonal movement, I might want it to move diagonally
+
+				const goingOverEdge = !cubeAtGamePosition(pos.clone().add(towardsGroundVector));
+				const diagonalMovementExcludingRook = Math.abs(direction[0]) === 1 && Math.abs(direction[1]) === 1;
+
+				if (goingOverEdge || !diagonalMovementExcludingRook) {
 					keyframes.push({
 						gamePosition: pos.clone(),
 						orientation: quaternion.clone(),
 					});
 				}
 
-				// if there's no ground underneath the new position, wrap around the cube
-				if (!cubeAtGamePosition(pos.clone().add(towardsGroundVector))) {
-					// to avoid the piece sliding through the board,
-					// add a keyframe where the piece is over the edge of the board
-					if (diagonalMovement) { // (otherwise already added a keyframe)
-						keyframes.push({
-							gamePosition: pos.clone(),
-							orientation: quaternion.clone(),
-						});
-					}
+				if (goingOverEdge) {
 					// and another keyframe with the new orientation
 					// rotate the orientation over the ledge
 					quaternion.multiply(new THREE.Quaternion().setFromUnitVectors(
