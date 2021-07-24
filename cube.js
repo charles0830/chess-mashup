@@ -448,10 +448,11 @@ addEventListener('mousedown', function (event) {
 						new THREE.Vector3(0, -1, 0),
 						this.towardsGroundVector.clone(),
 					),
-					towardsGroundVector: getTowardsGroundVector(hoveredSpace), // technically redundant with gameOrientation
+					// towardsGroundVector: getTowardsGroundVector(hoveredSpace), // technically redundant with gameOrientation
 					keyframes: [{
 						gamePosition: hoveredSpace,
-						towardsGroundVector: getTowardsGroundVector(hoveredSpace),
+						// towardsGroundVector: getTowardsGroundVector(hoveredSpace),
+						orientation: selectedPiece.gameOrientation,
 					}],
 					piece: selectedPiece,
 					valid: false,
@@ -515,10 +516,13 @@ class Piece {
 	constructor(x, y, z, team, pieceType) {
 		this.startingGamePosition = new THREE.Vector3(x, y, z);
 		this.gamePosition = this.startingGamePosition.clone();
-		this.gameOrientation = new THREE.Quaternion();
+		this.gameOrientation = new THREE.Quaternion().setFromUnitVectors(
+			new THREE.Vector3(0, -1, 0),
+			getTowardsGroundVector(this.gamePosition),
+		);
 		this.targetWorldPosition = gameToWorldSpace(this.gamePosition); // for animation only
 		this.targetOrientation = this.gameOrientation.clone(); // for animation only
-		this.towardsGroundVector = new THREE.Vector3();
+		// this.towardsGroundVector = new THREE.Vector3();
 		this.team = team;
 		this.pieceType = pieceType || "pawn";
 		this.object3d = new THREE.Object3D();
@@ -534,17 +538,15 @@ class Piece {
 		raycastTargets.push(this.raycastMesh);
 		this.setPieceType(pieceType);
 		this.object3d.position.copy(gameToWorldSpace(this.gamePosition));
-		this.towardsGroundVector.copy(getTowardsGroundVector(this.gamePosition));
-		this.targetOrientation.setFromUnitVectors(
-			new THREE.Vector3(0, -1, 0),
-			this.towardsGroundVector,
-		);
-		this.object3d.quaternion.copy(this.targetOrientation);
-		this.gameOrientation.copy(this.targetOrientation);
+		// this.towardsGroundVector.copy(getTowardsGroundVector(this.gamePosition));
+		this.object3d.quaternion.copy(this.gameOrientation);
 		scene.add(this.object3d);
 		this.object3d.piece = this;
 		this.distanceForward = 0; // used for pawn promotion
 		this.id = "piece_" + pieceIdCounter++;
+	}
+	get towardsGroundVector() {
+		return new THREE.Vector3(0, -1, 0).applyQuaternion(this.gameOrientation).round();
 	}
 	removeFromScene() {
 		scene.remove(this.object3d);
@@ -564,7 +566,7 @@ class Piece {
 			startingY: this.startingGamePosition.y,
 			startingZ: this.startingGamePosition.z,
 			orientation: this.gameOrientation.toArray(),
-			towardsGroundVector: this.towardsGroundVector.toArray(), // technically redundant with orientation
+			// towardsGroundVector: this.towardsGroundVector.toArray(), // technically redundant with orientation
 			team: this.team,
 			pieceType: this.pieceType,
 			distanceForward: this.distanceForward,
@@ -580,7 +582,7 @@ class Piece {
 		this.startingGamePosition.z = data.startingZ;
 		this.gameOrientation.fromArray(data.orientation);
 		this.targetOrientation.fromArray(data.orientation);
-		this.towardsGroundVector.fromArray(data.towardsGroundVector);
+		// this.towardsGroundVector.fromArray(data.towardsGroundVector);
 		this.team = data.team;
 		this.setPieceType(data.pieceType);
 		this.distanceForward = data.distanceForward;
@@ -639,18 +641,15 @@ class Piece {
 
 		this.gamePosition.copy(move.gamePosition);
 		this.gameOrientation.copy(move.gameOrientation);
-		this.towardsGroundVector.copy(move.towardsGroundVector);
+		// this.towardsGroundVector.copy(move.towardsGroundVector);
 
 		this.animating = true;
 		let animIndex = 0;
 		clearInterval(this.timerId);
 		this.timerId = setInterval(() => {
-			const { gamePosition, towardsGroundVector } = move.keyframes[animIndex];
+			const { gamePosition, orientation } = move.keyframes[animIndex];
 			this.targetWorldPosition = gameToWorldSpace(gamePosition);
-			this.targetOrientation.setFromUnitVectors(
-				new THREE.Vector3(0, -1, 0),
-				towardsGroundVector.clone(),
-			);
+			this.targetOrientation.copy(orientation);
 			animIndex++;
 			if (animIndex >= move.keyframes.length) {
 				clearInterval(this.timerId);
@@ -968,7 +967,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 		let distance = 0;
 		keyframes.push({
 			gamePosition: pos.clone(),
-			towardsGroundVector: towardsGroundVector.clone()
+			orientation: quaternion.clone(),
 		});
 		for (let i = 1; i <= (canGoManySpaces ? BOARD_SIZE * 4 : 1); i++) {
 			// sub-steps don't count for collision, i.e. the piece can jump over other pieces in a sub-step
@@ -995,7 +994,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				if (!diagonalMovement) {
 					keyframes.push({
 						gamePosition: pos.clone(),
-						towardsGroundVector: towardsGroundVector.clone()
+						orientation: quaternion.clone(),
 					});
 				}
 
@@ -1006,23 +1005,23 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 					if (diagonalMovement) { // (otherwise already added a keyframe)
 						keyframes.push({
 							gamePosition: pos.clone(),
-							towardsGroundVector: towardsGroundVector.clone()
+							orientation: quaternion.clone(),
 						});
 					}
 					// and another keyframe with the new orientation
-					const newTowardsGroundVector = getTowardsGroundVector(pos.clone().add(towardsGroundVector));
+					// rotate the orientation over the ledge
+					quaternion.multiply(new THREE.Quaternion().setFromUnitVectors(
+						new THREE.Vector3(0, -1, 0),
+						new THREE.Vector3(-subStep[0], 0, -subStep[1]),
+					));
 					keyframes.push({
 						gamePosition: pos.clone(),
-						towardsGroundVector: newTowardsGroundVector,
+						orientation: quaternion.clone(),
 					});
 					// move down off the edge of the board cube
 					lastPos = pos.clone();
 					pos.add(towardsGroundVector);
 					towardsGroundVector = getTowardsGroundVector(pos);
-					quaternion.multiply(new THREE.Quaternion().setFromUnitVectors(
-						new THREE.Vector3(0, -1, 0),
-						new THREE.Vector3(-subStep[0], 0, -subStep[1]),
-					));
 				}
 
 				distance += 1;
@@ -1035,7 +1034,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			}
 			keyframes.push({
 				gamePosition: pos.clone(),
-				towardsGroundVector: towardsGroundVector.clone(),
+				orientation: quaternion.clone(),
 				capturingPiece: pieceAtPos,
 			});
 			moves.push({
@@ -1043,7 +1042,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				gamePosition: pos.clone(),
 				gameOrientation: quaternion.clone(),
 				keyframes: [...keyframes], // make copy so each move has its own list of keyframes that ends with the final position
-				towardsGroundVector, // technically redundant with gameOrientation
+				// towardsGroundVector, // technically redundant with gameOrientation
 				direction,
 				capturingPiece: pieceAtPos,
 				distance,
