@@ -546,6 +546,7 @@ class Piece {
 		this.id = "piece_" + pieceIdCounter++;
 	}
 	get towardsGroundVector() {
+		// Note: applyQuaternion gives imprecise results, so we have to round it.
 		return new THREE.Vector3(0, -1, 0).applyQuaternion(this.gameOrientation).round();
 	}
 	removeFromScene() {
