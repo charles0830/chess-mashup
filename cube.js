@@ -442,22 +442,26 @@ addEventListener('mousedown', function (event) {
 			let move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
 			if (event.ctrlKey) {
 				// allow cheating with Ctrl-click
+				const towardsGroundVector = getTowardsGroundVector(hoveredSpace);
+				const orientation = new THREE.Quaternion().setFromUnitVectors(
+					new THREE.Vector3(0, -1, 0),
+					towardsGroundVector.clone(),
+				);
 				move = {
 					gamePosition: hoveredSpace,
-					gameOrientation: new THREE.Quaternion().setFromUnitVectors(
-						new THREE.Vector3(0, -1, 0),
-						this.towardsGroundVector.clone(),
-					),
-					// towardsGroundVector: getTowardsGroundVector(hoveredSpace), // technically redundant with gameOrientation
+					gameOrientation: orientation,
+					// towardsGroundVector, // technically redundant with gameOrientation
 					keyframes: [{
 						gamePosition: hoveredSpace,
-						// towardsGroundVector: getTowardsGroundVector(hoveredSpace),
-						orientation: selectedPiece.gameOrientation,
+						orientation: orientation,
+					}, {
+						gamePosition: hoveredSpace,
+						orientation: orientation,
 					}],
 					piece: selectedPiece,
-					valid: false,
+					valid: false, // honest to god, this is a cheat
 					capturingPiece: pieceAtGamePosition(hoveredSpace),
-					capturingDirectionVector: getTowardsGroundVector(hoveredSpace).clone().negate(), // fake
+					capturingDirectionVector: towardsGroundVector.clone().negate(), // fake
 					direction: [1, 0], // fake
 					distance: 1, // fake
 				};
@@ -522,7 +526,6 @@ class Piece {
 		);
 		this.targetWorldPosition = gameToWorldSpace(this.gamePosition); // for animation only
 		this.targetOrientation = this.gameOrientation.clone(); // for animation only
-		// this.towardsGroundVector = new THREE.Vector3();
 		this.team = team;
 		this.pieceType = pieceType || "pawn";
 		this.object3d = new THREE.Object3D();
@@ -538,7 +541,6 @@ class Piece {
 		raycastTargets.push(this.raycastMesh);
 		this.setPieceType(pieceType);
 		this.object3d.position.copy(gameToWorldSpace(this.gamePosition));
-		// this.towardsGroundVector.copy(getTowardsGroundVector(this.gamePosition));
 		this.object3d.quaternion.copy(this.gameOrientation);
 		scene.add(this.object3d);
 		this.object3d.piece = this;
