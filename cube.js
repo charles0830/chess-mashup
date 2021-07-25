@@ -980,11 +980,18 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			// sub-steps don't count for collision, i.e. the piece can jump over other pieces in a sub-step
 			// TODO: pick best sub-step order for rook movement, avoiding collisions (just for animation)
 			const subSteps = [];
+			const xSubSteps = [];
+			const ySubSteps = [];
 			for (let x = 0; x < Math.abs(direction[0]); x++) {
-				subSteps.push([Math.sign(direction[0]), 0]);
+				xSubSteps.push([Math.sign(direction[0]), 0]);
 			}
 			for (let y = 0; y < Math.abs(direction[1]); y++) {
-				subSteps.push([0, Math.sign(direction[1])]);
+				ySubSteps.push([0, Math.sign(direction[1])]);
+			}
+			if (Math.abs(direction[0]) > 1) {
+				subSteps.push(...xSubSteps, ...ySubSteps);
+			} else {
+				subSteps.push(...ySubSteps, ...xSubSteps);
 			}
 
 			for (const subStep of subSteps) {
@@ -1033,6 +1040,16 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 					lastPos = pos.clone();
 					pos.add(towardsGroundVector);
 					towardsGroundVector = getTowardsGroundVector(pos);
+				}
+
+				// for the long part of a rook's movement,
+				// add a keyframe so that the move path visualization doesn't go through the board cube,
+				// and so that it displays consistently as an L shape and not a Y shape
+				if (goingOverEdge && rookMovement) {
+					keyframes.push({
+						gamePosition: pos.clone(),
+						orientation: quaternion.clone(),
+					});
 				}
 
 				distance += 1;
