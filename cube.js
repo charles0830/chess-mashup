@@ -1005,9 +1005,9 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				// but for other diagonal movement, I might want it to move diagonally
 
 				const goingOverEdge = !cubeAtGamePosition(pos.clone().add(towardsGroundVector));
-				const diagonalMovementExcludingRook = Math.abs(direction[0]) === 1 && Math.abs(direction[1]) === 1;
+				const rookMovement = Math.abs(direction[0]) > 1 || Math.abs(direction[1]) > 1;
 
-				if (goingOverEdge || !diagonalMovementExcludingRook) {
+				if (goingOverEdge || rookMovement) {
 					keyframes.push({
 						gamePosition: pos.clone(),
 						orientation: quaternion.clone(),
