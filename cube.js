@@ -419,7 +419,8 @@ addEventListener('mousedown', function (event) {
 				turn % 2 === hoveredPiece.team &&
 				!moveInProgress
 			) ||
-			gameOver
+			gameOver ||
+			event.ctrlKey // cheat
 		)
 	) {
 		selectedPiece = hoveredPiece;
