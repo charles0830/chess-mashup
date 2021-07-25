@@ -1157,12 +1157,18 @@ function judgeMove(move) {
 	if (!move.valid) {
 		return -1000;
 	}
+	// capturing
 	let score = 0;
 	if (move.capturingPiece) {
 		score += materialValues[move.capturingPiece.pieceType];
 	}
+	// check (and sometimes checkmate!)
 	if (wouldBeInCheck(+!move.piece.team, move.piece, move.gamePosition)) {
 		score += 12;
+	}
+	// promotion
+	if (move.piece.pieceType === "pawn") {
+		score += (move.piece.distanceForward + 1) * 2;
 	}
 	return score;
 }
