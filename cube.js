@@ -227,11 +227,13 @@ function positionDecalWorldSpace(decalMesh, worldPosition, faceNormal) {
 }
 
 function makeMovePath(move, material) {
-	const points = move.keyframes.map(
-		({ gamePosition, towardsGroundVector }) =>
-			gameToWorldSpace(gamePosition)
-		//.add(towardsGroundVector.clone().multiplyScalar(squareSize / 2.91))
-	);
+	const points = move.keyframes
+		.filter(({ goingOverEdge }) => !goingOverEdge)
+		.map(
+			({ gamePosition, towardsGroundVector }) =>
+				gameToWorldSpace(gamePosition)
+			//.add(towardsGroundVector.clone().multiplyScalar(squareSize / 2.91))
+		);
 	// console.log(move.keyframes, points);
 	if (points.length < 3) {
 		points.push(points[0].clone().add(new THREE.Vector3(0, 0, 0.1)));
@@ -1008,6 +1010,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 					keyframes.push({
 						gamePosition: pos.clone(),
 						orientation: quaternion.clone(),
+						goingOverEdge,
 					});
 				}
 
@@ -1021,6 +1024,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 					keyframes.push({
 						gamePosition: pos.clone(),
 						orientation: quaternion.clone(),
+						goingOverEdge,
 					});
 					// move down off the edge of the board cube
 					lastPos = pos.clone();
