@@ -976,6 +976,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 		});
 		for (let i = 1; i <= (canGoManySpaces ? BOARD_SIZE * 4 : 1); i++) {
 			// sub-steps don't count for collision, i.e. the piece can jump over other pieces in a sub-step
+			// TODO: pick best sub-step order for rook movement, avoiding collisions (just for animation)
 			const subSteps = [];
 			for (let x = 0; x < Math.abs(direction[0]); x++) {
 				subSteps.push([Math.sign(direction[0]), 0]);
