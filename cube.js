@@ -652,7 +652,8 @@ class Piece {
 		let animIndex = 0;
 		clearInterval(this.timerId);
 		this.timerId = setInterval(() => {
-			const { gamePosition, orientation } = move.keyframes[animIndex];
+			const keyframe = move.keyframes[animIndex];
+			const { gamePosition, orientation } = keyframe;
 			this.targetWorldPosition = gameToWorldSpace(gamePosition);
 			this.targetOrientation.copy(orientation);
 			animIndex++;
@@ -676,9 +677,9 @@ class Piece {
 				}, capturingPiece ? 1000 : 300);
 			}
 			// animate capturing as the piece moves into the final position
-			if (capturingPiece && animIndex === move.keyframes.length - 1) {
-				capturingPiece.beingCaptured = true;
-				capturingPiece.targetWorldPosition.add(
+			if (keyframe.capturingPiece) {
+				keyframe.capturingPiece.beingCaptured = true;
+				keyframe.capturingPiece.targetWorldPosition.add(
 					move.capturingDirectionVector.clone().multiplyScalar(squareSize),
 				);
 			}
