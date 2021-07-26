@@ -699,7 +699,8 @@ class Piece {
 		this.object3d.position.x += (this.targetWorldPosition.x - this.object3d.position.x) / slowness;
 		this.object3d.position.y += (this.targetWorldPosition.y - this.object3d.position.y) / slowness;
 		this.object3d.position.z += (this.targetWorldPosition.z - this.object3d.position.z) / slowness;
-		this.object3d.quaternion.slerp(this.targetOrientation, 1 / slowness);
+		// this.object3d.quaternion.slerp(this.targetOrientation, 1 / slowness);
+		this.object3d.rotation.y = -Math.atan2(mouse.x, mouse.y);
 		// this.object3d.quaternion.rotateTowards(this.targetOrientation, 0.05);
 		// lift the piece up when selected, or when animating
 		if (selectedPiece === this || this.animating) {
@@ -1018,8 +1019,8 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 		let pos = piece.gamePosition.clone();
 		let lastPos = pos.clone();
 		let towardsGroundVector = piece.towardsGroundVector.clone();
-		// the orientation quaternion is gameplay-significant,
-		// but also for pawns, since pawns can move only forwards (once they leave the home cube face)
+		// the orientation quaternion is gameplay-significant, for pawns,
+		// since pawns can move only forwards (once they leave the home cube face)
 		let quaternion = piece.gameOrientation.clone();
 		// but we want it to start facing the direction of movement...
 		// let quaternion = new THREE.Quaternion().setFromUnitVectors(
@@ -1080,12 +1081,26 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed, but it feels dirty not to
 				// piece.object3d.up = towardsGroundVector.clone().negate();
 				// piece.object3d.lookAt(subStep3D.clone().add(piece.object3d.position));
-				piece.object3d.up = subStep3D.clone().negate();
-				piece.object3d.lookAt(towardsGroundVector.clone().add(piece.object3d.position));
-				quaternion = piece.object3d.quaternion.clone();
-				piece.object3d.quaternion.copy(oldQuaternion);
-				piece.object3d.position.copy(oldPosition);
-				piece.object3d.up.copy(oldUp);
+				// // piece.object3d.up = subStep3D.clone().negate();
+				// // piece.object3d.lookAt(towardsGroundVector.clone().add(piece.object3d.position));
+				// piece.object3d.rotation.y += Math.PI / 2;
+				piece.object3d.quaternion.setFromUnitVectors(
+					new THREE.Vector3(0, -1, 0),
+					towardsGroundVector,
+				);
+				// // piece.object3d.rotation.y += Math.PI / 2;
+				// quaternion = piece.object3d.quaternion.clone();
+				// piece.object3d.quaternion.copy(oldQuaternion);
+				// piece.object3d.position.copy(oldPosition);
+				// piece.object3d.up.copy(oldUp);
+				// sigh... please work...
+				// console.log(quaternion);
+				// quaternion.x += Math.PI / 2;
+				// quaternion.x += subStep3D.x;
+				// quaternion.y += subStep3D.y;
+				// quaternion.z += subStep3D.z;
+				// quaternion.normalize();
+
 
 				// to avoid the piece sliding through the board,
 				// add two keyframes where the piece is over the edge of the board,
