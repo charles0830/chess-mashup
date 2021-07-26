@@ -794,12 +794,12 @@ function init() {
 		const z = team === 0 ? -1 : BOARD_SIZE;
 		const initialBoard = [
 			". . . . . . . .",
-			". p p p p p p .",
+			// ". p p p p p p .",
 			". p r n n r p .",
 			". p n k q n p .",
-			". p n b b n p .",
-			". p r n n r p .",
-			". p p p p p p .",
+			// ". p n b b n p .",
+			// ". p r n n r p .",
+			// ". p p p p p p .",
 			". . . . . . . .",
 		].map(line => line.split(" "));
 		const letterToPieceType = {
@@ -810,8 +810,8 @@ function init() {
 			"k": "king",
 			"n": "knight",
 		};
-		for (let y = 0; y < BOARD_SIZE; y++) {
-			for (let x = 0; x < BOARD_SIZE; x++) {
+		for (let y = 0; y < initialBoard.length; y++) {
+			for (let x = 0; x < initialBoard[y].length; x++) {
 				const letter = initialBoard[y][x];
 				if (letter === ".") {
 					continue;
@@ -991,7 +991,14 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 		let pos = piece.gamePosition.clone();
 		let lastPos = pos.clone();
 		let towardsGroundVector = piece.towardsGroundVector.clone();
+		// the orientation quaternion is gameplay-significant,
+		// but also for pawns, since pawns can move only forwards (once they leave the home cube face)
 		let quaternion = piece.gameOrientation.clone();
+		// but we want it to start facing the direction of movement...
+		// let quaternion = new THREE.Quaternion().setFromUnitVectors(
+		// 	new THREE.Vector3(direction[0], 0, direction[1]),
+		// 	towardsGroundVector,
+		// )
 		let keyframes = []; // for animating the piece's movement
 		let distance = 0;
 		keyframes.push({
@@ -1026,6 +1033,28 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				const subStep3D = new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round();
 				// lastPos = pos.clone();
 				pos.add(subStep3D);
+
+				// I tried variations on this, but it didn't work:
+				// quaternion = new THREE.Quaternion().setFromUnitVectors(subStep3D, towardsGroundVector.clone().negate());
+				// quaternion = new THREE.Quaternion().setFromAxisAngle(
+				// 	towardsGroundVector,
+				// 	Math.atan2(subStep[0], subStep[1]),
+				// ).multiply(new THREE.Quaternion().setFromAxisAngle(
+				// 	new THREE.Vector3(1, 0, 0),
+				// 	-Math.PI / 2,
+				// )).multiply(new THREE.Quaternion().setFromAxisAngle(
+				// 	new THREE.Vector3(0, 1, 0),
+				// 	-Math.PI / 2,
+				// ));
+				// quaternion = new THREE.Quaternion().lookAt(
+				// TODO: do this with Matrix4.lookAt() instead
+				const oldQuaternion = piece.object3d.quaternion.clone();
+				const oldPosition = piece.object3d.position.clone();
+				piece.object3d.up = towardsGroundVector.clone().negate(); // safe to leave unrestored right?
+				piece.object3d.lookAt(subStep3D.clone().add(piece.object3d.position));
+				quaternion = piece.object3d.quaternion.clone();
+				piece.object3d.quaternion.copy(oldQuaternion);
+				piece.object3d.position.copy(oldPosition);
 
 				// to avoid the piece sliding through the board,
 				// add two keyframes where the piece is over the edge of the board,
