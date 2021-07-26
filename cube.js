@@ -1067,9 +1067,10 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				const oldPosition = piece.object3d.position.clone();
 				const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed, but it feels dirty not to
 				// technically converting to world coordinates is not necessary, but again, it feels wrong not to
-				piece.object3d.position.copy(gameToWorldSpace(piece.gamePosition));
-				piece.object3d.up = piece.towardsGroundVector.clone().negate();
-				piece.object3d.lookAt(gameToWorldSpace(piece.gamePosition.clone().add(subStep3D)));
+				piece.object3d.position.copy(gameToWorldSpace(pos));
+				piece.object3d.up = towardsGroundVector.clone().negate();
+				piece.object3d.lookAt(gameToWorldSpace(pos.clone().add(subStep3D)));
+				quaternion.copy(piece.object3d.quaternion);
 				piece.object3d.quaternion.copy(oldQuaternion);
 				piece.object3d.position.copy(oldPosition);
 				piece.object3d.up.copy(oldUp);
