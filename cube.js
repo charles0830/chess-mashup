@@ -1060,7 +1060,6 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				// especially with the Rook, if we don't round this.
 				const subStep3D = new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round();
 				// lastPos = pos.clone();
-				pos.add(subStep3D);
 
 				// TODO: do this with Matrix4.lookAt() instead
 				const oldQuaternion = piece.object3d.quaternion.clone();
@@ -1074,6 +1073,9 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				piece.object3d.quaternion.copy(oldQuaternion);
 				piece.object3d.position.copy(oldPosition);
 				piece.object3d.up.copy(oldUp);
+
+				
+				pos.add(subStep3D);
 
 				// to avoid the piece sliding through the board,
 				// add two keyframes where the piece is over the edge of the board,
