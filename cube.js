@@ -972,6 +972,10 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 		// one space forward, and for attacking, one space diagonally forward
 		// Note: this forward direction must correspond to distanceForward!
 		movementDirections.push([1, 0], [1, 1], [1, -1]);
+		// on home cube face, move in any cardinal direction, and attack in any diagonal direction
+		if (piece.gamePosition.z === piece.startingGamePosition.z) {
+			movementDirections.push(/*[1, 0],*/ [-1, 0], [0, 1], [0, -1], /*[1, 1], [1, -1],*/ [-1, 1], [-1, -1]);
+		}
 	}
 	for (const direction of movementDirections) {
 		// a pawn can move two spaces if it is the first move the pawn makes
@@ -1105,7 +1109,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 		// TODO: generate more invalid moves? e.g. moving onto a friendly piece
 		move.valid = true;
 		if (move.piece.pieceType === "pawn") {
-			if (move.direction[1] === 0) {
+			if (move.direction[1] === 0 || move.direction[0] === 0) {
 				if (move.capturingPiece) {
 					move.valid = false;
 				}
