@@ -1064,20 +1064,21 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				// lastPos = pos.clone();
 
 				// TODO: do this with Matrix4.lookAt() instead
-				const oldQuaternion = piece.object3d.quaternion.clone();
-				const oldPosition = piece.object3d.position.clone();
-				const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed, but it feels dirty not to
-				// technically converting to world coordinates is not necessary, but again, it feels wrong not to
-				piece.object3d.position.copy(gameToWorldSpace(pos));
-				piece.object3d.up = towardsGroundVector.clone().negate();
-				piece.object3d.lookAt(gameToWorldSpace(pos.clone().add(subStep3D)));
-				// piece.object3d.lookAt(gameToWorldSpace(pos.clone().sub(subStep3D)));
-				// piece.object3d.lookAt(gameToWorldSpace(pos.clone().add(new THREE.Vector3(subStep[0], 0, subStep[1]))));
-				piece.object3d.lookAt(new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round());
-				quaternion.copy(piece.object3d.quaternion);
-				piece.object3d.quaternion.copy(oldQuaternion);
-				piece.object3d.position.copy(oldPosition);
-				piece.object3d.up.copy(oldUp);
+				// const oldQuaternion = piece.object3d.quaternion.clone();
+				// const oldPosition = piece.object3d.position.clone();
+				// const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed, but it feels dirty not to
+				// // technically converting to world coordinates is not necessary, but again, it feels wrong not to
+				// piece.object3d.position.copy(gameToWorldSpace(pos));
+				// piece.object3d.up = towardsGroundVector.clone().negate();
+				// piece.object3d.lookAt(gameToWorldSpace(pos.clone().add(subStep3D)));
+				// // piece.object3d.lookAt(gameToWorldSpace(pos.clone().sub(subStep3D)));
+				// // piece.object3d.lookAt(gameToWorldSpace(pos.clone().add(new THREE.Vector3(subStep[0], 0, subStep[1]))));
+				// // piece.object3d.lookAt(new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round());
+				// quaternion.copy(piece.object3d.quaternion);
+				// // quaternion./*pre*/multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2));
+				// piece.object3d.quaternion.copy(oldQuaternion);
+				// piece.object3d.position.copy(oldPosition);
+				// piece.object3d.up.copy(oldUp);
 
 
 				pos.add(subStep3D);
@@ -1131,6 +1132,25 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 
 				distance += 1;
 			}
+
+				// TODO: do this with Matrix4.lookAt() instead
+				const oldQuaternion = piece.object3d.quaternion.clone();
+				const oldPosition = piece.object3d.position.clone();
+				const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed, but it feels dirty not to
+				// technically converting to world coordinates is not necessary, but again, it feels wrong not to
+				piece.object3d.position.copy(gameToWorldSpace(lastPos));
+				piece.object3d.up = towardsGroundVector.clone().negate();
+				piece.object3d.lookAt(gameToWorldSpace(pos));
+				// piece.object3d.lookAt(gameToWorldSpace(pos.clone().sub(subStep3D)));
+				// piece.object3d.lookAt(gameToWorldSpace(pos.clone().add(new THREE.Vector3(subStep[0], 0, subStep[1]))));
+				// piece.object3d.lookAt(new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round());
+				quaternion.copy(piece.object3d.quaternion);
+				// quaternion./*pre*/multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2));
+				piece.object3d.quaternion.copy(oldQuaternion);
+				piece.object3d.position.copy(oldPosition);
+			piece.object3d.up.copy(oldUp);
+			
+
 
 			const pieceAtPos = getPieceAtGamePosition(pos);
 			if (pieceAtPos && pieceAtPos.team === piece.team) {
