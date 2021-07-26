@@ -1050,11 +1050,15 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				// TODO: do this with Matrix4.lookAt() instead
 				const oldQuaternion = piece.object3d.quaternion.clone();
 				const oldPosition = piece.object3d.position.clone();
-				piece.object3d.up = towardsGroundVector.clone().negate(); // safe to leave unrestored right?
-				piece.object3d.lookAt(subStep3D.clone().add(piece.object3d.position));
+				const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed
+				// piece.object3d.up = towardsGroundVector.clone().negate(); // safe to leave unrestored right?
+				// piece.object3d.lookAt(subStep3D.clone().add(piece.object3d.position));
+				piece.object3d.up = subStep3D.clone().negate(); // safe to leave unrestored right?
+				piece.object3d.lookAt(towardsGroundVector.clone().add(piece.object3d.position));
 				quaternion = piece.object3d.quaternion.clone();
 				piece.object3d.quaternion.copy(oldQuaternion);
 				piece.object3d.position.copy(oldPosition);
+				piece.object3d.up.copy(oldUp);
 
 				// to avoid the piece sliding through the board,
 				// add two keyframes where the piece is over the edge of the board,
