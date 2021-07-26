@@ -801,6 +801,15 @@ function init() {
 			// ". p r n n r p .",
 			// ". p p p p p p .",
 			// ". . . . . . . .",
+			// reduced number of pieces
+			". . . . . . . .",
+			". - p p p p - .",
+			". p r . . r p .",
+			". p . k q . p .",
+			". p . b b . p .",
+			". p r . . r p .",
+			". - p p p p - .",
+			". . . . . . . .",
 			// bastion fort
 			// "r r r . . r r r",
 			// "r . r r r r . r",
@@ -811,14 +820,14 @@ function init() {
 			// "r . r r r r . r",
 			// "r r r . . r r r",
 			// smiley face
-			". . . . . . . .",
-			". . k . . b . .",
-			". . q . . b . .",
-			". . . . . . . .",
-			". r . . . . r .",
-			". n . . . . n .",
-			". . p p p p . .",
-			". . . . . . . .",
+			// ". . . . . . . .",
+			// ". . k . . b . .",
+			// ". . q . . b . .",
+			// ". . . . . . . .",
+			// ". r . . . . r .",
+			// ". n . . . . n .",
+			// ". . p p p p . .",
+			// ". . . . . . . .",
 
 		].map(line => line.split(" "));
 		const letterToPieceType = {
@@ -832,13 +841,12 @@ function init() {
 		for (let y = 0; y < initialBoard.length; y++) {
 			for (let x = 0; x < initialBoard[y].length; x++) {
 				const letter = initialBoard[y][x];
-				if (letter === ".") {
-					continue;
+				if (letter in letterToPieceType) {
+					const pieceType = letterToPieceType[letter];
+					const piece = new Piece(x, y, z, team, pieceType);
+					allPieces.push(piece);
+					livingPieces.push(piece);
 				}
-				const pieceType = letterToPieceType[letter];
-				const piece = new Piece(x, y, z, team, pieceType);
-				allPieces.push(piece);
-				livingPieces.push(piece);
 			}
 		}
 
