@@ -763,7 +763,6 @@ function init() {
 	controls.maxDistance = squareSize * BOARD_SIZE * 3;
 
 	scene = new THREE.Scene();
-	// scene.fog = new THREE.FogExp2(0x000000, 0.002);
 
 	if (theme === "wireframe" || theme === "perf") {
 		scene.fog = new THREE.FogExp2(0x000000, 0.002);
@@ -791,46 +790,8 @@ function init() {
 	scene.add(hoverDecal);
 
 	// pieces
-	// const pieceLocations = [
-	// 	[1, 1],
-	// 	[1, BOARD_SIZE - 2],
-	// 	[BOARD_SIZE - 2, 1],
-	// 	[BOARD_SIZE - 2, BOARD_SIZE - 2],
-
-	// 	[2, 2],
-	// 	[2, BOARD_SIZE - 3],
-	// 	[BOARD_SIZE - 3, 2],
-	// 	[BOARD_SIZE - 3, BOARD_SIZE - 3],
-
-	// 	[3, 1],
-	// 	[1, BOARD_SIZE - 4],
-	// 	[BOARD_SIZE - 2, 3],
-	// 	[BOARD_SIZE - 4, BOARD_SIZE - 2],
-	// ];
-
 	for (let team = 0; team <= 1; team++) {
 		const z = team === 0 ? -1 : BOARD_SIZE;
-		// for (let x = 1; x < BOARD_SIZE; x += BOARD_SIZE - 3) {
-		// 	for (let y = 1; y < BOARD_SIZE - 1; y++) {
-		// 		const piece = new Piece(x, y, z, team, "pawn");
-		// 		allPieces.push(piece);
-		// 		livingPieces.push(piece);
-		// 	}
-		// }
-		// for (let y = 1; y < BOARD_SIZE; y += BOARD_SIZE - 3) {
-		// 	for (let x = 2; x < BOARD_SIZE - 2; x++) {
-		// 		const piece = new Piece(x, y, z, team, "pawn");
-		// 		allPieces.push(piece);
-		// 		livingPieces.push(piece);
-		// 	}
-		// }
-		// for (let y = 2; y < BOARD_SIZE; y += BOARD_SIZE - 5) {
-		// 	for (let x = 3; x <= BOARD_SIZE - 4; x++) {
-		// 		const piece = new Piece(x, y, z, team, "bishop");
-		// 		allPieces.push(piece);
-		// 		livingPieces.push(piece);
-		// 	}
-		// }
 		const initialBoard = [
 			". . . . . . . .",
 			". p p p p p p .",
@@ -863,13 +824,7 @@ function init() {
 		}
 
 	}
-
-	// for (let i in pieceLocations) {
-	// 	allPieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], -1, 0, pieceTypes[i % 6]));
-	// 	allPieces.push(new Piece(pieceLocations[i][0], pieceLocations[i][1], BOARD_SIZE, 1, pieceTypes[i % 6]));
-	// }
-	// livingPieces.push(...allPieces);
-
+	
 	// lighting
 	const ambientLight = new THREE.AmbientLight(0xeeeeee);
 	scene.add(ambientLight);
