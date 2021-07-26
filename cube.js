@@ -803,14 +803,14 @@ function init() {
 			// ". p p p p p p .",
 			// ". . . . . . . .",
 			// reduced number of pieces
-			". . . . . . . .",
-			". - p p p p - .",
-			". p r . . r p .",
-			". p . k q . p .",
-			". p . b b . p .",
-			". p r . . r p .",
-			". - p p p p - .",
-			". . . . . . . .",
+			// ". . . . . . . .",
+			// ". n p p p p n .",
+			// ". p r . . r p .",
+			// ". p . k q . p .",
+			// ". p . b b . p .",
+			// ". p r . . r p .",
+			// ". n p p p p n .",
+			// ". . . . . . . .",
 			// bastion fort
 			// "r r r . . r r r",
 			// "r . r r r r . r",
@@ -821,14 +821,14 @@ function init() {
 			// "r . r r r r . r",
 			// "r r r . . r r r",
 			// smiley face
-			// ". . . . . . . .",
-			// ". . k . . b . .",
-			// ". . q . . b . .",
-			// ". . . . . . . .",
-			// ". r . . . . r .",
-			// ". n . . . . n .",
-			// ". . p p p p . .",
-			// ". . . . . . . .",
+			". . . . . . . .",
+			". . k . . b . .",
+			". . q . . b . .",
+			". . . . . . . .",
+			"n r . . . . r n",
+			". n . . . . n .",
+			". . p p p p . .",
+			". . . . . . . .",
 
 		].map(line => line.split(" "));
 		const letterToPieceType = {
@@ -844,7 +844,7 @@ function init() {
 				const letter = initialBoard[y][x];
 				if (letter in letterToPieceType) {
 					const pieceType = letterToPieceType[letter];
-					const piece = new Piece(x, y, z, team, pieceType);
+					const piece = new Piece(x, BOARD_SIZE - 1 - y, z, team, pieceType);
 					allPieces.push(piece);
 					livingPieces.push(piece);
 				}
@@ -1074,7 +1074,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				piece.object3d.position.copy(oldPosition);
 				piece.object3d.up.copy(oldUp);
 
-				
+
 				pos.add(subStep3D);
 
 				// to avoid the piece sliding through the board,
