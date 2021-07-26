@@ -824,7 +824,7 @@ function init() {
 		}
 
 	}
-	
+
 	// lighting
 	const ambientLight = new THREE.AmbientLight(0xeeeeee);
 	scene.add(ambientLight);
@@ -972,12 +972,18 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 		// one space forward, and for attacking, one space diagonally forward
 		// Note: this forward direction must correspond to distanceForward!
 		movementDirections.push([1, 0], [1, 1], [1, -1]);
-		// a pawn can move two spaces if it is the first move the pawn makes
-		if (piece.gamePosition.equals(piece.startingGamePosition)) {
-			movementDirections.push([2, 0]);
-		}
 	}
 	for (const direction of movementDirections) {
+		// a pawn can move two spaces if it is the first move the pawn makes
+		// (don't do this as movementDirections.push([2, 0]) above because it needs collision detection)
+		let maxSpaces = (canGoManySpaces ? BOARD_SIZE * 4 : 1);
+		if (
+			piece.pieceType === "pawn" &&
+			piece.gamePosition.equals(piece.startingGamePosition) &&
+			(direction[0] === 0 || direction[1] === 0) // straight movement
+		) {
+			maxSpaces = 2;
+		}
 		let pos = piece.gamePosition.clone();
 		let lastPos = pos.clone();
 		let towardsGroundVector = piece.towardsGroundVector.clone();
@@ -988,7 +994,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			gamePosition: pos.clone(),
 			orientation: quaternion.clone(),
 		});
-		for (let i = 1; i <= (canGoManySpaces ? BOARD_SIZE * 4 : 1); i++) {
+		for (let i = 1; i <= maxSpaces; i++) {
 			// sub-steps don't count for collision, i.e. the piece can jump over other pieces in a sub-step
 			// TODO: pick best sub-step order for rook movement, avoiding collisions (just for animation)
 			const subSteps = [];
