@@ -1071,6 +1071,9 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				piece.object3d.position.copy(gameToWorldSpace(pos));
 				piece.object3d.up = towardsGroundVector.clone().negate();
 				piece.object3d.lookAt(gameToWorldSpace(pos.clone().add(subStep3D)));
+				// piece.object3d.lookAt(gameToWorldSpace(pos.clone().sub(subStep3D)));
+				// piece.object3d.lookAt(gameToWorldSpace(pos.clone().add(new THREE.Vector3(subStep[0], 0, subStep[1]))));
+				piece.object3d.lookAt(new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round());
 				quaternion.copy(piece.object3d.quaternion);
 				piece.object3d.quaternion.copy(oldQuaternion);
 				piece.object3d.position.copy(oldPosition);
