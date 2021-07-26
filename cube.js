@@ -1050,10 +1050,10 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				// TODO: do this with Matrix4.lookAt() instead
 				const oldQuaternion = piece.object3d.quaternion.clone();
 				const oldPosition = piece.object3d.position.clone();
-				const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed
-				// piece.object3d.up = towardsGroundVector.clone().negate(); // safe to leave unrestored right?
+				const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed, but it feels dirty not to
+				// piece.object3d.up = towardsGroundVector.clone().negate();
 				// piece.object3d.lookAt(subStep3D.clone().add(piece.object3d.position));
-				piece.object3d.up = subStep3D.clone().negate(); // safe to leave unrestored right?
+				piece.object3d.up = subStep3D.clone().negate();
 				piece.object3d.lookAt(towardsGroundVector.clone().add(piece.object3d.position));
 				quaternion = piece.object3d.quaternion.clone();
 				piece.object3d.quaternion.copy(oldQuaternion);
