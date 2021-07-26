@@ -793,14 +793,23 @@ function init() {
 	for (let team = 0; team <= 1; team++) {
 		const z = team === 0 ? -1 : BOARD_SIZE;
 		const initialBoard = [
-			". . . . . . . .",
+			// ". . . . . . . .",
 			// ". p p p p p p .",
-			". p r n n r p .",
-			". p n k q n p .",
+			// ". p r n n r p .",
+			// ". p n k q n p .",
 			// ". p n b b n p .",
 			// ". p r n n r p .",
 			// ". p p p p p p .",
-			". . . . . . . .",
+			// ". . . . . . . .",
+			"p p p p p p p p",
+			"p r n n r p p p",
+			"p n k q n p p p",
+			"p n b b n p p p",
+			"p r n n r p p p",
+			"p p p p p p p p",
+			"p p p p p p p p",
+			"p p p p p p p p",
+			
 		].map(line => line.split(" "));
 		const letterToPieceType = {
 			"p": "pawn",
