@@ -407,6 +407,14 @@ function clearMovementDecals() {
 addEventListener('mousemove', function (event) {
 	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 	mouse.y = 1 - (event.clientY / window.innerHeight) * 2;
+	if (selectedPiece && hoveredSpace) {
+		// orientation debug
+		const oldPosition = selectedPiece.object3d.position.clone();
+		selectedPiece.object3d.position.copy(gameToWorldSpace(selectedPiece.gamePosition));
+		selectedPiece.object3d.up = selectedPiece.towardsGroundVector.clone().negate();
+		selectedPiece.object3d.lookAt(gameToWorldSpace(hoveredSpace));
+		selectedPiece.object3d.position.copy(oldPosition);
+	}
 }, true);
 
 addEventListener('mousedown', function (event) {
@@ -699,7 +707,7 @@ class Piece {
 		this.object3d.position.x += (this.targetWorldPosition.x - this.object3d.position.x) / slowness;
 		this.object3d.position.y += (this.targetWorldPosition.y - this.object3d.position.y) / slowness;
 		this.object3d.position.z += (this.targetWorldPosition.z - this.object3d.position.z) / slowness;
-		this.object3d.quaternion.slerp(this.targetOrientation, 1 / slowness);
+		// this.object3d.quaternion.slerp(this.targetOrientation, 1 / slowness);
 		// this.object3d.rotation.y = -Math.atan2(mouse.x, mouse.y);
 		// this.object3d.quaternion.rotateTowards(this.targetOrientation, 0.05);
 		// lift the piece up when selected, or when animating
@@ -711,9 +719,9 @@ class Piece {
 			this.object3d.position.add(lift);
 		}
 		// wiggle the piece gently when it's selected
-		if (selectedPiece === this) {
-			this.object3d.rotation.z += Math.sin(Date.now() / 500) / 150;
-		}
+		// if (selectedPiece === this) {
+		// 	this.object3d.rotation.z += Math.sin(Date.now() / 500) / 150;
+		// }
 		// capturing animation
 		if (this.beingCaptured) {
 			this.object3d.rotation.y -= 0.1;
@@ -1002,7 +1010,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 		movementDirections.push([1, 0], [1, 1], [1, -1]);
 		// on home cube face, move in any cardinal direction, and attack in any diagonal direction
 		if (piece.gamePosition.z === piece.startingGamePosition.z) {
-			movementDirections.push(/*[1, 0],*/ [-1, 0], [0, 1], [0, -1], /*[1, 1], [1, -1],*/ [-1, 1], [-1, -1]);
+			movementDirections.push(/*[1, 0],*/[-1, 0], [0, 1], [0, -1], /*[1, 1], [1, -1],*/[-1, 1], [-1, -1]);
 		}
 	}
 	for (const direction of movementDirections) {
