@@ -699,8 +699,8 @@ class Piece {
 		this.object3d.position.x += (this.targetWorldPosition.x - this.object3d.position.x) / slowness;
 		this.object3d.position.y += (this.targetWorldPosition.y - this.object3d.position.y) / slowness;
 		this.object3d.position.z += (this.targetWorldPosition.z - this.object3d.position.z) / slowness;
-		// this.object3d.quaternion.slerp(this.targetOrientation, 1 / slowness);
-		this.object3d.rotation.y = -Math.atan2(mouse.x, mouse.y);
+		this.object3d.quaternion.slerp(this.targetOrientation, 1 / slowness);
+		// this.object3d.rotation.y = -Math.atan2(mouse.x, mouse.y);
 		// this.object3d.quaternion.rotateTowards(this.targetOrientation, 0.05);
 		// lift the piece up when selected, or when animating
 		if (selectedPiece === this || this.animating) {
@@ -1064,42 +1064,45 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 
 				// I tried variations on this, but it didn't work:
 				// quaternion = new THREE.Quaternion().setFromUnitVectors(subStep3D, towardsGroundVector.clone().negate());
-				// quaternion = new THREE.Quaternion().setFromAxisAngle(
-				// 	towardsGroundVector,
-				// 	Math.atan2(subStep[0], subStep[1]),
-				// ).multiply(new THREE.Quaternion().setFromAxisAngle(
+				quaternion = new THREE.Quaternion().setFromAxisAngle(
+					towardsGroundVector,
+					0
+					// Math.atan2(subStep[0], subStep[1]),
+				)
+				// 	.premultiply(new THREE.Quaternion().setFromAxisAngle(
 				// 	new THREE.Vector3(1, 0, 0),
-				// 	-Math.PI / 2,
-				// )).multiply(new THREE.Quaternion().setFromAxisAngle(
+				// 	Math.PI / 2,
+				// ))
+				// 	.multiply(new THREE.Quaternion().setFromAxisAngle(
 				// 	new THREE.Vector3(0, 1, 0),
 				// 	-Math.PI / 2,
 				// ));
 				// quaternion = new THREE.Quaternion().lookAt(
 				// TODO: do this with Matrix4.lookAt() instead
-				const oldQuaternion = piece.object3d.quaternion.clone();
-				const oldPosition = piece.object3d.position.clone();
-				const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed, but it feels dirty not to
-				// piece.object3d.up = towardsGroundVector.clone().negate();
-				// piece.object3d.lookAt(subStep3D.clone().add(piece.object3d.position));
-				// // piece.object3d.up = subStep3D.clone().negate();
-				// // piece.object3d.lookAt(towardsGroundVector.clone().add(piece.object3d.position));
-				// piece.object3d.rotation.y += Math.PI / 2;
-				piece.object3d.quaternion.setFromUnitVectors(
-					new THREE.Vector3(0, -1, 0),
-					towardsGroundVector,
-				);
+				// const oldQuaternion = piece.object3d.quaternion.clone();
+				// const oldPosition = piece.object3d.position.clone();
+				// const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed, but it feels dirty not to
+				// // piece.object3d.up = towardsGroundVector.clone().negate();
+				// // piece.object3d.lookAt(subStep3D.clone().add(piece.object3d.position));
+				// // // piece.object3d.up = subStep3D.clone().negate();
+				// // // piece.object3d.lookAt(towardsGroundVector.clone().add(piece.object3d.position));
 				// // piece.object3d.rotation.y += Math.PI / 2;
-				// quaternion = piece.object3d.quaternion.clone();
-				// piece.object3d.quaternion.copy(oldQuaternion);
-				// piece.object3d.position.copy(oldPosition);
-				// piece.object3d.up.copy(oldUp);
-				// sigh... please work...
-				// console.log(quaternion);
-				// quaternion.x += Math.PI / 2;
-				// quaternion.x += subStep3D.x;
-				// quaternion.y += subStep3D.y;
-				// quaternion.z += subStep3D.z;
-				// quaternion.normalize();
+				// piece.object3d.quaternion.setFromUnitVectors(
+				// 	new THREE.Vector3(0, -1, 0),
+				// 	towardsGroundVector,
+				// );
+				// // // piece.object3d.rotation.y += Math.PI / 2;
+				// // quaternion = piece.object3d.quaternion.clone();
+				// // piece.object3d.quaternion.copy(oldQuaternion);
+				// // piece.object3d.position.copy(oldPosition);
+				// // piece.object3d.up.copy(oldUp);
+				// // sigh... please work...
+				// // console.log(quaternion);
+				// // quaternion.x += Math.PI / 2;
+				// // quaternion.x += subStep3D.x;
+				// // quaternion.y += subStep3D.y;
+				// // quaternion.z += subStep3D.z;
+				// // quaternion.normalize();
 
 
 				// to avoid the piece sliding through the board,
