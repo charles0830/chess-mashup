@@ -425,8 +425,8 @@ addEventListener('mousemove', function (event) {
 
 	if (selectedPiece && hoveredSpace) {
 		const piece = selectedPiece;
-		const pos = piece.gamePosition;
-		const lastPos = hoveredSpace;
+		const pos = hoveredSpace;
+		const lastPos = piece.gamePosition;
 		const towardsGroundVector = piece.towardsGroundVector;
 		// TODO: do this with Matrix4.lookAt() instead
 		const oldQuaternion = piece.object3d.quaternion.clone();
