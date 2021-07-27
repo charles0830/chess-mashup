@@ -251,7 +251,22 @@ function makeMovePath(move, material) {
 	}
 	lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(pointData, 3));
 	const path = new THREE.Line(lineGeometry, material || new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3 }));
-	return path;
+	const object3d = new THREE.Object3D();
+	object3d.add(path);
+	for (const keyframe of move.keyframes) {
+		const point = gameToWorldSpace(keyframe.gamePosition);
+		// const direction = new THREE.Vector3(0, 1, 0).applyQuaternion(keyframe.orientation);
+		const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(keyframe.orientation);
+		// const direction = move.towardsGroundVector; // a different thing
+		const arrowHelper = new THREE.ArrowHelper(
+			direction,
+			point,
+			10, 0xff00ff, 6, 4
+		);
+		object3d.add(arrowHelper);
+	}
+
+	return object3d;
 }
 
 
@@ -1140,7 +1155,12 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			// technically converting to world coordinates is not necessary, but again, it feels wrong not to
 			piece.object3d.position.copy(gameToWorldSpace(lastPos));
 			// piece.object3d.up = towardsGroundVector.clone().negate();
-			piece.object3d.lookAt(gameToWorldSpace(pos));
+			// piece.object3d.lookAt(gameToWorldSpace(pos));
+			piece.object3d.up = new THREE.Vector3().subVectors(pos, lastPos).normalize();
+			// piece.object3d.lookAt(towardsGroundVector.clone().negate());
+			piece.object3d.lookAt(gameToWorldSpace(lastPos).clone().add(towardsGroundVector.clone().cross(
+				new THREE.Vector3(0, 0, 1).applyQuaternion(piece.object3d.quaternion),
+			)));
 			// piece.object3d.lookAt(piece.object3d.worldToLocal(gameToWorldSpace(pos)));
 			// piece.object3d.lookAt(gameToWorldSpace(pos.clone().sub(subStep3D)));
 			// piece.object3d.lookAt(gameToWorldSpace(pos.clone().add(new THREE.Vector3(subStep[0], 0, subStep[1]))));
