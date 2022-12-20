@@ -422,36 +422,6 @@ function clearMovementDecals() {
 addEventListener('mousemove', function (event) {
 	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 	mouse.y = 1 - (event.clientY / window.innerHeight) * 2;
-
-	if (selectedPiece && hoveredSpace) {
-		const piece = selectedPiece;
-		const pos = hoveredSpace;
-		const lastPos = piece.gamePosition;
-		const towardsGroundVector = piece.towardsGroundVector;
-		// TODO: do this with Matrix4.lookAt() instead
-		const oldQuaternion = piece.object3d.quaternion.clone();
-		const oldPosition = piece.object3d.position.clone();
-		const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed, but it feels dirty not to
-		// technically converting to world coordinates is not necessary, but again, it feels wrong not to
-		piece.object3d.position.copy(gameToWorldSpace(lastPos));
-		piece.object3d.up = towardsGroundVector.clone().negate();
-		piece.object3d.lookAt(gameToWorldSpace(pos));
-		// piece.object3d.up = new THREE.Vector3().subVectors(pos, lastPos).normalize();
-		// piece.object3d.lookAt(towardsGroundVector.clone().negate());
-		// piece.object3d.lookAt(gameToWorldSpace(lastPos).clone().add(towardsGroundVector.clone().cross(
-		// 	new THREE.Vector3(1, 0, 0)//.applyQuaternion(piece.object3d.quaternion),
-		// )));
-		// piece.object3d.lookAt(piece.object3d.worldToLocal(gameToWorldSpace(pos)));
-		// piece.object3d.lookAt(gameToWorldSpace(pos.clone().sub(subStep3D)));
-		// piece.object3d.lookAt(gameToWorldSpace(pos.clone().add(new THREE.Vector3(subStep[0], 0, subStep[1]))));
-		// piece.object3d.lookAt(new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round());
-		/////////////quaternion.copy(piece.object3d.quaternion);
-		// quaternion./*pre*/multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2));
-		////////////piece.object3d.quaternion.copy(oldQuaternion);
-		piece.object3d.position.copy(oldPosition);
-		piece.object3d.up.copy(oldUp);
-
-	}
 }, true);
 
 addEventListener('mousedown', function (event) {
@@ -746,7 +716,7 @@ class Piece {
 		this.object3d.position.x += (this.targetWorldPosition.x - this.object3d.position.x) / slowness;
 		this.object3d.position.y += (this.targetWorldPosition.y - this.object3d.position.y) / slowness;
 		this.object3d.position.z += (this.targetWorldPosition.z - this.object3d.position.z) / slowness;
-		// this.object3d.quaternion.slerp(this.targetOrientation, 1 / slowness);
+		this.object3d.quaternion.slerp(this.targetOrientation, 1 / slowness);
 		// this.object3d.rotation.y = -Math.atan2(mouse.x, mouse.y);
 		// this.object3d.quaternion.rotateTowards(this.targetOrientation, 0.05);
 		// lift the piece up when selected, or when animating
