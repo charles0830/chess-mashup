@@ -968,8 +968,8 @@ function animate() {
 
 				// positionDecalWorldSpace(hoverDecal, mesh.position, intersects[0].face.normal);
 				// towardsGroundVector = getTowardsGroundVector(hoveredSpace);
-				towardsGroundVector = new THREE.Vector3(1, 0, 0);
-				towardsGroundVector.applyQuaternion(hoveredPiece.gameOrientation);
+				towardsGroundVector = new THREE.Vector3(0, -1, 0);
+				towardsGroundVector.applyQuaternion(hoveredPiece.gameOrientation).round();
 
 			}
 		}
