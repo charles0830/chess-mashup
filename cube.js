@@ -558,7 +558,7 @@ class Piece {
 		this.object3d.add(tempMesh);
 		this.raycastMesh = tempMesh;
 		this.visualMesh = tempMesh;
-		// raycastTargets.push(this.raycastMesh);
+		raycastTargets.push(this.raycastMesh);
 		this.setPieceType(pieceType);
 		const arrowHelper = new THREE.ArrowHelper(new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 10, 0), 20, 0x00ff00, 6, 4);
 		this.object3d.add(arrowHelper);
