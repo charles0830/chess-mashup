@@ -39,6 +39,7 @@ try {
 }
 
 let cubeObject3D;
+let cubesByGamePosition = {};
 let color1 = 0xaf0000;
 let color0 = 0xffffff;
 
@@ -804,6 +805,7 @@ function init() {
 				mesh.matrixAutoUpdate = false;
 				cubeObject3D.add(mesh);
 				raycastTargets.push(mesh);
+				cubesByGamePosition[`${x},${y},${z}`] = mesh;
 			}
 		}
 	}
@@ -1001,9 +1003,10 @@ function animate() {
 
 function cubeAtGamePosition(gamePosition) {
 	const { x, y, z } = gamePosition;
-	if (x < 0 || y < 0 || z < 0) return false;
-	if (x >= BOARD_SIZE || y >= BOARD_SIZE || z >= BOARD_SIZE) return false;
-	return true;
+	// if (x < 0 || y < 0 || z < 0) return false;
+	// if (x >= BOARD_SIZE || y >= BOARD_SIZE || z >= BOARD_SIZE) return false;
+	// return true;
+	return cubesByGamePosition[`${x},${y},${z}`];
 }
 function pieceAtGamePosition(gamePosition) {
 	return livingPieces.find((piece) => piece.gamePosition.equals(gamePosition));
