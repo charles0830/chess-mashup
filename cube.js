@@ -462,7 +462,7 @@ addEventListener('mousedown', function (event) {
 			let move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
 			if (event.ctrlKey) {
 				// allow cheating with Ctrl-click
-				const towardsGroundVector = getTowardsGroundVector(hoveredSpace);
+				const towardsGroundVector = guessTowardsGroundVector(hoveredSpace);
 				const orientation = new THREE.Quaternion().setFromUnitVectors(
 					new THREE.Vector3(0, -1, 0),
 					towardsGroundVector.clone(),
@@ -542,7 +542,7 @@ class Piece {
 		this.gamePosition = this.startingGamePosition.clone();
 		this.gameOrientation = new THREE.Quaternion().setFromUnitVectors(
 			new THREE.Vector3(0, -1, 0),
-			getTowardsGroundVector(this.gamePosition),
+			guessTowardsGroundVector(this.gamePosition),
 		);
 		this.targetWorldPosition = gameToWorldSpace(this.gamePosition); // for animation only
 		this.targetOrientation = this.gameOrientation.clone(); // for animation only
@@ -752,7 +752,7 @@ class Piece {
 	}
 }
 
-function getTowardsGroundVector(gamePosition) {
+function guessTowardsGroundVector(gamePosition) {
 	if (gamePosition.x < 0) {
 		return new THREE.Vector3(1, 0, 0);
 	} else if (gamePosition.y < 0) {
@@ -967,7 +967,7 @@ function animate() {
 				hoveredSpace = hoveredPiece.gamePosition;
 
 				// positionDecalWorldSpace(hoverDecal, mesh.position, intersects[0].face.normal);
-				// towardsGroundVector = getTowardsGroundVector(hoveredSpace);
+				// towardsGroundVector = guessTowardsGroundVector(hoveredSpace);
 				towardsGroundVector = new THREE.Vector3(0, -1, 0);
 				towardsGroundVector.applyQuaternion(hoveredPiece.gameOrientation).round();
 
@@ -1157,10 +1157,10 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 					// move down off the edge of the board cube
 					lastPos = pos.clone();
 					pos.add(towardsGroundVector);
-					// towardsGroundVector = getTowardsGroundVector(pos);
+					// towardsGroundVector = guessTowardsGroundVector(pos);
 					towardsGroundVector = new THREE.Vector3().copy(subStep3D).negate().normalize();
 					debug["pos"] = pos.clone();
-					debug["getTowardsGroundVector(pos)"] = getTowardsGroundVector(pos);
+					debug["guessTowardsGroundVector(pos)"] = guessTowardsGroundVector(pos);
 					debug["new THREE.Vector3().copy(subStep3D).negate().normalize()"] = new THREE.Vector3().copy(subStep3D).negate().normalize();
 				}
 
