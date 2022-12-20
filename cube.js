@@ -313,7 +313,7 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 	);
 }));
 
-const BOARD_SIZE = 8; // metacube board size in cubes/squares/cells
+const BOARD_SIZE = 2; // metacube board size in cubes/squares/cells
 
 let teamTypes = ["human", "computer"];
 let teamNames = ["White", "Red"];
