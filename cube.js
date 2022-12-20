@@ -823,8 +823,9 @@ function init() {
 	for (let x = 0; x < BOARD_SIZE; x++) {
 		for (let y = 0; y < BOARD_SIZE; y++) {
 			for (let z = 0; z < BOARD_SIZE; z++) {
+				if (z % 3 != 0 || x % 3 != 0 || y % 3 != 0) continue;
 				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat0);
-				mesh.visible = x === 0 || x === BOARD_SIZE - 1 || y === 0 || y === BOARD_SIZE - 1 || z === 0 || z === BOARD_SIZE - 1;
+				// mesh.visible = x === 0 || x === BOARD_SIZE - 1 || y === 0 || y === BOARD_SIZE - 1 || z === 0 || z === BOARD_SIZE - 1;
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
@@ -959,6 +960,7 @@ function animate() {
 	// clear hover state of board
 	hoverDecal.visible = false;
 	hoveredSpace = null;
+	let towardsGroundVector = null;
 
 	// find hovered piece and/or board space and highlight it
 	if (mouse.x != null && mouse.y != null && controls.state === controls.STATE.NONE) {
@@ -973,9 +975,19 @@ function animate() {
 				// positionDecalWorldSpace(hoverDecal, mesh.position, intersects[0].face.normal);
 				hoveredSpace = new THREE.Vector3().addVectors(mesh.gamePosition, intersects[0].face.normal);
 				hoveredPiece = pieceAtGamePosition(hoveredSpace);
+
+				towardsGroundVector = new THREE.Vector3();
+				towardsGroundVector.copy(intersects[0].face.normal);
+				towardsGroundVector.negate();
 			} else {
 				hoveredPiece = mesh.parent.piece;
 				hoveredSpace = hoveredPiece.gamePosition;
+
+				// positionDecalWorldSpace(hoverDecal, mesh.position, intersects[0].face.normal);
+				// towardsGroundVector = getTowardsGroundVector(hoveredSpace);
+				towardsGroundVector = new THREE.Vector3(1, 0, 0);
+				towardsGroundVector.applyQuaternion(hoveredPiece.gameOrientation);
+
 			}
 		}
 	}
@@ -989,8 +1001,6 @@ function animate() {
 	}
 	if (hoveredSpace) {
 		hoverDecal.visible = true;
-		// positionDecalWorldSpace(hoverDecal, mesh.position, intersects[0].face.normal);
-		const towardsGroundVector = getTowardsGroundVector(hoveredSpace);
 		const awayFromGroundVector = towardsGroundVector.clone().negate();
 		const decalWorldPosition = gameToWorldSpace(hoveredSpace.clone().add(towardsGroundVector));
 		positionDecalWorldSpace(hoverDecal, decalWorldPosition, awayFromGroundVector);
