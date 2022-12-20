@@ -446,7 +446,7 @@ addEventListener('mousedown', function (event) {
 		// console.log(moves);
 		for (const move of moves) {
 			const decal = makeDecal(move.valid ? validMoveDecalMat : invalidMoveDecalMat);
-			const towardsGroundVector = getTowardsGroundVector(move.gamePosition);
+			const towardsGroundVector = move.towardsGroundVector;
 			const awayFromGroundVector = towardsGroundVector.clone().negate();
 			const decalWorldPosition = gameToWorldSpace(move.gamePosition.clone().add(towardsGroundVector));
 			positionDecalWorldSpace(decal, decalWorldPosition, awayFromGroundVector);
@@ -1217,7 +1217,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				gamePosition: pos.clone(),
 				gameOrientation: quaternion.clone(),
 				keyframes: [...keyframes], // make copy so each move has its own list of keyframes that ends with the final position
-				// towardsGroundVector, // technically redundant with gameOrientation
+				towardsGroundVector, // technically redundant with gameOrientation
 				direction,
 				capturingPiece: pieceAtPos,
 				distance,
