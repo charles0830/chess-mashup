@@ -24,6 +24,7 @@ const turnIndicator = document.getElementById("turn-indicator");
 //   - OR: to keep the checkerboard pattern consistent,
 //   so that bishops have to stay on their own colors, and so it's easier to visualize where they can go,
 //   try making the edges and corners of the board beveled, in a gameplay-significant way
+//   (specifically, make the board a truncated cuboctahedron (beveled cube))
 
 let container, stats,
 	camera, controls,
