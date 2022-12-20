@@ -638,6 +638,7 @@ class Piece {
 		});
 	}
 	takeMove(move, callback) {
+		console.log(move);
 		if (gameOver) {
 			return;
 		}
@@ -1062,6 +1063,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			orientation: quaternion.clone(),
 		});
 		for (let i = 1; i <= maxSpaces; i++) {
+			const debug = {};
 			// sub-steps don't count for collision, i.e. the piece can jump over other pieces in a sub-step
 			// TODO: pick best sub-step order for rook movement, avoiding collisions (just for animation)
 			const subSteps = [];
@@ -1143,7 +1145,11 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 					// move down off the edge of the board cube
 					lastPos = pos.clone();
 					pos.add(towardsGroundVector);
-					towardsGroundVector = getTowardsGroundVector(pos);
+					// towardsGroundVector = getTowardsGroundVector(pos);
+					towardsGroundVector = new THREE.Vector3().copy(subStep3D).negate().normalize();
+					debug["pos"] = pos.clone();
+					debug["getTowardsGroundVector(pos)"] = getTowardsGroundVector(pos);
+					debug["new THREE.Vector3().copy(subStep3D).negate().normalize()"] = new THREE.Vector3().copy(subStep3D).negate().normalize();
 				}
 
 				// for the long part of a rook's movement,
@@ -1205,6 +1211,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				distance,
 				capturingDirectionVector: new THREE.Vector3().subVectors(pos, lastPos).normalize(),
 				promotion: piece.pieceType === "pawn" && piece.distanceForward === 5, // distance will be incremented when taking the move, to 6, which is equivalent to the 8th rank
+				debug,
 			});
 			if (pieceAtPos) {
 				break;
