@@ -797,9 +797,9 @@ function init() {
 	for (let x = 0; x < BOARD_SIZE; x++) {
 		for (let y = 0; y < BOARD_SIZE; y++) {
 			for (let z = 0; z < BOARD_SIZE; z++) {
-				if (z % 3 != 0 || x % 3 != 0 || y % 3 != 0) continue;
+				// if (z % 3 != 0 || x % 3 != 0 || y % 3 != 0) continue;
 				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat0);
-				// mesh.visible = x === 0 || x === BOARD_SIZE - 1 || y === 0 || y === BOARD_SIZE - 1 || z === 0 || z === BOARD_SIZE - 1;
+				mesh.visible = x === 0 || x === BOARD_SIZE - 1 || y === 0 || y === BOARD_SIZE - 1 || z === 0 || z === BOARD_SIZE - 1;
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
@@ -826,14 +826,14 @@ function init() {
 			// ". p p p p p p .",
 			// ". . . . . . . .",
 			// reduced number of pieces
-			// ". . . . . . . .",
-			// ". n p p p p n .",
-			// ". p r . . r p .",
-			// ". p . k q . p .",
-			// ". p . b b . p .",
-			// ". p r . . r p .",
-			// ". n p p p p n .",
-			// ". . . . . . . .",
+			". . . . . . . .",
+			". n p p p p n .",
+			". p r . . r p .",
+			". p . k q . p .",
+			". p . b b . p .",
+			". p r . . r p .",
+			". n p p p p n .",
+			". . . . . . . .",
 			// bastion fort
 			// "r r r . . r r r",
 			// "r . r r r r . r",
@@ -853,14 +853,14 @@ function init() {
 			// ". . p p p p . .",
 			// ". . . . . . . .",
 			// most minimal
-			". . . . . . . .",
-			"k . . . . . . .",
-			". . . . . . . .",
-			". . . . . . . .",
-			". . . . . . . .",
-			". . . . . . . .",
-			". . . . . . . .",
-			". . . . . . . .",
+			// ". . . . . . . .",
+			// "k . . . . . . .",
+			// ". . . . . . . .",
+			// ". . . . . . . .",
+			// ". . . . . . . .",
+			// ". . . . . . . .",
+			// ". . . . . . . .",
+			// ". . . . . . . .",
 
 		].map(line => line.split(" "));
 		const letterToPieceType = {
