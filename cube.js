@@ -1178,28 +1178,33 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				distance += 1;
 			}
 
-			// TODO: do this with Matrix4.lookAt() instead
-			const oldQuaternion = piece.object3d.quaternion.clone();
-			const oldPosition = piece.object3d.position.clone();
-			const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed, but it feels dirty not to
-			// technically converting to world coordinates is not necessary, but again, it feels wrong not to
-			piece.object3d.position.copy(gameToWorldSpace(lastPos));
-			// piece.object3d.up = towardsGroundVector.clone().negate();
-			// piece.object3d.lookAt(gameToWorldSpace(pos));
-			piece.object3d.up = new THREE.Vector3().subVectors(pos, lastPos).normalize();
-			// piece.object3d.lookAt(towardsGroundVector.clone().negate());
-			piece.object3d.lookAt(gameToWorldSpace(lastPos).clone().add(towardsGroundVector.clone().cross(
-				new THREE.Vector3(0, 0, 1).applyQuaternion(piece.object3d.quaternion),
-			)));
-			// piece.object3d.lookAt(piece.object3d.worldToLocal(gameToWorldSpace(pos)));
-			// piece.object3d.lookAt(gameToWorldSpace(pos.clone().sub(subStep3D)));
-			// piece.object3d.lookAt(gameToWorldSpace(pos.clone().add(new THREE.Vector3(subStep[0], 0, subStep[1]))));
-			// piece.object3d.lookAt(new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round());
-			quaternion.copy(piece.object3d.quaternion);
-			// quaternion./*pre*/multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2));
-			piece.object3d.quaternion.copy(oldQuaternion);
-			piece.object3d.position.copy(oldPosition);
-			piece.object3d.up.copy(oldUp);
+			// What is this code for? It changes the orientation...
+			// Maybe it's just meant to make the piece face the direction it's heading?
+			// But it comes at a weird time in the animation if that's the case.
+			// Shouldn't it only reorient PERHAPS at the start of a move,
+			// but only otherwise when going over a ledge?
+			// // TODO: do this with Matrix4.lookAt() instead
+			// const oldQuaternion = piece.object3d.quaternion.clone();
+			// const oldPosition = piece.object3d.position.clone();
+			// const oldUp = piece.object3d.up.clone(); // saving/restoring this might not be needed, but it feels dirty not to
+			// // technically converting to world coordinates is not necessary, but again, it feels wrong not to
+			// piece.object3d.position.copy(gameToWorldSpace(lastPos));
+			// // piece.object3d.up = towardsGroundVector.clone().negate();
+			// // piece.object3d.lookAt(gameToWorldSpace(pos));
+			// piece.object3d.up = new THREE.Vector3().subVectors(pos, lastPos).normalize();
+			// // piece.object3d.lookAt(towardsGroundVector.clone().negate());
+			// piece.object3d.lookAt(gameToWorldSpace(lastPos).clone().add(towardsGroundVector.clone().cross(
+			// 	new THREE.Vector3(0, 0, 1).applyQuaternion(piece.object3d.quaternion),
+			// )));
+			// // piece.object3d.lookAt(piece.object3d.worldToLocal(gameToWorldSpace(pos)));
+			// // piece.object3d.lookAt(gameToWorldSpace(pos.clone().sub(subStep3D)));
+			// // piece.object3d.lookAt(gameToWorldSpace(pos.clone().add(new THREE.Vector3(subStep[0], 0, subStep[1]))));
+			// // piece.object3d.lookAt(new THREE.Vector3(subStep[0], 0, subStep[1]).applyQuaternion(quaternion).round());
+			// quaternion.copy(piece.object3d.quaternion);
+			// // quaternion./*pre*/multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2));
+			// piece.object3d.quaternion.copy(oldQuaternion);
+			// piece.object3d.position.copy(oldPosition);
+			// piece.object3d.up.copy(oldUp);
 
 
 
