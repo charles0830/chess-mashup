@@ -696,7 +696,7 @@ class Piece {
 						this.setPieceType("queen"); // TODO: choice of piece type
 					}
 					callback();
-				}, capturingPiece ? 10000 : 3000);
+				}, capturingPiece ? 1000 : 300);
 			}
 			// animate capturing as the piece moves into the final position
 			if (keyframe.capturingPiece) {
@@ -705,7 +705,7 @@ class Piece {
 					move.capturingDirectionVector.clone().multiplyScalar(squareSize),
 				);
 			}
-		}, 3000);
+		}, 300);
 	}
 	cancelAnimation() {
 		clearInterval(this.timerId);
@@ -716,7 +716,7 @@ class Piece {
 		scene.remove(this.movePath);
 	}
 	update() {
-		const slowness = 20;
+		const slowness = 10;
 		this.object3d.position.x += (this.targetWorldPosition.x - this.object3d.position.x) / slowness;
 		this.object3d.position.y += (this.targetWorldPosition.y - this.object3d.position.y) / slowness;
 		this.object3d.position.z += (this.targetWorldPosition.z - this.object3d.position.z) / slowness;
