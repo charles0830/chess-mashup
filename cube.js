@@ -255,15 +255,16 @@ function makeMovePath(move, material) {
 	const path = new THREE.Line(lineGeometry, material || new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3 }));
 	const object3d = new THREE.Object3D();
 	object3d.add(path);
-	for (const keyframe of move.keyframes) {
+	for (const [i, keyframe] of Object.entries(move.keyframes)) {
 		const point = gameToWorldSpace(keyframe.gamePosition);
+		point.add(new THREE.Vector3(0, 0, i * squareSize * 0.1));
 		// const direction = new THREE.Vector3(0, 1, 0).applyQuaternion(keyframe.orientation);
 		const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(keyframe.orientation);
 		// const direction = move.towardsGroundVector; // a different thing
 		const arrowHelper = new THREE.ArrowHelper(
 			direction,
 			point,
-			10, 0xff00ff, 6, 4
+			10, 0xff00ff + (i * 50), 6, 4
 		);
 		object3d.add(arrowHelper);
 	}
