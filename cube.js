@@ -1031,7 +1031,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 	}
 	if (piece.pieceType === "king" || piece.pieceType === "queen" || piece.pieceType === "bishop") {
 		// diagonal movement
-		movementDirections.push([1, 1], [-1, 1], [1, -1], [-1, -1]);
+		// movementDirections.push([1, 1], [-1, 1], [1, -1], [-1, -1]);
 	}
 	if (piece.pieceType === "knight") {
 		// L-shaped movement
