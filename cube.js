@@ -571,7 +571,7 @@ class Piece {
 		this.visualMesh = tempMesh;
 		raycastTargets.push(this.raycastMesh);
 		this.setPieceType(pieceType);
-		const arrowHelper = new THREE.ArrowHelper(new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 10, 0), 20, 0x00ff00, 6, 4);
+		const arrowHelper = new THREE.ArrowHelper(new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 10, 0), 20, 0x00aa00, 10, 8);
 		this.object3d.add(arrowHelper);
 		this.object3d.position.copy(gameToWorldSpace(this.gamePosition));
 		this.object3d.quaternion.copy(this.gameOrientation);
