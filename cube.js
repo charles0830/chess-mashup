@@ -1171,10 +1171,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 						goingUpWall,
 					});
 					lastPos = pos.clone();
-					towardsGroundVector = new THREE.Vector3(0, 1, 0).applyQuaternion(quaternion).round();
-					// debug["pos"] = pos.clone();
-					// debug["guessTowardsGroundVector(pos)"] = guessTowardsGroundVector(pos);
-					// debug["new THREE.Vector3().copy(subStep3D).negate().normalize()"] = new THREE.Vector3().copy(subStep3D).negate().normalize();
+					towardsGroundVector = new THREE.Vector3(0, -1, 0).applyQuaternion(quaternion).round();
 				}
 
 				if (goingOverEdge || rookMovement) {
