@@ -1330,13 +1330,20 @@ function wouldBeInCheck(team, pieceToMove, targetGamePosition, boardPieces = liv
 	for (const otherPiece of boardPieces) {
 		if (otherPiece.team !== team) {
 			const getPieceAtGamePosition = (checkGamePosition) => {
-				// pretend the piece is at the target position
+				// Note: order of these ifs is important for case where a piece
+				// moves but ends up occupying the same space it started in,
+				// i.e. if it re-orients onto a wall.
+				// Specifically, if the king is in check, merely reorienting the king should not be a valid move!
+				// Otherwise it leads to what I'm calling "Assassin-Mate"
+
+				// Pretend/suppose the piece is at the target position
+				if (checkGamePosition.equals(targetGamePosition)) {
+					return pieceToMove;
+				}
+				// and not where it is
 				const pieceHere = pieceAtGamePosition(checkGamePosition);
 				if (pieceHere === pieceToMove) {
 					return null;
-				}
-				if (checkGamePosition.equals(targetGamePosition)) {
-					return pieceToMove;
 				}
 				// otherwise the world state is the same
 				return pieceHere;
