@@ -1218,9 +1218,13 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			}
 
 			// Face the piece forwards
-			// (Shouldn't this happen earlier in the animation?)
-			// (And it should use subStep3D instead of relying on lastPos-pos != 0
+			// Ideally this should happen earlier in the animation,
+			// but I haven't managed to get it working where it
+			// doesn't break the movement path, causing rooks for example to go in a winding path.
+			// I'm storing and resetting the quaternion in order to avoid it affecting the path,
+			// but this does cause some wiggling, since some keyframes are added without the facing direction changed.
 			const movement = new THREE.Vector3().subVectors(pos, lastPos);
+			const resetQuaternion = quaternion.clone();
 			if (movement.length() === 1) {
 				const matrix = new THREE.Matrix4().lookAt(
 					lastPos,
@@ -1231,7 +1235,9 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			} else if (movement.length() != 0) {
 				console.log("unexpected (but likely in the future)", movement, movement.length());
 			} else {
-				// TODO
+				// TODO: use subStep3D instead of relying on lastPos-pos not being 0
+				// and do this earlier in the animation,
+				// in order to handle the case of a piece rotating onto a wall, occupying the same cell.
 			}
 
 			const pieceAtPos = getPieceAtGamePosition(pos);
@@ -1266,6 +1272,8 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			if (capturingPiece) {
 				break;
 			}
+			// So subStep3D isn't calculated incorrectly, and rook/bishop/etc. paths are kept straight.
+			quaternion.copy(resetQuaternion);
 		}
 	}
 	// console.log(moves, piece.pieceType, movementDirections);
