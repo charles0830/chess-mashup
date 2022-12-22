@@ -1129,7 +1129,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				// piece.object3d.position.copy(oldPosition);
 				// piece.object3d.up.copy(oldUp);
 
-
+				// Move forward. This may be backtracked if there's a wall.
 				pos.add(subStep3D);
 
 				// to avoid the piece sliding through the board,
@@ -1140,8 +1140,31 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				// and for rook movement, I might want it to move in an L shape,
 				// but for other diagonal movement, I might want it to move diagonally
 
-				const goingOverEdge = !cubeAtGamePosition(pos.clone().add(towardsGroundVector));
+				const goingUpWall = cubeAtGamePosition(pos);
+				const goingOverEdge = !cubeAtGamePosition(pos.clone().add(towardsGroundVector)) && !goingUpWall;
 				const rookMovement = Math.abs(direction[0]) > 1 || Math.abs(direction[1]) > 1;
+
+				if (goingUpWall) {
+					// hit a wall; back up!
+					pos.sub(subStep3D);
+					// audit: shouldn't use subStep3D/subStep after this point (in actual execution)
+
+					// and re-orient onto the wall
+					quaternion.multiply(new THREE.Quaternion().setFromUnitVectors(
+						new THREE.Vector3(0, -1, 0),
+						new THREE.Vector3(-subStep[0], 0, -subStep[1]),
+					).conjugate());
+					keyframes.push({
+						gamePosition: pos.clone(),
+						orientation: quaternion.clone(),
+						goingUpWall,
+					});
+					lastPos = pos.clone();
+					towardsGroundVector = new THREE.Vector3(0, 1, 0).applyQuaternion(quaternion).round();
+					// debug["pos"] = pos.clone();
+					// debug["guessTowardsGroundVector(pos)"] = guessTowardsGroundVector(pos);
+					// debug["new THREE.Vector3().copy(subStep3D).negate().normalize()"] = new THREE.Vector3().copy(subStep3D).negate().normalize();
+				}
 
 				if (goingOverEdge || rookMovement) {
 					keyframes.push({
@@ -1217,9 +1240,15 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 
 
 			const pieceAtPos = getPieceAtGamePosition(pos);
+			let capturingPiece = pieceAtPos;
 			if (pieceAtPos && pieceAtPos.team === piece.team) {
-				// can't move onto a friendly piece
-				break;
+				if (pieceAtPos === piece) {
+					// reorienting a piece in the same space (going up a wall)
+					capturingPiece = null;
+				} else {
+					// can't move onto a friendly piece
+					break;
+				}
 			}
 			keyframes.push({
 				gamePosition: pos.clone(),
