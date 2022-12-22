@@ -261,7 +261,7 @@ function makeMovePath(move, material) {
 	for (const [i, keyframe] of Object.entries(move.keyframes)) {
 		const point = gameToWorldSpace(keyframe.gamePosition);
 		const { x, y, z } = keyframe.gamePosition;
-		
+
 		arrowsByCell[`${x},${y},${z}`] = (arrowsByCell[`${x},${y},${z}`] || 0) + 1;
 		const arrowsInThisCellAlready = arrowsByCell[`${x},${y},${z}`] - 1;
 		// shift to where there's (hopefully) room for this arrow
@@ -1052,7 +1052,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 		// on home cube face, move in any cardinal direction, and attack in any diagonal direction
 		if (piece.gamePosition.z === piece.startingGamePosition.z) {
 			// movementDirections.push(/*[1, 0],*/[-1, 0], [0, 1], [0, -1], /*[1, 1], [1, -1],*/[-1, 1], [-1, -1]);
-			movementDirections.push([1, 0], [-1, 0], [0, 1], /*[0, -1],*/ [1, 1], /*[1, -1],*/ [-1, 1], /*[-1, -1]*/);
+			movementDirections.push([1, 0], [-1, 0], [0, 1], /*[0, -1],*/[1, 1], /*[1, -1],*/[-1, 1], /*[-1, -1]*/);
 		}
 	}
 	for (const direction of movementDirections) {
