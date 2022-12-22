@@ -481,7 +481,7 @@ addEventListener('mousedown', function (event) {
 				move = {
 					gamePosition: hoveredSpace,
 					gameOrientation: orientation,
-					// towardsGroundVector, // technically redundant with gameOrientation
+					towardsGroundVector, // technically redundant with gameOrientation
 					keyframes: [{
 						gamePosition: hoveredSpace,
 						orientation: orientation,
@@ -602,7 +602,7 @@ class Piece {
 			startingY: this.startingGamePosition.y,
 			startingZ: this.startingGamePosition.z,
 			orientation: this.gameOrientation.toArray(),
-			// towardsGroundVector: this.towardsGroundVector.toArray(), // technically redundant with orientation
+			towardsGroundVector: this.towardsGroundVector.toArray(), // technically redundant with orientation
 			team: this.team,
 			pieceType: this.pieceType,
 			distanceForward: this.distanceForward,
