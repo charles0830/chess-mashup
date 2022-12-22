@@ -809,8 +809,9 @@ function init() {
 		for (let y = 0; y < BOARD_SIZE; y++) {
 			for (let z = 0; z < BOARD_SIZE; z++) {
 				// if (z % 3 != 0 || x % 3 != 0 || y % 3 != 0) continue;
+				if (Math.random() < 0.2) continue;
 				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat0);
-				mesh.visible = x === 0 || x === BOARD_SIZE - 1 || y === 0 || y === BOARD_SIZE - 1 || z === 0 || z === BOARD_SIZE - 1;
+				// mesh.visible = x === 0 || x === BOARD_SIZE - 1 || y === 0 || y === BOARD_SIZE - 1 || z === 0 || z === BOARD_SIZE - 1;
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
