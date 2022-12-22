@@ -274,7 +274,7 @@ function makeMovePath(move, material) {
 		const arrowHelper = new THREE.ArrowHelper(
 			direction,
 			point,
-			10, 0xff00ff + (i * 50), 6, 4
+			10, `hsl(${i * 20}, 100%, 50%)`, 6, 4
 		);
 		object3d.add(arrowHelper);
 	}
