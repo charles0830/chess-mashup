@@ -607,7 +607,6 @@ class Piece {
 			startingY: this.startingGamePosition.y,
 			startingZ: this.startingGamePosition.z,
 			orientation: this.gameOrientation.toArray(),
-			towardsGroundVector: this.towardsGroundVector.toArray(), // technically redundant with orientation
 			team: this.team,
 			pieceType: this.pieceType,
 			distanceForward: this.distanceForward,
@@ -623,7 +622,6 @@ class Piece {
 		this.startingGamePosition.z = data.startingZ;
 		this.gameOrientation.fromArray(data.orientation);
 		this.targetOrientation.fromArray(data.orientation);
-		// this.towardsGroundVector.fromArray(data.towardsGroundVector);
 		this.team = data.team;
 		this.setPieceType(data.pieceType);
 		this.distanceForward = data.distanceForward;
@@ -684,7 +682,6 @@ class Piece {
 
 		this.gamePosition.copy(move.gamePosition);
 		this.gameOrientation.copy(move.gameOrientation);
-		// this.towardsGroundVector.copy(move.towardsGroundVector);
 
 		this.animating = true;
 		let animIndex = 0;
