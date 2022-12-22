@@ -1264,7 +1264,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			keyframes.push({
 				gamePosition: pos.clone(),
 				orientation: quaternion.clone(),
-				capturingPiece: pieceAtPos,
+				capturingPiece,
 			});
 			moves.push({
 				piece: piece,
@@ -1273,13 +1273,13 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 				keyframes: [...keyframes], // make copy so each move has its own list of keyframes that ends with the final position
 				towardsGroundVector, // technically redundant with gameOrientation
 				direction,
-				capturingPiece: pieceAtPos,
+				capturingPiece,
 				distance,
 				capturingDirectionVector: new THREE.Vector3().subVectors(pos, lastPos).normalize(),
 				promotion: piece.pieceType === "pawn" && piece.distanceForward === 5, // distance will be incremented when taking the move, to 6, which is equivalent to the 8th rank
 				// debug,
 			});
-			if (pieceAtPos) {
+			if (capturingPiece) {
 				break;
 			}
 		}
