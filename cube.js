@@ -660,7 +660,8 @@ class Piece {
 			capturedPieces.push(capturingPiece);
 		}
 
-		this.distanceForward += move.direction[0]; // must correspond to pawn's forward direction!
+		// this.distanceForward += move.direction[0]; // must correspond to pawn's forward direction!
+		this.distanceForward -= move.direction[1]; // must correspond to pawn's forward direction!
 
 		const path = makeMovePath(move);
 		scene.add(path);
@@ -1041,10 +1042,12 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 	if (piece.pieceType === "pawn") {
 		// one space forward, and for attacking, one space diagonally forward
 		// Note: this forward direction must correspond to distanceForward!
-		movementDirections.push([1, 0], [1, 1], [1, -1]);
+		// movementDirections.push([1, 0], [1, 1], [1, -1]);
+		movementDirections.push([0, -1], [1, -1], [-1, -1]);
 		// on home cube face, move in any cardinal direction, and attack in any diagonal direction
 		if (piece.gamePosition.z === piece.startingGamePosition.z) {
-			movementDirections.push(/*[1, 0],*/[-1, 0], [0, 1], [0, -1], /*[1, 1], [1, -1],*/[-1, 1], [-1, -1]);
+			// movementDirections.push(/*[1, 0],*/[-1, 0], [0, 1], [0, -1], /*[1, 1], [1, -1],*/[-1, 1], [-1, -1]);
+			movementDirections.push([1, 0], [-1, 0], [0, 1], /*[0, -1],*/ [1, 1], /*[1, -1],*/ [-1, 1], /*[-1, -1]*/);
 		}
 	}
 	for (const direction of movementDirections) {
