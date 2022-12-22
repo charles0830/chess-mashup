@@ -336,6 +336,7 @@ let raycaster;
 const intersects = [];
 let hoveredPiece;
 let hoveredSpace;
+let hoveredTowardsGroundVector;
 let selectedPiece;
 const allPieces = [];
 const livingPieces = [];
@@ -470,7 +471,11 @@ addEventListener('mousedown', function (event) {
 	} else if (selectedPiece) {
 		if (hoveredSpace) {
 			const moves = getMoves(selectedPiece);
-			let move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
+			let move = moves.find(move =>
+				move.gamePosition.equals(hoveredSpace) &&
+				move.towardsGroundVector.equals(hoveredTowardsGroundVector) &&
+				move.valid
+			);
 			if (event.ctrlKey) {
 				// allow cheating with Ctrl-click
 				const towardsGroundVector = guessTowardsGroundVector(hoveredSpace);
@@ -956,7 +961,7 @@ function animate() {
 	// clear hover state of board
 	hoverDecal.visible = false;
 	hoveredSpace = null;
-	let towardsGroundVector = null;
+	hoveredTowardsGroundVector = null;
 
 	// find hovered piece and/or board space and highlight it
 	if (mouse.x != null && mouse.y != null && controls.state === controls.STATE.NONE) {
@@ -970,14 +975,15 @@ function animate() {
 				hoveredSpace = new THREE.Vector3().addVectors(mesh.gamePosition, intersects[0].face.normal);
 				hoveredPiece = pieceAtGamePosition(hoveredSpace);
 
-				towardsGroundVector = new THREE.Vector3();
-				towardsGroundVector.copy(intersects[0].face.normal);
-				towardsGroundVector.negate();
+				hoveredTowardsGroundVector = new THREE.Vector3();
+				hoveredTowardsGroundVector.copy(intersects[0].face.normal);
+				hoveredTowardsGroundVector.negate();
+				console.assert(hoveredTowardsGroundVector.clone().round().equals(hoveredTowardsGroundVector), "might need round()");
 			} else {
 				hoveredPiece = mesh.parent.piece;
 				hoveredSpace = hoveredPiece.gamePosition;
 
-				towardsGroundVector = hoveredPiece.towardsGroundVector;
+				hoveredTowardsGroundVector = hoveredPiece.towardsGroundVector;
 			}
 		}
 	}
@@ -991,17 +997,25 @@ function animate() {
 	}
 	if (hoveredSpace) {
 		hoverDecal.visible = true;
-		const awayFromGroundVector = towardsGroundVector.clone().negate();
-		const decalWorldPosition = gameToWorldSpace(hoveredSpace.clone().add(towardsGroundVector));
+		const awayFromGroundVector = hoveredTowardsGroundVector.clone().negate();
+		const decalWorldPosition = gameToWorldSpace(hoveredSpace.clone().add(hoveredTowardsGroundVector));
 		positionDecalWorldSpace(hoverDecal, decalWorldPosition, awayFromGroundVector);
 		// set the cursor if the square is a valid move
 		if (selectedPiece) {
 			const moves = getMoves(selectedPiece);
-			const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && move.valid);
+			const move = moves.find(move =>
+				move.gamePosition.equals(hoveredSpace) &&
+				move.towardsGroundVector.equals(hoveredTowardsGroundVector) &&
+				move.valid
+			);
 			if (move && !gameOver) {
 				pointerCursor = true;
 			} else {
-				const move = moves.find(move => move.gamePosition.equals(hoveredSpace) && !move.valid);
+				const move = moves.find(move =>
+					move.gamePosition.equals(hoveredSpace) &&
+					move.towardsGroundVector.equals(hoveredTowardsGroundVector) &&
+					!move.valid
+				);
 				if (move && move.checkMove) {
 					const path = makeMovePath(move.checkMove, new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 3, opacity: 0.2 }));
 					scene.add(path);
