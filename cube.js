@@ -966,8 +966,6 @@ function animate() {
 		if (intersects.length > 0) {
 			const mesh = intersects[0].object;
 			if (mesh.geometry == cubeGeometry) {
-				// hoverDecal.visible = true;
-				// positionDecalWorldSpace(hoverDecal, mesh.position, intersects[0].face.normal);
 				hoveredSpace = new THREE.Vector3().addVectors(mesh.gamePosition, intersects[0].face.normal);
 				hoveredPiece = pieceAtGamePosition(hoveredSpace);
 
@@ -978,11 +976,7 @@ function animate() {
 				hoveredPiece = mesh.parent.piece;
 				hoveredSpace = hoveredPiece.gamePosition;
 
-				// positionDecalWorldSpace(hoverDecal, mesh.position, intersects[0].face.normal);
-				// towardsGroundVector = guessTowardsGroundVector(hoveredSpace);
-				towardsGroundVector = new THREE.Vector3(0, -1, 0);
-				towardsGroundVector.applyQuaternion(hoveredPiece.gameOrientation).round();
-
+				towardsGroundVector = hoveredPiece.towardsGroundVector;
 			}
 		}
 	}
