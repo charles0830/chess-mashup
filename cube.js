@@ -1221,8 +1221,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			// Ideally this should happen earlier in the animation,
 			// but I haven't managed to get it working where it
 			// doesn't break the movement path, causing rooks for example to go in a winding path.
-			// I'm storing and resetting the quaternion in order to avoid it affecting the path,
-			// but this does cause some wiggling, since some keyframes are added without the facing direction changed.
+			// I'm storing and resetting the quaternion in order to avoid it affecting the path.
 			const movement = new THREE.Vector3().subVectors(pos, lastPos);
 			const resetQuaternion = quaternion.clone();
 			if (movement.length() === 1) {
@@ -1274,6 +1273,16 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 			}
 			// So subStep3D isn't calculated incorrectly, and rook/bishop/etc. paths are kept straight.
 			quaternion.copy(resetQuaternion);
+			// Avoid wiggling, by resetting the keyframe if it wasn't the final keyframe,
+			// such that the piece only turns to face forwards at the end of the animation.
+			keyframes[keyframes.length - 1] = {
+				gamePosition: pos.clone(),
+				orientation: resetQuaternion.clone(),
+				capturingPiece,
+			};
+			// Need separate object instance, so we're not affecting the old one for moves less far along the path.
+			// This would not work well:
+			// keyframes[keyframes.length - 1].orientation = resetQuaternion.clone();
 		}
 	}
 	// console.log(moves, piece.pieceType, movementDirections);
