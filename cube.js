@@ -32,10 +32,14 @@ let container, stats,
 const raycastTargets = []; // don't want to include certain objects like hoverDecal, so we can't just use scene.children
 
 let theme = "default";
+let keyframeDebug = false;
+let facingDebug = false;
 try {
 	theme = localStorage.getItem("3d-theme");
+	keyframeDebug = localStorage.getItem("3d-debug-keyframes") === "true";
+	facingDebug = localStorage.getItem("3d-debug-facing") === "true";
 } catch (error) {
-	console.warn("Couldn't read 3d-theme from local storage", error);
+	console.warn("Couldn't read settings from local storage", error);
 }
 
 let cubeObject3D;
@@ -256,27 +260,29 @@ function makeMovePath(move, material) {
 	const object3d = new THREE.Object3D();
 	object3d.add(path);
 
-	// Debug: visualize the animation keyframes as arrows
-	const arrowsByCell = {};
-	for (const [i, keyframe] of Object.entries(move.keyframes)) {
-		const point = gameToWorldSpace(keyframe.gamePosition);
-		const { x, y, z } = keyframe.gamePosition;
+	if (keyframeDebug) {
+		// Debug: visualize the animation keyframes as arrows
+		const arrowsByCell = {};
+		for (const [i, keyframe] of Object.entries(move.keyframes)) {
+			const point = gameToWorldSpace(keyframe.gamePosition);
+			const { x, y, z } = keyframe.gamePosition;
 
-		arrowsByCell[`${x},${y},${z}`] = (arrowsByCell[`${x},${y},${z}`] || 0) + 1;
-		const arrowsInThisCellAlready = arrowsByCell[`${x},${y},${z}`] - 1;
-		// shift to where there's (hopefully) room for this arrow
-		// (there may be overlapping move paths, which don't share arrowsByCell, so this isn't perfect)
-		point.add(new THREE.Vector3(0, 0, arrowsInThisCellAlready * squareSize * 0.1));
+			arrowsByCell[`${x},${y},${z}`] = (arrowsByCell[`${x},${y},${z}`] || 0) + 1;
+			const arrowsInThisCellAlready = arrowsByCell[`${x},${y},${z}`] - 1;
+			// shift to where there's (hopefully) room for this arrow
+			// (there may be overlapping move paths, which don't share arrowsByCell, so this isn't perfect)
+			point.add(new THREE.Vector3(0, 0, arrowsInThisCellAlready * squareSize * 0.1));
 
-		// const direction = new THREE.Vector3(0, 1, 0).applyQuaternion(keyframe.orientation);
-		const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(keyframe.orientation);
-		// const direction = move.towardsGroundVector; // a different thing
-		const arrowHelper = new THREE.ArrowHelper(
-			direction,
-			point,
-			10, `hsl(${i * 20}, 100%, 50%)`, 6, 4
-		);
-		object3d.add(arrowHelper);
+			// const direction = new THREE.Vector3(0, 1, 0).applyQuaternion(keyframe.orientation);
+			const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(keyframe.orientation);
+			// const direction = move.towardsGroundVector; // a different thing
+			const arrowHelper = new THREE.ArrowHelper(
+				direction,
+				point,
+				10, `hsl(${i * 20}, 100%, 50%)`, 6, 4
+			);
+			object3d.add(arrowHelper);
+		}
 	}
 
 	return object3d;
@@ -576,8 +582,10 @@ class Piece {
 		this.visualMesh = tempMesh;
 		raycastTargets.push(this.raycastMesh);
 		this.setPieceType(pieceType);
-		const arrowHelper = new THREE.ArrowHelper(new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 10, 0), 20, 0x00aa00, 10, 8);
-		this.object3d.add(arrowHelper);
+		if (facingDebug) {
+			const arrowHelper = new THREE.ArrowHelper(new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 10, 0), 20, 0x00aa00, 10, 8);
+			this.object3d.add(arrowHelper);
+		}
 		this.object3d.position.copy(gameToWorldSpace(this.gamePosition));
 		this.object3d.quaternion.copy(this.gameOrientation);
 		scene.add(this.object3d);
