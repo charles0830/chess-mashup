@@ -255,9 +255,19 @@ function makeMovePath(move, material) {
 	const path = new THREE.Line(lineGeometry, material || new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 3 }));
 	const object3d = new THREE.Object3D();
 	object3d.add(path);
+
+	// Debug: visualize the animation keyframes as arrows
+	const arrowsByCell = {};
 	for (const [i, keyframe] of Object.entries(move.keyframes)) {
 		const point = gameToWorldSpace(keyframe.gamePosition);
-		point.add(new THREE.Vector3(0, 0, i * squareSize * 0.1));
+		const { x, y, z } = keyframe.gamePosition;
+		
+		arrowsByCell[`${x},${y},${z}`] = (arrowsByCell[`${x},${y},${z}`] || 0) + 1;
+		const arrowsInThisCellAlready = arrowsByCell[`${x},${y},${z}`] - 1;
+		// shift to where there's (hopefully) room for this arrow
+		// (there may be overlapping move paths, which don't share arrowsByCell, so this isn't perfect)
+		point.add(new THREE.Vector3(0, 0, arrowsInThisCellAlready * squareSize * 0.1));
+
 		// const direction = new THREE.Vector3(0, 1, 0).applyQuaternion(keyframe.orientation);
 		const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(keyframe.orientation);
 		// const direction = move.towardsGroundVector; // a different thing
