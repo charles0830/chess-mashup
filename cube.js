@@ -978,7 +978,13 @@ function animate() {
 			const mesh = intersects[0].object;
 			if (mesh.geometry == cubeGeometry) {
 				hoveredSpace = new THREE.Vector3().addVectors(mesh.gamePosition, intersects[0].face.normal);
-				hoveredPiece = pieceAtGamePosition(hoveredSpace);
+				if (!selectedPiece) {
+					hoveredPiece = pieceAtGamePosition(hoveredSpace);
+				} else {
+					// could conflict with selecting moves that change the orientation
+					// of a piece without moving outside of the space it occupies,
+					// i.e. going up a wall
+				}
 
 				hoveredTowardsGroundVector = new THREE.Vector3();
 				hoveredTowardsGroundVector.copy(intersects[0].face.normal);
