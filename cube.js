@@ -484,15 +484,14 @@ addEventListener('mousedown', function (event) {
 			);
 			if (event.ctrlKey) {
 				// allow cheating with Ctrl-click
-				const towardsGroundVector = guessTowardsGroundVector(hoveredSpace);
 				const orientation = new THREE.Quaternion().setFromUnitVectors(
 					new THREE.Vector3(0, -1, 0),
-					towardsGroundVector.clone(),
+					hoveredTowardsGroundVector.clone(),
 				);
 				move = {
 					gamePosition: hoveredSpace,
 					gameOrientation: orientation,
-					towardsGroundVector, // technically redundant with gameOrientation
+					towardsGroundVector: hoveredTowardsGroundVector, // technically redundant with gameOrientation
 					keyframes: [{
 						gamePosition: hoveredSpace,
 						orientation: orientation,
@@ -503,7 +502,7 @@ addEventListener('mousedown', function (event) {
 					piece: selectedPiece,
 					valid: false, // honest to god, this is a cheat
 					capturingPiece: pieceAtGamePosition(hoveredSpace),
-					capturingDirectionVector: towardsGroundVector.clone().negate(), // fake
+					capturingDirectionVector: hoveredTowardsGroundVector.clone().negate(), // fake
 					direction: [1, 0], // fake
 					distance: 1, // fake
 				};
