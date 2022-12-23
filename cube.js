@@ -558,13 +558,10 @@ function gameToWorldSpace(gamePosition) {
 
 let pieceIdCounter = 0;
 class Piece {
-	constructor(x, y, z, team, pieceType) {
+	constructor(x, y, z, orientation, team, pieceType) {
 		this.startingGamePosition = new THREE.Vector3(x, y, z);
 		this.gamePosition = this.startingGamePosition.clone();
-		this.gameOrientation = new THREE.Quaternion().setFromUnitVectors(
-			new THREE.Vector3(0, -1, 0),
-			guessTowardsGroundVector(this.gamePosition),
-		);
+		this.gameOrientation = orientation.clone();
 		this.targetWorldPosition = gameToWorldSpace(this.gamePosition); // for animation only
 		this.targetOrientation = this.gameOrientation.clone(); // for animation only
 		this.team = team;
@@ -773,25 +770,6 @@ class Piece {
 	}
 }
 
-function guessTowardsGroundVector(gamePosition) {
-	if (gamePosition.x < 0) {
-		return new THREE.Vector3(1, 0, 0);
-	} else if (gamePosition.y < 0) {
-		return new THREE.Vector3(0, 1, 0);
-	} else if (gamePosition.z < 0) {
-		return new THREE.Vector3(0, 0, 1);
-	} else if (gamePosition.x >= BOARD_SIZE) {
-		return new THREE.Vector3(-1, 0, 0);
-	} else if (gamePosition.y >= BOARD_SIZE) {
-		return new THREE.Vector3(0, -1, 0);
-	} else if (gamePosition.z >= BOARD_SIZE) {
-		return new THREE.Vector3(0, 0, -1);
-	} else {
-		console.warn("Oh no, gamePosition is inside cube!");
-		return new THREE.Vector3(0, 0, 1);
-	}
-}
-
 function init() {
 
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
@@ -897,7 +875,11 @@ function init() {
 				const letter = initialBoard[y][x];
 				if (letter in letterToPieceType) {
 					const pieceType = letterToPieceType[letter];
-					const piece = new Piece(x, BOARD_SIZE - 1 - y, z, team, pieceType);
+					const quaternion = new THREE.Quaternion().setFromUnitVectors(
+						new THREE.Vector3(0, -1, 0),
+						new THREE.Vector3(0, 0, team === 0 ? 1 : -1),
+					);
+					const piece = new Piece(x, BOARD_SIZE - 1 - y, z, quaternion, team, pieceType);
 					allPieces.push(piece);
 					livingPieces.push(piece);
 				}
@@ -1210,11 +1192,7 @@ function getMoves(piece, getPieceAtGamePosition = pieceAtGamePosition, checkingC
 					// move down off the edge of the board cube
 					lastPos = pos.clone();
 					pos.add(towardsGroundVector);
-					// towardsGroundVector = guessTowardsGroundVector(pos);
 					towardsGroundVector = new THREE.Vector3().copy(subStep3D).negate().normalize();
-					// debug["pos"] = pos.clone();
-					// debug["guessTowardsGroundVector(pos)"] = guessTowardsGroundVector(pos);
-					// debug["new THREE.Vector3().copy(subStep3D).negate().normalize()"] = new THREE.Vector3().copy(subStep3D).negate().normalize();
 				}
 
 				// for the long part of a rook's movement,
