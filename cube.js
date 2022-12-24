@@ -5,7 +5,7 @@ const turnIndicator = document.getElementById("turn-indicator");
 
 // TODO:
 // - menus
-//   - choose game type
+//   - preview game type with a screenshot
 //   - game over
 //   - win/lose tracking system
 // - sound effects
@@ -332,9 +332,18 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 
 const BOARD_SIZE = 8; // metacube board size in cubes/squares/cells
 
-let teamTypes = ["human", "computer"];
 let teamNames = ["White", "Red"];
-let turnMessages = ["Your turn (White)", "Compu-turn (Red)"];
+let teamTypes;
+let turnMessages;
+function setTeams(playerCount) {
+	if (playerCount === 1) {
+		teamTypes = ["human", "computer"];
+		turnMessages = ["Your turn (White)", "Compu-turn (Red)"];
+	} else {
+		teamTypes = ["human", "human"];
+		turnMessages = ["White's turn", "Red's turn"];
+	}
+}
 let turn = 0;
 let gameOver = false;
 let moveInProgress = false;
@@ -1565,8 +1574,10 @@ function loadFromURL() {
 	backToMainEl.style.display = (screen === "new-game-options") ? "" : "none";
 	leaveGameEl.style.display = (screen === game) ? "" : "none";
 	newGameOptionsEl.dataset.game = game;
-	if (game) {
+	if (screen === game) {
 		initWorld(game);
+		setTeams(Number(document.querySelector("[name=players]:checked").value));
+		handleTurn();
 	}
 }
 
@@ -1574,5 +1585,3 @@ window.addEventListener("hashchange", loadFromURL);
 initRendering();
 loadFromURL();
 animate();
-handleTurn();
-
