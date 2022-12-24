@@ -856,11 +856,14 @@ const boardPresets = {
 
 function destroyWorld() {
 	// Note to self: don't let AI autocomplete this function
+
 	if (!terrainObject3D) {
 		return;
 	}
 	scene.remove(terrainObject3D);
 	scene.remove(hoverDecal);
+
+	clearMovementDecals();
 
 	terrainObject3D = null;
 	// hoverDecal = null; const
@@ -873,6 +876,13 @@ function destroyWorld() {
 	raycastTargets.length = 0;
 
 	cubesByGamePosition = {};
+
+	turn = 0;
+	gameOver = false;
+	moveInProgress = false;
+	selectedPiece = null;
+
+	controls.reset();
 }
 
 function initWorld(game) {
