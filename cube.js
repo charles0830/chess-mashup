@@ -966,16 +966,6 @@ function initWorld(game) {
 
 function initRendering() {
 
-	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-	camera.position.z = -500;
-	camera.near = 0.1;
-	camera.far = 1000;
-
-	controls = new THREE.CubeControls(camera);
-	controls.noPan = true; // panning already doesn't work but this makes it not give state === STATE.PANNING (with my modifications)
-	controls.minDistance = squareSize * BOARD_SIZE;
-	controls.maxDistance = squareSize * BOARD_SIZE * 3;
-
 	scene = new THREE.Scene();
 
 	if (theme === "wireframe" || theme === "perf") {
@@ -1005,6 +995,18 @@ function initRendering() {
 	stats.domElement.style.bottom = '0px';
 	stats.domElement.style.zIndex = 100;
 	container.appendChild(stats.domElement);
+
+	// camera
+
+	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+	camera.position.z = -500;
+	camera.near = 0.1;
+	camera.far = 1000;
+
+	controls = new THREE.CubeControls(camera, renderer.domElement);
+	controls.noPan = true; // panning already doesn't work but this makes it not give state === STATE.PANNING (with my modifications)
+	controls.minDistance = squareSize * BOARD_SIZE;
+	controls.maxDistance = squareSize * BOARD_SIZE * 3;
 
 	//
 
