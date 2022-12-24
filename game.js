@@ -42,7 +42,7 @@ try {
 	console.warn("Couldn't read settings from local storage", error);
 }
 
-let cubeObject3D;
+let terrainObject3D;
 let cubesByGamePosition = {};
 let color1 = 0xaf0000;
 let color0 = 0xffffff;
@@ -856,13 +856,13 @@ const boardPresets = {
 
 function destroyWorld() {
 	// Note to self: don't let AI autocomplete this function
-	if (!cubeObject3D) {
+	if (!terrainObject3D) {
 		return;
 	}
-	scene.remove(cubeObject3D);
+	scene.remove(terrainObject3D);
 	scene.remove(hoverDecal);
 
-	cubeObject3D = null;
+	terrainObject3D = null;
 	// hoverDecal = null; const
 
 	for (const piece of allPieces) {
@@ -879,7 +879,7 @@ function initWorld(game) {
 	destroyWorld();
 
 	// metacube
-	cubeObject3D = new THREE.Object3D();
+	terrainObject3D = new THREE.Object3D();
 	for (let x = 0; x < BOARD_SIZE; x++) {
 		for (let y = 0; y < BOARD_SIZE; y++) {
 			for (let z = 0; z < (game === "almost-chess" ? 1 : BOARD_SIZE); z++) {
@@ -898,13 +898,13 @@ function initWorld(game) {
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
 				mesh.matrixAutoUpdate = false;
-				cubeObject3D.add(mesh);
+				terrainObject3D.add(mesh);
 				raycastTargets.push(mesh);
 				cubesByGamePosition[`${x},${y},${z}`] = mesh;
 			}
 		}
 	}
-	scene.add(cubeObject3D);
+	scene.add(terrainObject3D);
 	scene.add(hoverDecal);
 
 	// pieces
