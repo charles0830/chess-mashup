@@ -932,6 +932,22 @@ function initWorld(game) {
 		}
 
 	}
+	// Settle pieces onto the terrain
+	if (game === "voxel-chess") {
+		for (let i = 0; i < BOARD_SIZE; i++) {
+			for (const piece of livingPieces) {
+				const pos = piece.gamePosition.clone().add(piece.towardsGroundVector);
+				if (!cubeAtGamePosition(pos) && !pieceAtGamePosition(pos)) {
+					piece.gamePosition.add(piece.towardsGroundVector);
+					// Need to also update values computed from gamePosition, below.
+				}
+			}
+		}
+		for (const piece of livingPieces) {
+			piece.startingGamePosition = piece.gamePosition;
+			piece.deserialize(piece.serialize());
+		}
+	}
 }
 
 function initRendering() {
