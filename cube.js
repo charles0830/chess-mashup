@@ -1538,20 +1538,36 @@ const gameSlugs = [
 ];
 
 const mainMenuEl = document.getElementById("main-menu");
+const newGameOptionsEl = document.getElementById("new-game-options");
+const leaveGameEl = document.getElementById("leave-game");
+const backToMainEl = document.getElementById("back-to-main");
+const startGameButton = document.getElementById("start-game");
+
+startGameButton.addEventListener("click", () => {
+	location.hash = newGameOptionsEl.dataset.game;
+});
 
 function loadFromURL() {
-	let game = "menu";
+	let game = "";
+	let screen = "menu";
 	for (const gameSlug of gameSlugs) {
 		if (location.hash.match(new RegExp(`#${gameSlug}(/|$)`, "i"))) {
 			game = gameSlug;
+			if (location.hash.match(new RegExp(`#${gameSlug}/new-game`, "i"))) {
+				screen = "new-game-options";
+			} else {
+				screen = game;
+			}
 		}
 	}
-	if (game === "menu") {
-		mainMenuEl.style.display = "";
-	} else {
-		mainMenuEl.style.display = "none";
+	mainMenuEl.style.display = (screen === "menu") ? "" : "none";
+	newGameOptionsEl.style.display = (screen === "new-game-options") ? "" : "none";
+	backToMainEl.style.display = (screen === "new-game-options") ? "" : "none";
+	leaveGameEl.style.display = (screen === game) ? "" : "none";
+	newGameOptionsEl.dataset.game = game;
+	if (game) {
+		initWorld(game);
 	}
-	initWorld(game);
 }
 
 window.addEventListener("hashchange", loadFromURL);
