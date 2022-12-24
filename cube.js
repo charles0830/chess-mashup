@@ -876,7 +876,12 @@ function initWorld(game) {
 			for (let z = 0; z < (game === "almost-chess" ? 1 : BOARD_SIZE); z++) {
 				// if (z % 3 != 0 || x % 3 != 0 || y % 3 != 0) continue;
 				if (game === "voxel-chess") {
-					if (Math.random() < 0.2) continue;
+					// if (Math.random() < 0.2) continue;
+					if (Math.hypot(
+						x - (BOARD_SIZE - 1) / 2,
+						y - (BOARD_SIZE - 1) / 2,
+						z - (BOARD_SIZE - 1) / 2
+					) ** 1.3 > Math.random() * BOARD_SIZE) continue;
 				}
 				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat0);
 				// mesh.visible = x === 0 || x === BOARD_SIZE - 1 || y === 0 || y === BOARD_SIZE - 1 || z === 0 || z === BOARD_SIZE - 1;
