@@ -125,10 +125,10 @@
 			</label>
 		</fieldset>
 		<br>
-		<!-- <label id="seed-row">
+		<label id="seed-row">
 			World Generator Seed:
-			<input type="number" id="seed" value="42" style="width: 50px">
-		</label> -->
+			<input type="text" id="seed" value="42" style="width: 50px">
+		</label>
 		<br>
 		<button id="start-game">Play</button>
 	</div>
@@ -138,6 +138,7 @@
 	<script src="lib/STLLoader.js"></script>
 	<script src="lib/BufferGeometryUtils.js"></script>
 	<script src="lib/cube-controls.js"></script>
+	<script src="lib/seedrandom.min.js"></script>
 	<script>
 		var Detector = {
 			canvas: !!window.CanvasRenderingContext2D,

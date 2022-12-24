@@ -1551,6 +1551,8 @@ const newGameOptionsEl = document.getElementById("new-game-options");
 const leaveGameEl = document.getElementById("leave-game");
 const backToMainEl = document.getElementById("back-to-main");
 const startGameButton = document.getElementById("start-game");
+const seedInput = document.getElementById("seed");
+const seedRowEl = document.getElementById("seed-row");
 
 startGameButton.addEventListener("click", () => {
 	location.hash = newGameOptionsEl.dataset.game;
@@ -1572,9 +1574,11 @@ function loadFromURL() {
 	mainMenuEl.style.display = (screen === "menu") ? "" : "none";
 	newGameOptionsEl.style.display = (screen === "new-game-options") ? "" : "none";
 	backToMainEl.style.display = (screen === "new-game-options") ? "" : "none";
+	seedRowEl.style.display = (screen === "new-game-options" && game === "voxel-chess") ? "" : "none";
 	leaveGameEl.style.display = (screen === game) ? "" : "none";
 	newGameOptionsEl.dataset.game = game;
 	if (screen === game) {
+		Math.seedrandom(seedInput.value);
 		initWorld(game);
 		setTeams(Number(document.querySelector("[name=players]:checked").value));
 		handleTurn();
