@@ -445,6 +445,10 @@ addEventListener('mousemove', function (event) {
 }, true);
 
 addEventListener('mousedown', function (event) {
+	// `renderer` doesn't exist when `addEventListener` is called,
+	// so I can't do `renderer.domElement.addEventListener` without moving code around.
+	if (event.target !== renderer.domElement) return;
+
 	if (event.button !== 0) return;
 	// console.log(`Clicked piece: ${hoveredPiece}`);
 	if (hoveredPiece &&
@@ -770,7 +774,167 @@ class Piece {
 	}
 }
 
-function init() {
+const letterToPieceType = {
+	"p": "pawn",
+	"r": "rook",
+	"b": "bishop",
+	"q": "queen",
+	"k": "king",
+	"n": "knight",
+};
+const boardPresets = {
+	sillyDense: [
+		". . . . . . . .",
+		". p p p p p p .",
+		". p r n n r p .",
+		". p n k q n p .",
+		". p n b b n p .",
+		". p r n n r p .",
+		". p p p p p p .",
+		". . . . . . . .",
+	],
+	slightlyLessSillyAndDense: [
+		". . . . . . . .",
+		". n p p p p n .",
+		". p r . . r p .",
+		". p . k q . p .",
+		". p . b b . p .",
+		". p r . . r p .",
+		". n p p p p n .",
+		". . . . . . . .",
+	],
+	bastionFort: [
+		"r r r . . r r r",
+		"r . r r r r . r",
+		"r r . . . . r r",
+		". r . k q . r .",
+		". r . b b . r .",
+		"r r . . . . r r",
+		"r . r r r r . r",
+		"r r r . . r r r",
+	],
+	smileyFace: [
+		". . . . . . . .",
+		". . k . . b . .",
+		". . q . . b . .",
+		". . . . . . . .",
+		"n r . . . . r n",
+		". n . . . . n .",
+		". . p p p p . .",
+		". . . . . . . .",
+	],
+	mostMinimal: [
+		". . . . . . . .",
+		"k . . . . . . .",
+		". . . . . . . .",
+		". . . . . . . .",
+		". . . . . . . .",
+		". . . . . . . .",
+		". . . . . . . .",
+		". . . . . . . .",
+	],
+	orthodox: [
+		"r n b q k b n r",
+		"p p p p p p p p",
+		". . . . . . . .",
+		". . . . . . . .",
+		". . . . . . . .",
+		". . . . . . . .",
+		". . . . . . . .",
+		". . . . . . . .",
+	],
+};
+
+function destroyWorld() {
+	// Note to self: don't let AI autocomplete this function
+	if (!cubeObject3D) {
+		return;
+	}
+	scene.remove(cubeObject3D);
+	scene.remove(hoverDecal);
+
+	cubeObject3D = null;
+	// hoverDecal = null; const
+
+	for (const piece of allPieces) {
+		scene.remove(piece.object3d);
+	}
+	allPieces.length = 0;
+	livingPieces.length = 0;
+	raycastTargets.length = 0;
+
+	cubesByGamePosition = {};
+}
+
+function initWorld(game) {
+	destroyWorld();
+
+	// metacube
+	cubeObject3D = new THREE.Object3D();
+	for (let x = 0; x < BOARD_SIZE; x++) {
+		for (let y = 0; y < BOARD_SIZE; y++) {
+			for (let z = 0; z < (game === "almost-chess" ? 1 : BOARD_SIZE); z++) {
+				// if (z % 3 != 0 || x % 3 != 0 || y % 3 != 0) continue;
+				if (game === "voxel-chess") {
+					if (Math.random() < 0.2) continue;
+				}
+				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat0);
+				// mesh.visible = x === 0 || x === BOARD_SIZE - 1 || y === 0 || y === BOARD_SIZE - 1 || z === 0 || z === BOARD_SIZE - 1;
+				mesh.gamePosition = new THREE.Vector3(x, y, z);
+				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
+				mesh.updateMatrix();
+				mesh.matrixAutoUpdate = false;
+				cubeObject3D.add(mesh);
+				raycastTargets.push(mesh);
+				cubesByGamePosition[`${x},${y},${z}`] = mesh;
+			}
+		}
+	}
+	scene.add(cubeObject3D);
+	scene.add(hoverDecal);
+
+	// pieces
+	for (let team = 0; team <= 1; team++) {
+		const z = (team === 0 || game === "almost-chess") ? -1 : BOARD_SIZE;
+		const boardPresetID = game === "almost-chess" ? "orthodox" : "slightlyLessSillyAndDense";
+		const initialBoard = boardPresets[boardPresetID].map(line => line.split(" "));
+		
+		for (let y = 0; y < initialBoard.length; y++) {
+			for (let x = 0; x < initialBoard[y].length; x++) {
+				const letter = initialBoard[y][x];
+				if (letter in letterToPieceType) {
+					const pieceType = letterToPieceType[letter];
+					const quaternion = new THREE.Quaternion();
+					if (game === "almost-chess") {
+						// TODO: cleanup
+						quaternion.setFromUnitVectors(
+							new THREE.Vector3(0, -1, 0),
+							new THREE.Vector3(0, 0, 1),
+						).premultiply(new THREE.Quaternion().setFromUnitVectors(
+							new THREE.Vector3(0, 1, 0),
+							new THREE.Vector3(team === 0 ? 0 : 1, 0, 0),
+						)).premultiply(new THREE.Quaternion().setFromUnitVectors(
+							new THREE.Vector3(0, 1, 0),
+							new THREE.Vector3(team === 0 ? 0 : 1, 0, 0),
+						));
+					} else {
+						quaternion.setFromUnitVectors(
+							new THREE.Vector3(0, -1, 0),
+							new THREE.Vector3(0, 0, team === 0 ? 1 : -1),
+						);
+					}
+					const pieceY = (game === "almost-chess" && team === 1) ? y : BOARD_SIZE - 1 - y;
+					const piece = new Piece(x, pieceY, z, quaternion, team, pieceType);
+					allPieces.push(piece);
+					livingPieces.push(piece);
+				}
+			}
+		}
+
+	}
+}
+
+function initRendering() {
 
 	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
 	camera.position.z = -500;
@@ -790,104 +954,6 @@ function init() {
 
 	raycaster = new THREE.Raycaster();
 
-	// metacube
-	cubeObject3D = new THREE.Object3D();
-	for (let x = 0; x < BOARD_SIZE; x++) {
-		for (let y = 0; y < BOARD_SIZE; y++) {
-			for (let z = 0; z < BOARD_SIZE; z++) {
-				// if (z % 3 != 0 || x % 3 != 0 || y % 3 != 0) continue;
-				if (Math.random() < 0.2) continue;
-				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat0);
-				// mesh.visible = x === 0 || x === BOARD_SIZE - 1 || y === 0 || y === BOARD_SIZE - 1 || z === 0 || z === BOARD_SIZE - 1;
-				mesh.gamePosition = new THREE.Vector3(x, y, z);
-				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
-				mesh.updateMatrix();
-				mesh.matrixAutoUpdate = false;
-				cubeObject3D.add(mesh);
-				raycastTargets.push(mesh);
-				cubesByGamePosition[`${x},${y},${z}`] = mesh;
-			}
-		}
-	}
-	scene.add(cubeObject3D);
-	scene.add(hoverDecal);
-
-	// pieces
-	for (let team = 0; team <= 1; team++) {
-		const z = team === 0 ? -1 : BOARD_SIZE;
-		const initialBoard = [
-			// ". . . . . . . .",
-			// ". p p p p p p .",
-			// ". p r n n r p .",
-			// ". p n k q n p .",
-			// ". p n b b n p .",
-			// ". p r n n r p .",
-			// ". p p p p p p .",
-			// ". . . . . . . .",
-			// reduced number of pieces
-			". . . . . . . .",
-			". n p p p p n .",
-			". p r . . r p .",
-			". p . k q . p .",
-			". p . b b . p .",
-			". p r . . r p .",
-			". n p p p p n .",
-			". . . . . . . .",
-			// bastion fort
-			// "r r r . . r r r",
-			// "r . r r r r . r",
-			// "r r . . . . r r",
-			// ". r . k q . r .",
-			// ". r . b b . r .",
-			// "r r . . . . r r",
-			// "r . r r r r . r",
-			// "r r r . . r r r",
-			// smiley face
-			// ". . . . . . . .",
-			// ". . k . . b . .",
-			// ". . q . . b . .",
-			// ". . . . . . . .",
-			// "n r . . . . r n",
-			// ". n . . . . n .",
-			// ". . p p p p . .",
-			// ". . . . . . . .",
-			// most minimal
-			// ". . . . . . . .",
-			// "k . . . . . . .",
-			// ". . . . . . . .",
-			// ". . . . . . . .",
-			// ". . . . . . . .",
-			// ". . . . . . . .",
-			// ". . . . . . . .",
-			// ". . . . . . . .",
-
-		].map(line => line.split(" "));
-		const letterToPieceType = {
-			"p": "pawn",
-			"r": "rook",
-			"b": "bishop",
-			"q": "queen",
-			"k": "king",
-			"n": "knight",
-		};
-		for (let y = 0; y < initialBoard.length; y++) {
-			for (let x = 0; x < initialBoard[y].length; x++) {
-				const letter = initialBoard[y][x];
-				if (letter in letterToPieceType) {
-					const pieceType = letterToPieceType[letter];
-					const quaternion = new THREE.Quaternion().setFromUnitVectors(
-						new THREE.Vector3(0, -1, 0),
-						new THREE.Vector3(0, 0, team === 0 ? 1 : -1),
-					);
-					const piece = new Piece(x, BOARD_SIZE - 1 - y, z, quaternion, team, pieceType);
-					allPieces.push(piece);
-					livingPieces.push(piece);
-				}
-			}
-		}
-
-	}
-
 	// lighting
 	const ambientLight = new THREE.AmbientLight(0xeeeeee);
 	scene.add(ambientLight);
@@ -906,7 +972,7 @@ function init() {
 
 	stats = new Stats();
 	stats.domElement.style.position = 'absolute';
-	stats.domElement.style.top = '0px';
+	stats.domElement.style.bottom = '0px';
 	stats.domElement.style.zIndex = 100;
 	container.appendChild(stats.domElement);
 
@@ -1441,7 +1507,35 @@ function shuffle(array) {
 	}
 }
 
-init();
+const gameSlugs = [
+	"almost-chess",
+	"chess-on-a-cube",
+	"voxel-chess",
+	"bio-chess",
+	"mashup",
+	"campaign",
+];
+
+const mainMenuEl = document.getElementById("main-menu");
+
+function loadFromURL() {
+	let game = "menu";
+	for (const gameSlug of gameSlugs) {
+		if (location.hash.match(new RegExp(`#${gameSlug}(/|$)`, "i"))) {
+			game = gameSlug;
+		}
+	}
+	if (game === "menu") {
+		mainMenuEl.style.display = "";
+	} else {
+		mainMenuEl.style.display = "none";
+	}
+	initWorld(game);
+}
+
+window.addEventListener("hashchange", loadFromURL);
+initRendering();
+loadFromURL();
 animate();
 handleTurn();
 

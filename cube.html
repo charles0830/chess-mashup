@@ -23,12 +23,112 @@
 			padding: 15px 20px;
 			border-bottom-left-radius: 20px;
 		}
+		#new-game-options {
+			position: absolute;
+			left: 0;
+			top: 0;
+			right: 50%;
+			bottom: 0;
+		}
+		#main-menu {
+			position: absolute;
+			left: 0;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			background-color: black;
+			color: white;
+			font-family: sans-serif;
+		}
+		#main-menu a {
+			color: firebrick;
+			text-decoration: none;
+		}
+		#main-menu h2+p {
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: 10px;
+			pointer-events: none;
+			text-align: center;
+			/* right: 0;
+			top: 0;
+			bottom: 0;
+			left: 50%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center; */
+		}
+		#main-menu h2:not(:hover):not(:focus-within)+p {
+			opacity: 0;
+		}
+
+		#start-game {
+			width: 10em;
+			height: 2.5em;
+			font-size: 1.4em;
+		}
+
+		#leave-game {
+			position: absolute;
+			left: 5px;
+			top: 5px;
+			line-height: 2.5em;
+			padding: 0 10px;
+			font-size: 1.2em;
+			color: firebrick;
+			background-color: black;
+			border: 1px solid rgb(60, 0, 0);
+		}
+		#leave-game:hover {
+			border-color: firebrick;
+		}
 	</style>
 </head>
 
 <body>
 	<div id="container"></div>
 	<span id="turn-indicator"></span>
+	<a id="leave-game" href="#">Leave Game</a>
+	<div id="main-menu">
+		<h2><a href="#almost-chess">Incorrect Chess</a></h2>
+		<p>The classic game of strategy.</p>
+		<h2><a href="#chess-on-a-cube">Chess on a Cube</a></h2>
+		<p>Finally a perfect information game with poor visibility! Pieces move all over the map.</p>
+		<h2><a href="#voxel-chess">Voxel Chess</a></h2>
+		<p>Chess on arbitrary cubic terrain. Unfair to your brain.</p>
+		<h2><a href="#bio-chess">Biological Chess</a></h2>
+		<p>Chess played on a growing organism.</p>
+		<h2><a href="#mashup">Chess Mashup</a></h2>
+		<!-- <h3 style="line-height: 1; margin: 0; margin-top: -1.3em; font-size: 0.8em"><span style="color: gray">Or:</span> <a href="#mashup">What Game Should We Play? Yes</a></h3> -->
+		<!-- subtitle there breaks my adjacent selector -->
+		<p>Combining tile based board games of Chess, Checkers, Go, Othello, and Scrabble.</p>
+		<h2><a href="#campaign">Campaign</a></h2>
+		<p>Story mode chess puzzle saga.</p>
+	</div>
+	<div id="new-game-options" style="display: none">
+		<fieldset>
+			<legend>Players</legend>
+			<label>
+				<input type="radio" name="players" value="1"> 1 Player vs Computer
+			</label>
+			<label>
+				<input type="radio" name="players" value="2"> 2 Players
+			</label>
+		</fieldset>
+		<br>
+		<label id="seed-row">
+			World Generator Seed:
+			<input type="number" id="seed" value="42">
+		</label>
+		<br>
+		<button id="start-game">Play</button>
+	</div>
 
 	<script src="lib/three.js"></script>
 	<script src="lib/stats.js"></script>
