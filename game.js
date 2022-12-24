@@ -50,16 +50,18 @@ const turnIndicator = document.getElementById("turn-indicator");
 let stats,
 	camera, controls,
 	scene, renderer, webGLRenderer, svgRenderer,
-	ambientLight;
+	ambientLight, spotLight;
 let webGLContextLost = false;
 const rendererContainer = document.getElementById("renderer-container");
 const raycastTargets = []; // don't want to include certain objects like hoverDecal, so we can't just use scene.children
 
 let theme = "default";
+let enableShadows = true;
 let keyframeDebug = false;
 let facingDebug = false;
 try {
 	theme = localStorage.getItem("3d-theme");
+	enableShadows = localStorage.getItem("3d-shadows") === "true";
 	keyframeDebug = localStorage.getItem("3d-debug-keyframes") === "true";
 	facingDebug = localStorage.getItem("3d-debug-facing") === "true";
 } catch (error) {
@@ -550,6 +552,8 @@ class Piece {
 
 			this.visualMesh.rotation.x -= Math.PI / 2;
 			this.visualMesh.position.y -= squareSize / 2;
+			this.visualMesh.castShadow = true;
+			this.visualMesh.receiveShadow = true;
 
 			const svg = svgRenderer.domElement;
 			if (!svg.querySelector("defs")) {
@@ -858,6 +862,8 @@ function initWorld(game, worldSize) {
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
 				mesh.matrixAutoUpdate = false;
+				mesh.receiveShadow = true;
+				mesh.castShadow = true;
 				mesh.denseWireframeVersion = new THREE.Mesh(denseCubeGeometry, mat);
 				mesh.denseWireframeVersion.visible = theme === "wireframe";
 				mesh.add(mesh.denseWireframeVersion);
@@ -1036,15 +1042,33 @@ function initRendering() {
 
 	raycaster ??= new THREE.Raycaster();
 
-	// lighting
-
+	// Lighting
 	// Note: the environment map (envMap) also provides light.
+
 	if (!ambientLight) {
 		ambientLight = new THREE.AmbientLight(0xaaaaaa);
 		scene.add(ambientLight);
 	}
 
-	// renderer
+	if (!spotLight) {
+		const SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 1024;
+
+		spotLight = new THREE.SpotLight(0xffffff, 1, 0, Math.PI / 5, 0.3);
+		spotLight.position.set(300, 1500, 1000);
+		spotLight.target.position.set(0, 0, 0);
+
+		spotLight.castShadow = true;
+		spotLight.shadow.camera.near = 1200;
+		spotLight.shadow.camera.far = 2500;
+		spotLight.shadow.bias = 0.0001;
+
+		spotLight.shadow.mapSize.width = SHADOW_MAP_WIDTH;
+		spotLight.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
+
+		scene.add(spotLight);
+	}
+
+	// Renderer
 
 	const alreadyHadWebGLRenderer = !!webGLRenderer;
 	svgRenderer ??= new SVGRenderer();
@@ -1068,6 +1092,9 @@ function initRendering() {
 	if (webGLRenderer) {
 		webGLRenderer.setSize(window.innerWidth, window.innerHeight);
 		webGLRenderer.outputEncoding = THREE.sRGBEncoding;
+
+		renderer.shadowMap.enabled = enableShadows;
+		renderer.shadowMap.type = THREE.PCFShadowMap;
 
 		if (!alreadyHadWebGLRenderer) {
 			let webGLLoseContext;
@@ -1107,7 +1134,7 @@ function initRendering() {
 	stats.domElement.style.zIndex = 100;
 	document.getElementById("stats-and-renderer-container").appendChild(stats.domElement);
 
-	// camera
+	// Camera
 
 	if (!camera) {
 		camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
@@ -1912,6 +1939,7 @@ const generalOptions = document.getElementById("general-options");
 const visualThemeSelect = document.getElementById("visual-theme-select");
 const audioThemeSelect = document.getElementById("audio-theme-select");
 const musicCheckbox = document.getElementById("music-checkbox");
+const enableShadowsCheckbox = document.getElementById("enable-shadows-checkbox");
 const gameOverDialog = document.getElementById("game-over-dialog");
 const returnToMenuButton = document.getElementById("return-to-menu");
 const reviewGameButton = document.getElementById("review-game");
@@ -1928,6 +1956,17 @@ visualThemeSelect.addEventListener("change", () => {
 	initRendering();
 	try {
 		localStorage.setItem("3d-theme", visualThemeSelect.value);
+	} catch (error) {
+		alert("Couldn't save preference.\n\n" + error);
+	}
+});
+
+enableShadowsCheckbox.checked = enableShadows;
+enableShadowsCheckbox.addEventListener("change", () => {
+	enableShadows = enableShadowsCheckbox.checked;
+	initRendering();
+	try {
+		localStorage.setItem("3d-shadows", enableShadowsCheckbox.checked);
 	} catch (error) {
 		alert("Couldn't save preference.\n\n" + error);
 	}
