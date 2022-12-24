@@ -1513,6 +1513,7 @@ function handleTurn() {
 			const winningTeam = +!team;
 			turnIndicator.textContent = `Assassin-mate! ${teamNames[winningTeam]} wins!`
 			gameOver = true;
+			showGameOverDialog();
 			return;
 		}
 
@@ -1533,6 +1534,7 @@ function handleTurn() {
 			return;
 		}
 		gameOver = true;
+		showGameOverDialog();
 		if (inCheck) {
 			const winningTeam = +!team;
 			turnIndicator.textContent = `Checkmate! ${teamNames[winningTeam]} wins!`;
@@ -1565,6 +1567,21 @@ const backToMainEl = document.getElementById("back-to-main");
 const startGameButton = document.getElementById("start-game");
 const seedInput = document.getElementById("seed");
 const seedRowEl = document.getElementById("seed-row");
+const gameOverDialog = document.getElementById("game-over-dialog");
+const returnToMenuButton = document.getElementById("return-to-menu");
+const reviewGameButton = document.getElementById("review-game");
+
+function showGameOverDialog() {
+	gameOverDialog.style.display = "";
+	gameOverDialog.show();
+}
+
+returnToMenuButton.addEventListener("click", () => {
+	location.hash = "#";
+});
+reviewGameButton.addEventListener("click", () => {
+	gameOverDialog.close();
+});
 
 startGameButton.addEventListener("click", () => {
 	location.hash = newGameOptionsEl.dataset.game;
@@ -1588,6 +1605,7 @@ function loadFromURL() {
 	backToMainEl.style.display = (screen === "new-game-options") ? "" : "none";
 	seedRowEl.style.display = (screen === "new-game-options" && game === "voxel-chess") ? "" : "none";
 	leaveGameEl.style.display = (screen === game) ? "" : "none";
+	gameOverDialog.close();
 	newGameOptionsEl.dataset.game = game;
 	if (screen === game) {
 		Math.seedrandom(seedInput.value);
