@@ -1040,9 +1040,12 @@ function initWorld(game, worldSize) {
 					// Try to place piece...
 					if (!forceOntoTerrain(piece, piece.pieceType === "king")) {
 						// Failed to place piece, so destroy it.
-						livingPieces.splice(livingPieces.indexOf(piece), 1);
-						capturedPieces.push(piece);
-						piece.removeFromScene();
+						const index = livingPieces.indexOf(piece);
+						if (index > -1) {
+							livingPieces.splice(index, 1);
+							capturedPieces.push(piece);
+							piece.removeFromScene();
+						}
 					}
 				}
 			}
