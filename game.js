@@ -885,25 +885,29 @@ function destroyWorld() {
 	controls.reset();
 }
 
-function initWorld(game) {
+function initWorld(game, worldSize) {
 	destroyWorld();
+
+	if (game !== "voxel-chess" || isNaN(worldSize)) {
+		worldSize = BOARD_SIZE;
+	}
 
 	// metacube
 	terrainObject3D = new THREE.Object3D();
-	for (let x = 0; x < BOARD_SIZE; x++) {
-		for (let y = 0; y < BOARD_SIZE; y++) {
-			for (let z = 0; z < (game === "almost-chess" ? 1 : BOARD_SIZE); z++) {
+	for (let x = 0; x < worldSize; x++) {
+		for (let y = 0; y < worldSize; y++) {
+			for (let z = 0; z < (game === "almost-chess" ? 1 : worldSize); z++) {
 				// if (z % 3 != 0 || x % 3 != 0 || y % 3 != 0) continue;
 				if (game === "voxel-chess") {
 					// if (Math.random() < 0.2) continue;
 					if (Math.hypot(
-						x - (BOARD_SIZE - 1) / 2,
-						y - (BOARD_SIZE - 1) / 2,
-						z - (BOARD_SIZE - 1) / 2
-					) ** 1.3 > Math.random() * BOARD_SIZE) continue;
+						x - (worldSize - 1) / 2,
+						y - (worldSize - 1) / 2,
+						z - (worldSize - 1) / 2
+					) ** 1.3 > Math.random() * worldSize) continue;
 				}
 				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat0);
-				// mesh.visible = x === 0 || x === BOARD_SIZE - 1 || y === 0 || y === BOARD_SIZE - 1 || z === 0 || z === BOARD_SIZE - 1;
+				// mesh.visible = x === 0 || x === worldSize - 1 || y === 0 || y === worldSize - 1 || z === 0 || z === worldSize - 1;
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
@@ -919,7 +923,7 @@ function initWorld(game) {
 
 	// pieces
 	for (let team = 0; team <= 1; team++) {
-		const z = (team === 0 || game === "almost-chess") ? -1 : BOARD_SIZE;
+		const z = (team === 0 || game === "almost-chess") ? -1 : worldSize;
 		const boardPresetID = game === "almost-chess" ? "orthodox" : "slightlyLessSillyAndDense";
 		const initialBoard = boardPresets[boardPresetID].map(line => line.split(" "));
 		
@@ -947,7 +951,7 @@ function initWorld(game) {
 							new THREE.Vector3(0, 0, team === 0 ? 1 : -1),
 						);
 					}
-					const pieceY = (game === "almost-chess" && team === 1) ? y : BOARD_SIZE - 1 - y;
+					const pieceY = (game === "almost-chess" && team === 1) ? y : worldSize - 1 - y;
 					const piece = new Piece(x, pieceY, z, quaternion, team, pieceType);
 					allPieces.push(piece);
 					livingPieces.push(piece);
@@ -958,7 +962,7 @@ function initWorld(game) {
 	}
 	// Settle pieces onto the terrain
 	if (game === "voxel-chess") {
-		for (let i = 0; i < BOARD_SIZE; i++) {
+		for (let i = 0; i < worldSize; i++) {
 			for (const piece of livingPieces) {
 				const pos = piece.gamePosition.clone().add(piece.towardsGroundVector);
 				if (!cubeAtGamePosition(pos) && !pieceAtGamePosition(pos)) {
@@ -1566,7 +1570,8 @@ const leaveGameEl = document.getElementById("leave-game");
 const backToMainEl = document.getElementById("back-to-main");
 const startGameButton = document.getElementById("start-game");
 const seedInput = document.getElementById("seed");
-const seedRowEl = document.getElementById("seed-row");
+const worldSizeInput = document.getElementById("world-size");
+const voxelChessOptions = document.getElementById("voxel-chess-options");
 const gameOverDialog = document.getElementById("game-over-dialog");
 const returnToMenuButton = document.getElementById("return-to-menu");
 const reviewGameButton = document.getElementById("review-game");
@@ -1603,13 +1608,13 @@ function loadFromURL() {
 	mainMenuEl.style.display = (screen === "menu") ? "" : "none";
 	newGameOptionsEl.style.display = (screen === "new-game-options") ? "" : "none";
 	backToMainEl.style.display = (screen === "new-game-options") ? "" : "none";
-	seedRowEl.style.display = (screen === "new-game-options" && game === "voxel-chess") ? "" : "none";
+	voxelChessOptions.style.display = (screen === "new-game-options" && game === "voxel-chess") ? "" : "none";
 	leaveGameEl.style.display = (screen === game) ? "" : "none";
 	gameOverDialog.close();
 	newGameOptionsEl.dataset.game = game;
 	if (screen === game) {
 		Math.seedrandom(seedInput.value);
-		initWorld(game);
+		initWorld(game, Number(worldSizeInput.value));
 		setTeams(Number(document.querySelector("[name=players]:checked").value));
 		handleTurn();
 	}

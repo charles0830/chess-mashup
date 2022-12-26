@@ -88,6 +88,11 @@
 		#back-to-main:hover {
 			border-color: firebrick;
 		}
+
+		.option-row {
+			padding: 10px;
+			display: block;
+		}
 	</style>
 </head>
 
@@ -125,10 +130,16 @@
 			</label>
 		</fieldset>
 		<br>
-		<label id="seed-row">
-			World Generator Seed:
-			<input type="text" id="seed" value="42" style="width: 50px">
-		</label>
+		<div id="voxel-chess-options">
+			<label class="option-row">
+				World Size:
+				<input type="number" id="world-size" value="8" style="width: 50px">
+			</label>
+			<label class="option-row">
+				Seed:
+				<input type="text" id="seed" value="42" style="width: 50px">
+			</label>
+		</div>
 		<br>
 		<button id="start-game">Play</button>
 	</div>
