@@ -1033,19 +1033,17 @@ function initWorld(game, worldSize) {
 
 			return true;
 		};
-		for (let i = 0; i < worldSize; i++) {
-			for (const piece of allPieces) { // not using livingPieces because it's modified in this loop
-				const pos = piece.gamePosition.clone().add(piece.towardsGroundVector);
-				if (!cubeAtGamePosition(pos)) {
-					// Try to place piece...
-					if (!forceOntoTerrain(piece, piece.pieceType === "king")) {
-						// Failed to place piece, so destroy it.
-						const index = livingPieces.indexOf(piece);
-						if (index > -1) {
-							livingPieces.splice(index, 1);
-							capturedPieces.push(piece);
-							piece.removeFromScene();
-						}
+		for (const piece of allPieces) { // not using livingPieces because it's modified in this loop
+			const pos = piece.gamePosition.clone().add(piece.towardsGroundVector);
+			if (!cubeAtGamePosition(pos)) {
+				// Try to place piece...
+				if (!forceOntoTerrain(piece, piece.pieceType === "king")) {
+					// Failed to place piece, so destroy it.
+					const index = livingPieces.indexOf(piece);
+					if (index > -1) {
+						livingPieces.splice(index, 1);
+						capturedPieces.push(piece);
+						piece.removeFromScene();
 					}
 				}
 			}
