@@ -975,16 +975,72 @@ function initWorld(game, worldSize) {
 			}
 		}
 		// Force pieces onto terrain, or destroy them
-		// TODO: King is required. (Maybe store a bestKingPosition and remove piece if bestKingPosition is occupied)
+		// King is required.
+		let freeSpots = [];
+		let occupiedSpots = [];
+		const directions = [
+			new THREE.Vector3(0, -1, 0),
+			new THREE.Vector3(0, 1, 0),
+			new THREE.Vector3(0, 0, -1),
+			new THREE.Vector3(0, 0, 1),
+			new THREE.Vector3(1, 0, 0),
+			new THREE.Vector3(-1, 0, 0),
+		];
+		for (const cube of Object.values(cubesByGamePosition)) {
+			for (const direction of directions) {
+				const pos = cube.gamePosition.clone().add(direction);
+				pos._cube_face_direction = direction; // @HACK
+				if (!cubeAtGamePosition(pos)) {
+					const piece = pieceAtGamePosition(pos);
+					if (!piece) {
+						freeSpots.push(pos);
+					} else if (piece.pieceType !== "king") { // don't even THINK about removing kings (even to make way for a king)
+						occupiedSpots.push(pos);
+					}
+				}
+			}	
+		}
+		const forceOntoTerrain = (piece, priority) => {
+			freeSpots.sort((a, b) =>
+				Math.hypot(a.x - piece.gamePosition.x, a.y - piece.gamePosition.y, a.z - piece.gamePosition.z) -
+				Math.hypot(b.x - piece.gamePosition.x, b.y - piece.gamePosition.y, b.z - piece.gamePosition.z)
+			);
+			console.log(freeSpots, occupiedSpots);
+			let pos = freeSpots.shift();
+			if (priority && !pos) {
+				occupiedSpots.sort((a, b) =>
+					Math.hypot(a.x - piece.gamePosition.x, a.y - piece.gamePosition.y, a.z - piece.gamePosition.z) -
+					Math.hypot(b.x - piece.gamePosition.x, b.y - piece.gamePosition.y, b.z - piece.gamePosition.z)
+				);
+				pos = occupiedSpots.shift();
+			}
+			if (!pos) {
+				return false;
+			}
+
+			// Need to also update values computed from gamePosition, done outside this function, below.
+			piece.gamePosition.copy(pos);
+			piece.gameOrientation.setFromUnitVectors(
+				new THREE.Vector3(0, 1, 0),
+				pos._cube_face_direction, // @HACK
+			);
+
+			// Important for King's priority
+			occupiedSpots.push(pos);
+
+			return true;
+		};
 		for (let i = 0; i < worldSize; i++) {
 			for (const piece of allPieces) { // not using livingPieces because it's modified in this loop
 				const pos = piece.gamePosition.clone().add(piece.towardsGroundVector);
 				if (!cubeAtGamePosition(pos)) {
-					// TODO: force piece onto terrain
-					// Destroy piece
-					livingPieces.splice(livingPieces.indexOf(piece), 1);
-					capturedPieces.push(piece);
-					piece.removeFromScene();
+					// Try to place piece...
+					if (!forceOntoTerrain(piece, piece.pieceType === "king")) {
+						// Failed to place piece, so destroy it.
+						livingPieces.splice(livingPieces.indexOf(piece), 1);
+						capturedPieces.push(piece);
+						piece.removeFromScene();
+					}
 				}
 			}
 		}
