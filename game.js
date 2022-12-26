@@ -1005,7 +1005,6 @@ function initWorld(game, worldSize) {
 				Math.hypot(a.x - piece.gamePosition.x, a.y - piece.gamePosition.y, a.z - piece.gamePosition.z) -
 				Math.hypot(b.x - piece.gamePosition.x, b.y - piece.gamePosition.y, b.z - piece.gamePosition.z)
 			);
-			console.log(freeSpots, occupiedSpots);
 			let pos = freeSpots.shift();
 			if (priority && !pos) {
 				occupiedSpots.sort((a, b) =>
@@ -1027,6 +1026,10 @@ function initWorld(game, worldSize) {
 
 			// Important for King's priority
 			occupiedSpots.push(pos);
+
+			// freeSpots.shift() won't remove all spots that are now occupied,
+			// for spots that share a cell (differing only in orientation)
+			freeSpots = freeSpots.filter((v) => !v.equals(pos));
 
 			return true;
 		};
