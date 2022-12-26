@@ -989,7 +989,7 @@ function initWorld(game, worldSize) {
 			}
 		}
 		// Update position (values computed therefrom)
-		for (const piece of livingPieces) {
+		for (const piece of allPieces) {
 			piece.startingGamePosition = piece.gamePosition;
 			piece.deserialize(piece.serialize());
 		}
