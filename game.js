@@ -1017,6 +1017,21 @@ function initWorld(game, worldSize) {
 				return false;
 			}
 
+			const occupier = pieceAtGamePosition(pos);
+			if (occupier) {
+				if (priority) {
+					const index = livingPieces.indexOf(occupier);
+					if (index > -1) {
+						livingPieces.splice(index, 1);
+						capturedPieces.push(occupier);
+						occupier.removeFromScene();
+					}
+				} else {
+					console.warn("Spot occupied, while trying to place piece with low priority.");
+					return false;
+				}
+			}
+
 			// Need to also update values computed from gamePosition, done outside this function, below.
 			piece.gamePosition.copy(pos);
 			piece.gameOrientation.setFromUnitVectors(
