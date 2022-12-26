@@ -1033,9 +1033,16 @@ function initWorld(game, worldSize) {
 
 			return true;
 		};
-		for (const piece of allPieces) { // not using livingPieces because it's modified in this loop
+		let placeTeam = 1; // balance slight advantage of priority in placing one piece on the map, by giving it to the player who goes second (theoretically)
+		const toPlace = allPieces.filter((piece) => {
 			const pos = piece.gamePosition.clone().add(piece.towardsGroundVector);
-			if (!cubeAtGamePosition(pos)) {
+			return !cubeAtGamePosition(pos);
+		});
+		while (toPlace.length) { // not using livingPieces because it's modified in this loop
+			const index = toPlace.findIndex((piece) => piece.team === placeTeam);
+			placeTeam = +!placeTeam;
+			if (index > -1) {
+				const piece = toPlace.splice(index, 1)[0];
 				// Try to place piece...
 				if (!forceOntoTerrain(piece, piece.pieceType === "king")) {
 					// Failed to place piece, so destroy it.
