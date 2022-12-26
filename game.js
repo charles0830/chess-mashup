@@ -608,7 +608,10 @@ class Piece {
 	}
 	removeFromScene() {
 		scene.remove(this.object3d);
-		raycastTargets.splice(raycastTargets.indexOf(this.raycastMesh), 1);
+		const index = raycastTargets.indexOf(this.raycastMesh);
+		if (index > -1) {
+			raycastTargets.splice(index, 1);
+		}
 	}
 	addBackToScene() {
 		scene.add(this.object3d);
