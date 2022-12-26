@@ -892,14 +892,14 @@ function initWorld(game, worldSize) {
 		worldSize = BOARD_SIZE;
 	}
 
-	// metacube
+	// Create Board / Terrain
 	terrainObject3D = new THREE.Object3D();
 	for (let x = 0; x < worldSize; x++) {
 		for (let y = 0; y < worldSize; y++) {
 			for (let z = 0; z < (game === "almost-chess" ? 1 : worldSize); z++) {
 				// if (z % 3 != 0 || x % 3 != 0 || y % 3 != 0) continue;
 				if (game === "voxel-chess") {
-					// if (Math.random() < 0.2) continue;
+					// TODO: guarantee one cube
 					if (Math.hypot(
 						x - (worldSize - 1) / 2,
 						y - (worldSize - 1) / 2,
@@ -921,12 +921,12 @@ function initWorld(game, worldSize) {
 	scene.add(terrainObject3D);
 	scene.add(hoverDecal);
 
-	// pieces
+	// Create Pieces
 	for (let team = 0; team <= 1; team++) {
 		const z = (team === 0 || game === "almost-chess") ? -1 : worldSize;
 		const boardPresetID = game === "almost-chess" ? "orthodox" : "slightlyLessSillyAndDense";
 		const initialBoard = boardPresets[boardPresetID].map(line => line.split(" "));
-		
+
 		for (let y = 0; y < initialBoard.length; y++) {
 			for (let x = 0; x < initialBoard[y].length; x++) {
 				const letter = initialBoard[y][x];
@@ -960,8 +960,8 @@ function initWorld(game, worldSize) {
 		}
 
 	}
-	// Settle pieces onto the terrain
 	if (game === "voxel-chess") {
+		// Settle pieces onto the terrain
 		for (let i = 0; i < worldSize; i++) {
 			for (const piece of livingPieces) {
 				const pos = piece.gamePosition.clone().add(piece.towardsGroundVector);
@@ -971,6 +971,21 @@ function initWorld(game, worldSize) {
 				}
 			}
 		}
+		// Force pieces onto terrain, or destroy them
+		// TODO: King is required. (Maybe store a bestKingPosition and remove piece if bestKingPosition is occupied)
+		for (let i = 0; i < worldSize; i++) {
+			for (const piece of allPieces) { // not using livingPieces because it's modified in this loop
+				const pos = piece.gamePosition.clone().add(piece.towardsGroundVector);
+				if (!cubeAtGamePosition(pos)) {
+					// TODO: force piece onto terrain
+					// Destroy piece
+					livingPieces.splice(livingPieces.indexOf(piece), 1);
+					capturedPieces.push(piece);
+					piece.removeFromScene();
+				}
+			}
+		}
+		// Update position (values computed therefrom)
 		for (const piece of livingPieces) {
 			piece.startingGamePosition = piece.gamePosition;
 			piece.deserialize(piece.serialize());
@@ -1512,13 +1527,19 @@ function handleTurn() {
 	// console.log(`Turn ${turn} is ${teamNames[team]}'s turn (${teamTypes[team]})`);
 	clearTimeout(handleTurnTimerId);
 	handleTurnTimerId = setTimeout(() => {
+		let kinglessPuzzle = false;
 		if (!livingPieces.some(piece => piece.team === team && piece.pieceType === "king")) {
-			// this should never happen in normal chess, but we're experimenting with weird chess variants, so...
-			const winningTeam = +!team;
-			turnIndicator.textContent = `Assassin-mate! ${teamNames[winningTeam]} wins!`
-			gameOver = true;
-			showGameOverDialog();
-			return;
+			if (!livingPieces.some(piece => piece.team !== team && piece.pieceType === "king")) {
+				kinglessPuzzle = true;
+				turnIndicator.textContent += " [No Kings]";
+			} else {
+				// this should never happen in normal chess, but we're experimenting with weird chess variants, so...
+				const winningTeam = +!team;
+				turnIndicator.textContent = `Assassin-mate! ${teamNames[winningTeam]} wins!`
+				gameOver = true;
+				showGameOverDialog();
+				return;
+			}
 		}
 
 		const piecesToTry = livingPieces.filter(piece => piece.team === team);
@@ -1537,13 +1558,15 @@ function handleTurn() {
 			}
 			return;
 		}
-		gameOver = true;
-		showGameOverDialog();
-		if (inCheck) {
-			const winningTeam = +!team;
-			turnIndicator.textContent = `Checkmate! ${teamNames[winningTeam]} wins!`;
-		} else {
-			turnIndicator.textContent = "Stalemate! It's a draw.";
+		if (!kinglessPuzzle) {
+			gameOver = true;
+			showGameOverDialog();
+			if (inCheck) {
+				const winningTeam = +!team;
+				turnIndicator.textContent = `Checkmate! ${teamNames[winningTeam]} wins!`;
+			} else {
+				turnIndicator.textContent = "Stalemate! It's a draw.";
+			}
 		}
 	}, 500);
 }
