@@ -1614,7 +1614,7 @@ function loadFromURL() {
 	newGameOptionsEl.dataset.game = game;
 	if (screen === game) {
 		Math.seedrandom(seedInput.value);
-		initWorld(game, Number(worldSizeInput.value));
+		initWorld(game, Number(worldSizeInput.value) || BOARD_SIZE);
 		setTeams(Number(document.querySelector("[name=players]:checked").value));
 		handleTurn();
 	}
