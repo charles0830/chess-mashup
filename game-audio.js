@@ -71,7 +71,7 @@ const loadResources = async (resourcePathsByID) => {
 	return Object.fromEntries(await Promise.all(entries.map(async ([id, path]) => {
 		let resource;
 		// try {
-			resource = await loadResource(path);
+		resource = await loadResource(path);
 		// } catch (error) {
 		// 	showErrorMessage(`Failed to load resource '${path}'`, error);
 		// }

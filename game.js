@@ -1009,7 +1009,7 @@ function initWorld(game, worldSize) {
 						occupiedSpots.push(pos);
 					}
 				}
-			}	
+			}
 		}
 		const forceOntoTerrain = (piece, priority) => {
 			freeSpots.sort((a, b) =>
