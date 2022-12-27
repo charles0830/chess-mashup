@@ -471,6 +471,7 @@ addEventListener('mousedown', function (event) {
 			event.ctrlKey // cheat
 		)
 	) {
+		playSound("lift-piece");
 		selectedPiece = hoveredPiece;
 		clearMovementDecals();
 		const moves = getMoves(hoveredPiece);
@@ -601,6 +602,7 @@ class Piece {
 		this.object3d.piece = this;
 		this.distanceForward = 0; // used for pawn promotion
 		this.id = "piece_" + pieceIdCounter++;
+		this.wasSelectedAsOfLastFrame = false;
 	}
 	get towardsGroundVector() {
 		// Note: applyQuaternion gives imprecise results, so we have to round it.
@@ -703,6 +705,8 @@ class Piece {
 		this.gamePosition.copy(move.gamePosition);
 		this.gameOrientation.copy(move.gameOrientation);
 
+		playSound("take-move");
+
 		this.animating = true;
 		let animIndex = 0;
 		clearInterval(this.timerId);
@@ -763,6 +767,8 @@ class Piece {
 			const lift = new THREE.Vector3(0, 0.5, 0);
 			lift.applyQuaternion(this.targetOrientation);
 			this.object3d.position.add(lift);
+		} else if (this.wasSelectedAsOfLastFrame) {
+			playSound("cancel-move");
 		}
 		// wiggle the piece gently when it's selected
 		// if (selectedPiece === this) {
@@ -776,6 +782,8 @@ class Piece {
 			this.targetWorldPosition.add(this.towardsGroundVector.clone().multiplyScalar(-0.5));
 			this.object3d.visible = Math.random() < 0.8;
 		}
+
+		this.wasSelectedAsOfLastFrame = selectedPiece === this;
 	}
 	updateHovering(hovering) {
 		this.visualMesh.material = !hovering ? this.defaultMaterial : this.hoverMaterial;
