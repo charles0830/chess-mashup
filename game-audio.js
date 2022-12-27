@@ -6,24 +6,24 @@ mainGain.connect(audioCtx.destination);
 
 let muted = false;
 
-const playSound = (soundName, { playbackRate = 1, cutOffEndFraction = 0, loop = false }) => {
+const playSound = (soundName, { playbackRate = 1, playbackRateVariation = 0, volume = 1, looping = false, time = 0, destination = audioCtx.destination } = {}) => {
 	const audioBuffer = resources[soundName];
 	if (!audioBuffer) {
-		throw new Error(`No AudioBuffer loaded for sound '${soundName}'`);
-	}
-	if (muted || audioCtx.state !== "running") {
-		return;
+		console.warn(`No AudioBuffer loaded for sound '${soundName}'`);
+		return Promise.resolve();
 	}
 	const gain = audioCtx.createGain();
+	gain.gain.value = volume;
+	gain.connect(destination);
 	const source = audioCtx.createBufferSource();
 	source.buffer = audioBuffer;
+	source.loop = looping;
 	source.connect(gain);
-	gain.connect(mainGain);
-	source.playbackRate.value = playbackRate;
-	if (cutOffEndFraction) {
-		gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + audioBuffer.duration * (1 - cutOffEndFraction));
-	}
-	source.start(0);
+	source.start(time);
+	source.playbackRate.value = playbackRate + (Math.random() * playbackRateVariation);
+	const promise = new Promise((resolve) => source.onended = resolve);
+	promise.bufferSource = source;
+	return promise;
 };
 
 const loadSound = async (path) => {
@@ -49,7 +49,7 @@ const resourcePaths = {
 	// "piece-hit-board": "sounds/click.wav",
 	// "take-move": "sounds/slide-whistle-up-short.wav",
 	"take-move": "sounds/cartoon-take-move.wav",
-	"moving-loop": "sounds/cartoon-take-move.wav",
+	"moving-loop": "sounds/cartoon-scamper-loop.wav",
 	"cancel-move": "sounds/slide-whistle-down.wav",
 	// "cancel-move-in-progress": "sounds/cancel-move-in-progress.wav",
 	// "speed-move-in-progress": "sounds/speed-move-in-progress.wav",

@@ -706,6 +706,7 @@ class Piece {
 		this.gameOrientation.copy(move.gameOrientation);
 
 		playSound("take-move");
+		this.movingLoopBufferSource = playSound("moving-loop", { looping: true }).bufferSource;
 
 		this.animating = true;
 		let animIndex = 0;
@@ -732,6 +733,7 @@ class Piece {
 					if (move.promotion) {
 						this.setPieceType("queen"); // TODO: choice of piece type
 					}
+					this.movingLoopBufferSource?.stop(0);
 					callback();
 				}, capturingPiece ? 1000 : 300);
 			}
@@ -751,6 +753,7 @@ class Piece {
 		// TODO: persist path so you can see what moved when it was on the other side of the board etc.
 		// but hide it when selecting a piece because it could be confusing
 		scene.remove(this.movePath);
+		this.movingLoopBufferSource?.stop(0);
 	}
 	update() {
 		const slowness = 10;
