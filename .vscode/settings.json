@@ -22,5 +22,6 @@
 		"unproject",
 		"voxel",
 		"wireframe"
-	]
+	],
+	"workbench.colorTheme": "Monochrome Red"
 }
