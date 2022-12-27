@@ -83,8 +83,11 @@ const loadResources = async (resourcePathsByID) => {
 let resources;
 progressBar.removeAttribute("value"); // mark indeterminate state so it animates
 (async () => {
-	resources = await loadResources(resourcePaths);
-	progressBar.style.display = "none";
+	try {
+		resources = await loadResources(resourcePaths);
+	} finally {
+		progressBar.style.display = "none";
+	}
 })();
 
 window.playSound = playSound;
