@@ -71,7 +71,7 @@ const reflectionTexture = textureLoader.load('textures/2294472375_24a3b8ef46_o.j
 reflectionTexture.mapping = THREE.EquirectangularReflectionMapping;
 reflectionTexture.encoding = THREE.sRGBEncoding;
 
-const envMapIntensity = 0.5;
+const envMapIntensity = 0.9;
 
 /*const material1 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble2.jpg'),
@@ -83,22 +83,22 @@ const material2 = new THREE.MeshLambertMaterial({
 });*/
 let boardMat1 = new THREE.MeshPhysicalMaterial({
 	color: color1,
-	roughness: 0.2,
+	roughness: 0.03,
 	metalness: 0.1,
-	transmission: 0.5,
-	opacity: 0.8,
-	transparent: true,
+	// transmission: 0.5,
+	// opacity: 0.8,
+	// transparent: true,
 	envMap: reflectionTexture,
 	envMapIntensity: 40 * envMapIntensity,
 	// map: marbleTexture,
 });
 let boardMat0 = new THREE.MeshPhysicalMaterial({
 	color: color0,
-	roughness: 0.2,
+	roughness: 0.03,
 	metalness: 0.4,
-	transmission: 0.5,
-	opacity: 0.8,
-	transparent: true,
+	// transmission: 0.5,
+	// opacity: 0.8,
+	// transparent: true,
 	envMap: reflectionTexture,
 	envMapIntensity: 40 * envMapIntensity,
 	// map: marbleTexture,
@@ -135,7 +135,7 @@ let pieceMat0 = new THREE.MeshPhysicalMaterial({
 	roughness: 0.2,
 	metalness: 0.4,
 	envMap: reflectionTexture,
-	envMapIntensity: 10 * envMapIntensity,
+	envMapIntensity: 5 * envMapIntensity,
 });
 
 let hoveredPieceMat1 = new THREE.MeshPhysicalMaterial({
@@ -1131,6 +1131,8 @@ function initRendering() {
 	});
 	// renderer.setClearColor(scene.fog.color, 1);
 	renderer.setSize(window.innerWidth, window.innerHeight);
+
+	renderer.outputEncoding = THREE.sRGBEncoding;
 
 	container = document.body;
 	container.appendChild(renderer.domElement);
