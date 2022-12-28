@@ -7,7 +7,7 @@ mainGain.connect(audioCtx.destination);
 let muted = false;
 
 const playSound = (soundName, { playbackRate = 1, playbackRateVariation = 0, volume = 1, looping = false, time = 0, destination = audioCtx.destination } = {}) => {
-	const audioBuffer = resources[soundName];
+	const audioBuffer = resources?.[soundName];
 	if (!audioBuffer) {
 		console.warn(`No AudioBuffer loaded for sound '${soundName}'`);
 		return Promise.resolve();
