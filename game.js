@@ -9,10 +9,19 @@ const turnIndicator = document.getElementById("turn-indicator");
 //   - game over
 //   - win/lose tracking system
 // - sound effects
-//   - lift piece, place piece, invalid move, reveal attacking path for invalid move, check, capture, win, lose, draw, undo, redo
+//   - undo, redo, menu interactions
 //   - maybe some variations based on theme
 //   - maybe some variations based on human/computer
 //   - option to disable sound effects
+//   - tweaks:
+//     - add fanfare to end of win/lose
+//     - use only punchy sounds for capture, there's at least one that falls short
+//     - different "running" sound effect(s), maybe based on distance to travel
+//     - "running" sound effect should stop before attack sound... guess I could just stop() it!
+//     - slide whistle downward slide could better match upward slide... maybe just reverse the audio? or re-pitch the current sound.
+//     - don't play check sound when undoing?? except maybe after a delay
+//     - stagger (prevent overlap of) SFX for revealing attack paths,
+//       since you can trigger it many times quickly by hovering different attacked squares
 // - music?
 //   - music volume
 // - click pieces of opponent to see their possible moves (I already have this for the end of game)
