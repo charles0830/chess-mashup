@@ -165,8 +165,10 @@
 		<button id="review-game">Review Game</button>
 	</dialog>
 
-	<!-- <script src="lib/three.js"></script> -->
-	<script src="https://unpkg.com/three@0.148.0/build/three.js"></script>
+	<!-- a CDN makes it easy to try out different three.js versions -->
+	<!-- <script src="https://unpkg.com/three@0.148.0/build/three.js"></script> -->
+	<!-- but I like keeping my apps self-contained, and resilient against bit rot -->
+	<script src="lib/three.js"></script>
 	<script src="lib/stats.js"></script>
 	<script src="lib/STLLoader.js"></script>
 	<script src="lib/BufferGeometryUtils.js"></script>
