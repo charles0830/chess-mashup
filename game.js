@@ -9,19 +9,22 @@ const turnIndicator = document.getElementById("turn-indicator");
 //   - game over
 //   - win/lose tracking system
 // - sound effects
-//   - undo, redo, menu interactions
+//   - undo, redo, menu interactions, clicking opponent piece (when it does nothing, i.e. except at end of game, currently)
 //   - maybe some variations based on theme
 //   - maybe some variations based on human/computer
 //   - option to disable sound effects
+//   - maybe await loading sounds like I did for Dat Boi, so that *initially being in Check/Checkmate* can play a sound
 //   - tweaks:
 //     - add fanfare to end of win/lose
 //     - use only punchy sounds for capture, there's at least one that falls short
-//     - different "running" sound effect(s), maybe based on distance to travel
+//     - different "running" sound effect(s), maybe based on distance to travel (bongos, pat pat pat, high pitched mallet (current), maybe coconut gallop for the knight)
 //     - "running" sound effect should stop before attack sound... guess I could just stop() it!
 //     - slide whistle downward slide could better match upward slide... maybe just reverse the audio? or re-pitch the current sound.
 //     - don't play check sound when undoing?? except maybe after a delay
 //     - stagger (prevent overlap of) SFX for revealing attack paths,
 //       since you can trigger it many times quickly by hovering different attacked squares
+//     - maybe it should play a sound at the end of a move animation that doesn't capture, the downward slide whistle (maybe a variation; maybe the current sound, but the cancel-move should have a variation, as described above)
+//     - maybe use "oh yeah" sound effect once when revealing attack path, once game is over
 // - music?
 //   - music volume
 // - click pieces of opponent to see their possible moves (I already have this for the end of game)
