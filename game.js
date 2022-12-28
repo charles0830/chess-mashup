@@ -743,6 +743,7 @@ class Piece {
 				keyframe.capturingPiece.targetWorldPosition.add(
 					move.capturingDirectionVector.clone().multiplyScalar(squareSize),
 				);
+				playSound(`capture${1 + Math.floor(Math.random() * 8)}`);
 			}
 		}, 300);
 	}
@@ -1621,6 +1622,9 @@ function handleTurn() {
 	const inCheck = isCurrentlyInCheck(team);
 	turnIndicator.textContent = turnMessages[team] + (inCheck ? " CHECK" : "");
 	// console.log(`Turn ${turn} is ${teamNames[team]}'s turn (${teamTypes[team]})`);
+	if (inCheck) {
+		playSound("check");
+	}
 	clearTimeout(handleTurnTimerId);
 	handleTurnTimerId = setTimeout(() => {
 		let kinglessPuzzle = false;
@@ -1634,6 +1638,13 @@ function handleTurn() {
 				turnIndicator.textContent = `Assassin-mate! ${teamNames[winningTeam]} wins!`
 				gameOver = true;
 				showGameOverDialog();
+				if (teamTypes[team] === "computer") {
+					playSound("win");
+				} else if (teamTypes[(team + 1) % 2] === "computer") {
+					playSound("lose");
+				} else {
+					playSound("checkmate");
+				}
 				return;
 			}
 		}
@@ -1660,8 +1671,16 @@ function handleTurn() {
 			if (inCheck) {
 				const winningTeam = +!team;
 				turnIndicator.textContent = `Checkmate! ${teamNames[winningTeam]} wins!`;
+				if (teamTypes[team] === "computer") {
+					playSound("win");
+				} else if (teamTypes[(team + 1) % 2] === "computer") {
+					playSound("lose");
+				} else {
+					playSound("checkmate");
+				}
 			} else {
 				turnIndicator.textContent = "Stalemate! It's a draw.";
+				playSound("draw");
 			}
 		}
 	}, 500);

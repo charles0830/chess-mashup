@@ -43,8 +43,7 @@ const loadResource = (path) => {
 };
 
 const resourcePaths = {
-	// "check": "sounds/check.wav",
-	// "checkmate": "sounds/checkmate.wav",
+	"check": "sounds/cartoon-check.wav",
 	"lift-piece": "sounds/slide-whistle-up.wav",
 	// "piece-hit-board": "sounds/click.wav",
 	// "take-move": "sounds/slide-whistle-up-short.wav",
@@ -55,10 +54,18 @@ const resourcePaths = {
 	// "speed-move-in-progress": "sounds/speed-move-in-progress.wav",
 	// "invalid-move": "sounds/invalid-move.wav",
 	// "reveal-attacking-path": "sounds/reveal-attacking-path.wav",
-	// "capture": "sounds/capture.wav",
-	// "win": "sounds/win.wav",
-	// "lose": "sounds/lose.wav",
-	// "draw": "sounds/draw.wav",
+	"capture1": "sounds/capture/22-Cartoon-sound-effect.wav",
+	"capture2": "sounds/capture/23-Cartoon-sound-effect.wav",
+	"capture3": "sounds/capture/24-Cartoon-sound-effect.wav",
+	"capture4": "sounds/capture/25-Cartoon-sound-effect.wav",
+	"capture5": "sounds/capture/26-Cartoon-sound-effect.wav",
+	"capture6": "sounds/capture/27-Cartoon-sound-effect.wav",
+	"capture7": "sounds/capture/28-Cartoon-sound-effect.wav",
+	"capture8": "sounds/capture/29-Cartoon-sound-effect.wav",
+	"checkmate": "sounds/gong.wav", // neutral tone for PvP
+	"win": "sounds/cartoon-beating.wav",
+	"lose": "sounds/cartoon-lose.wav",
+	"draw": "sounds/gong.wav",
 	// "undo": "sounds/undo.wav",
 	// "redo": "sounds/redo.wav",
 };
