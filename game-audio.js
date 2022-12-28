@@ -65,7 +65,7 @@ const resourcePaths = {
 	"checkmate": "sounds/gong.wav", // neutral tone for PvP
 	"win": "sounds/cartoon-beating.wav",
 	"lose": "sounds/cartoon-lose.wav",
-	"draw": "sounds/gong.wav",
+	"draw": "sounds/cartoon-pizzicato-melody.wav",
 	// "undo": "sounds/undo.wav",
 	// "redo": "sounds/redo.wav",
 };
