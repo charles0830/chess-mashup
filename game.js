@@ -133,9 +133,9 @@ let pieceMat0 = new THREE.MeshPhysicalMaterial({
 	color: color0,
 	// emissive: 0x3f3f3f,
 	roughness: 0.2,
-	metalness: 0.4,
+	metalness: 0.5,
 	envMap: reflectionTexture,
-	envMapIntensity: 5 * envMapIntensity,
+	envMapIntensity: 10 * envMapIntensity,
 });
 
 let hoveredPieceMat1 = new THREE.MeshPhysicalMaterial({
@@ -147,11 +147,11 @@ let hoveredPieceMat1 = new THREE.MeshPhysicalMaterial({
 });
 let hoveredPieceMat0 = new THREE.MeshPhysicalMaterial({
 	color: color0,
-	// emissive: 0x333344,
+	emissive: 0x333344,
 	roughness: 0.2,
-	metalness: 0.3,
+	metalness: 1.1,
 	envMap: reflectionTexture,
-	envMapIntensity: 30 * envMapIntensity,
+	envMapIntensity: 15 * envMapIntensity,
 });
 const hoverDecalTexture = textureLoader.load('./textures/hover-decal-flower-frame-with-outline.png');
 
