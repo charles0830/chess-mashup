@@ -490,12 +490,11 @@ addEventListener('mousedown', function (event) {
 		}
 	} else if (selectedPiece) {
 		if (hoveredSpace) {
-			const moves = getMoves(selectedPiece);
-			let move = moves.find(move =>
+			const movesHere = getMoves(selectedPiece).filter(move =>
 				move.gamePosition.equals(hoveredSpace) &&
-				move.towardsGroundVector.equals(hoveredTowardsGroundVector) &&
-				move.valid
+				move.towardsGroundVector.equals(hoveredTowardsGroundVector)
 			);
+			let move = movesHere.find(move => move.valid);
 			if (event.ctrlKey) {
 				// allow cheating with Ctrl-click
 				const orientation = new THREE.Quaternion().setFromUnitVectors(
@@ -524,6 +523,8 @@ addEventListener('mousedown', function (event) {
 			if (move) {
 				selectedPiece.takeMove(move, handleTurn);
 				turn++;
+			} else if (movesHere.length) {
+				playSound("invalid-move");
 			}
 		}
 		selectedPiece = null;

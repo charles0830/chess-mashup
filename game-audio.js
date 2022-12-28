@@ -52,7 +52,7 @@ const resourcePaths = {
 	"cancel-move": "sounds/slide-whistle-down.wav",
 	// "cancel-move-in-progress": "sounds/cancel-move-in-progress.wav",
 	// "speed-move-in-progress": "sounds/speed-move-in-progress.wav",
-	// "invalid-move": "sounds/invalid-move.wav",
+	"invalid-move": "sounds/cartoon-invalid-move.wav",
 	// "reveal-attacking-path": "sounds/reveal-attacking-path.wav",
 	"capture1": "sounds/capture/22-Cartoon-sound-effect.wav",
 	"capture2": "sounds/capture/23-Cartoon-sound-effect.wav",
