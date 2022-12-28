@@ -358,6 +358,7 @@ const livingPieces = [];
 const capturedPieces = [];
 let movementDecals = [];
 let spaceHoverDecals = [];
+let revealedAttackingPath = {};
 
 const mouse = { x: null, y: null };
 
@@ -446,6 +447,7 @@ function clearMovementDecals() {
 		scene.remove(decal);
 	}
 	movementDecals.length = 0;
+	revealedAttackingPath = {};
 }
 
 addEventListener('mousemove', function (event) {
@@ -1234,9 +1236,15 @@ function animate() {
 					!move.valid
 				);
 				if (move && move.checkMove) {
-					const path = makeMovePath(move.checkMove, new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 3, opacity: 0.2 }));
-					scene.add(path);
-					movementDecals.push(path);
+					const key = `${move.gamePosition.toArray()}`;
+					if (!revealedAttackingPath[key]) {
+						const path = makeMovePath(move.checkMove, new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 3, opacity: 0.2 }));
+						scene.add(path);
+						movementDecals.push(path);
+
+						revealedAttackingPath[key] = true;
+						playSound("reveal-attacking-path");
+					}
 				}
 			}
 		}
