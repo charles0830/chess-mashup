@@ -473,7 +473,9 @@ addEventListener('mousedown', function (event) {
 			event.ctrlKey // cheat
 		)
 	) {
-		playSound("lift-piece");
+		if (selectedPiece !== hoveredPiece) {
+			playSound("lift-piece");
+		}
 		selectedPiece = hoveredPiece;
 		clearMovementDecals();
 		const moves = getMoves(hoveredPiece);
