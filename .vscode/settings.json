@@ -23,5 +23,7 @@
 		"voxel",
 		"wireframe"
 	],
-	"workbench.colorTheme": "Monochrome Red"
+	"workbench.colorTheme": "Monochrome Red",
+	"editor.formatOnSave": true,
+	"editor.formatOnType": true
 }
