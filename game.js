@@ -71,6 +71,8 @@ const reflectionTexture = textureLoader.load('textures/2294472375_24a3b8ef46_o.j
 reflectionTexture.mapping = THREE.EquirectangularReflectionMapping;
 reflectionTexture.encoding = THREE.sRGBEncoding;
 
+const envMapIntensity = 0.5;
+
 /*const material1 = new THREE.MeshLambertMaterial({
 	map: THREE.ImageUtils.loadTexture('/marble2.jpg'),
 	color:color1, ambient:color1, opacity: 0.7, transparent: true
@@ -87,7 +89,7 @@ let boardMat1 = new THREE.MeshPhysicalMaterial({
 	opacity: 0.8,
 	transparent: true,
 	envMap: reflectionTexture,
-	envMapIntensity: 40,
+	envMapIntensity: 40 * envMapIntensity,
 	// map: marbleTexture,
 });
 let boardMat0 = new THREE.MeshPhysicalMaterial({
@@ -98,7 +100,7 @@ let boardMat0 = new THREE.MeshPhysicalMaterial({
 	opacity: 0.8,
 	transparent: true,
 	envMap: reflectionTexture,
-	envMapIntensity: 40,
+	envMapIntensity: 40 * envMapIntensity,
 	// map: marbleTexture,
 });
 
@@ -108,7 +110,7 @@ let boardMat0 = new THREE.MeshPhysicalMaterial({
 // 	roughness: 0.1,
 // 	metalness: 0.9,
 // 	envMap: reflectionTexture,
-// 	envMapIntensity: 10,
+// 	envMapIntensity: 10 * envMapIntensity,
 // });
 
 // let pieceMat1 = new THREE.MeshLambertMaterial({
@@ -125,7 +127,7 @@ let pieceMat1 = new THREE.MeshPhysicalMaterial({
 	roughness: 0.01,
 	metalness: 0.5,
 	envMap: reflectionTexture,
-	envMapIntensity: 10,
+	envMapIntensity: 10 * envMapIntensity,
 });
 let pieceMat0 = new THREE.MeshPhysicalMaterial({
 	color: color0,
@@ -133,7 +135,7 @@ let pieceMat0 = new THREE.MeshPhysicalMaterial({
 	roughness: 0.2,
 	metalness: 0.4,
 	envMap: reflectionTexture,
-	envMapIntensity: 10,
+	envMapIntensity: 10 * envMapIntensity,
 });
 
 let hoveredPieceMat1 = new THREE.MeshPhysicalMaterial({
@@ -141,7 +143,7 @@ let hoveredPieceMat1 = new THREE.MeshPhysicalMaterial({
 	roughness: 0.01,
 	metalness: 0.1,
 	envMap: reflectionTexture,
-	envMapIntensity: 100,
+	envMapIntensity: 100 * envMapIntensity,
 });
 let hoveredPieceMat0 = new THREE.MeshPhysicalMaterial({
 	color: color0,
@@ -149,7 +151,7 @@ let hoveredPieceMat0 = new THREE.MeshPhysicalMaterial({
 	roughness: 0.2,
 	metalness: 0.3,
 	envMap: reflectionTexture,
-	envMapIntensity: 30,
+	envMapIntensity: 30 * envMapIntensity,
 });
 const hoverDecalTexture = textureLoader.load('./textures/hover-decal-flower-frame-with-outline.png');
 
