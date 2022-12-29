@@ -1,4 +1,13 @@
 
+import * as THREE from 'three';
+
+import Stats from './lib/stats.module.js';
+
+import { STLLoader } from './lib/STLLoader.js';
+import { CubeControls } from './lib/cube-controls.js';
+import { getBufferGeometryUtils } from './lib/BufferGeometryUtils.js';
+const BufferGeometryUtils = getBufferGeometryUtils();
+
 if (!Detector.webgl) Detector.addGetWebGLMessage();
 
 const turnIndicator = document.getElementById("turn-indicator");
@@ -304,7 +313,7 @@ function makeMovePath(move, material) {
 
 const hoverDecal = makeDecal(hoverDecalMat);
 
-const stlLoader = new THREE.STLLoader();
+const stlLoader = new STLLoader();
 const pieceTypes = [
 	"pawn",
 	"knight",
@@ -322,7 +331,7 @@ const geometryPromises = pieceTypes.map((pieceType) => new Promise((resolve, rej
 			// geometry.deleteAttribute("uv");
 			// geometry.deleteAttribute("uv2");
 			// geometry.deleteAttribute("tangent");
-			geometry = THREE.BufferGeometryUtils.mergeVertices(geometry);
+			geometry = BufferGeometryUtils.mergeVertices(geometry);
 			geometry.computeVertexNormals();
 			// geometry.computeFaceNormals();
 			resolve(geometry);
@@ -1151,7 +1160,7 @@ function initRendering() {
 	camera.near = 0.1;
 	camera.far = 1000;
 
-	controls = new THREE.CubeControls(camera, renderer.domElement);
+	controls = new CubeControls(camera, renderer.domElement);
 	controls.noPan = true; // panning already doesn't work but this makes it not give state === STATE.PANNING (with my modifications)
 	controls.minDistance = squareSize * BOARD_SIZE;
 	controls.maxDistance = squareSize * BOARD_SIZE * 3;

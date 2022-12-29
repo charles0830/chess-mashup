@@ -165,14 +165,18 @@
 		<button id="review-game">Review Game</button>
 	</dialog>
 
-	<!-- a CDN makes it easy to try out different three.js versions -->
-	<!-- <script src="https://unpkg.com/three@0.148.0/build/three.js"></script> -->
-	<!-- but I like keeping my apps self-contained, and resilient against bit rot -->
-	<script src="lib/three.js"></script>
-	<script src="lib/stats.js"></script>
-	<script src="lib/STLLoader.js"></script>
-	<script src="lib/BufferGeometryUtils.js"></script>
-	<script src="lib/cube-controls.js"></script>
+	<!-- Import maps polyfill -->
+	<!-- Remove this when import maps will be widely supported -->
+	<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "./lib/three.module.js"
+			}
+		}
+	</script>
+
 	<script src="lib/seedrandom.min.js"></script>
 	<script>
 		var Detector = {
@@ -222,7 +226,8 @@
 		};
 	</script>
 	<script src="game-audio.js"></script>
-	<script src="game.js"></script>
+	<script type="module" src="game.js"></script>
+
 </body>
 
 </html>
