@@ -687,25 +687,23 @@ class Piece {
 			this.raycastMesh.scale.y = geometry.boundingBox.max.z - geometry.boundingBox.min.z;
 			this.raycastMesh.position.y = this.raycastMesh.scale.y / 2 - squareSize / 2;
 
-			// const node = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-			// node.setAttribute('stroke', 'black');
-			// node.setAttribute('fill', 'red');
-			// node.setAttribute('r', '40');
-			// const node = document.createElementNS("http://www.w3.org/2000/svg", "image");
-			// node.setAttribute("src", `textures/JohnPablok%20Cburnett%20Chess%20set/SVG%20with%20shadow/${this.team ? "b" : "w"}_${this.pieceType}_svg_withShadow.svg`);
-			// node.setAttribute("width", "40");
-			// node.setAttribute("height", "40");
-			const node = document.createElementNS("http://www.w3.org/2000/svg", "text");
-			node.setAttribute("font-size", "40");
-			const symbol = {
-				king: ["♔", "♚"],
-				queen: ["♕", "♛"],
-				rook: ["♖", "♜"],
-				bishop: ["♗", "♝"],
-				knight: ["♘", "♞"],
-				pawn: ["♙", "♟︎"],
-			}[this.pieceType][this.team];
-			node.appendChild(document.createTextNode(symbol));
+			const node = document.createElementNS("http://www.w3.org/2000/svg", "image");
+			node.setAttribute("href", `textures/JohnPablok%20Cburnett%20Chess%20set/SVG%20with%20shadow/${this.team ? "b" : "w"}_${this.pieceType}_svg_withShadow.svg`);
+			node.setAttribute("width", "40");
+			node.setAttribute("height", "40");
+			node.setAttribute("x", "-20");
+			node.setAttribute("y", "-20");
+			// const node = document.createElementNS("http://www.w3.org/2000/svg", "text");
+			// node.setAttribute("font-size", "40");
+			// const symbol = {
+			// 	king: ["♔", "♚"],
+			// 	queen: ["♕", "♛"],
+			// 	rook: ["♖", "♜"],
+			// 	bishop: ["♗", "♝"],
+			// 	knight: ["♘", "♞"],
+			// 	pawn: ["♙", "♟︎"],
+			// }[this.pieceType][this.team];
+			// node.appendChild(document.createTextNode(symbol));
 
 			mesh = new SVGObject(node.cloneNode(true));
 
