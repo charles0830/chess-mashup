@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 
 import Stats from './lib/stats.module.js';
-
+import { SVGRenderer } from './lib/renderers/SVGRenderer.js';
 import { STLLoader } from './lib/STLLoader.js';
 import { CubeControls } from './lib/cube-controls.js';
 import { getBufferGeometryUtils } from './lib/BufferGeometryUtils.js';
@@ -1139,7 +1139,7 @@ function initRendering() {
 
 	// renderer
 
-	renderer = new THREE.WebGLRenderer({
+	renderer = new SVGRenderer({
 		antialias: (theme === "wireframe" || theme === "perf") ? false : true
 	});
 	// renderer.setClearColor(scene.fog.color, 1);
@@ -1176,9 +1176,10 @@ function initRendering() {
 	// this texture can look really bad without anisotropic filtering
 	// at an angle or from far away,
 	// due to the black border around the white ornamentation
-	const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
-	hoverDecalTexture.anisotropy = maxAnisotropy;
-
+	if (renderer.capabilities) {
+		const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+		hoverDecalTexture.anisotropy = maxAnisotropy;
+	}
 }
 
 function onWindowResize() {
