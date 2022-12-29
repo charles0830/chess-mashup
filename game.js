@@ -1147,11 +1147,13 @@ function initRendering() {
 
 	webGLRenderer.outputEncoding = THREE.sRGBEncoding;
 
+	let webGLLoseContext;
 	window.testLoseContext = () => {
-		webGLRenderer.getContext().getExtension('WEBGL_lose_context').loseContext();
+		webGLLoseContext = webGLRenderer.getContext().getExtension('WEBGL_lose_context');
+		webGLLoseContext.loseContext();
 	};
 	window.testRestoreContext = () => {
-		webGLRenderer.getContext().getExtension('WEBGL_lose_context').restoreContext();
+		webGLLoseContext.restoreContext();
 	};
 	webGLRenderer.domElement.addEventListener("webglcontextlost", function (event) {
 		event.preventDefault();
