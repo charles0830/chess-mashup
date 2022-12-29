@@ -113,7 +113,12 @@
 
 <body>
 	<progress max="1" min="0" value="0" id="loading-progress"></progress>
-	<div id="container"></div>
+	<div id="stats-and-renderer-container">
+		<!-- Stats.js element goes here -->
+		<div id="renderer-container">
+			<!-- Canvas and/or SVG goes here -->
+		</div>
+	</div>
 	<span id="turn-indicator"></span>
 	<a id="leave-game" href="#" style="display: none">Leave Game</a>
 	<a id="back-to-main" href="#" style="display: none">Back</a>

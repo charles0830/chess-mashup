@@ -22,6 +22,8 @@
 		"undos",
 		"unproject",
 		"voxel",
+		"webglcontextlost",
+		"webglcontextrestored",
 		"wireframe"
 	],
 	"workbench.colorTheme": "Monochrome Red",

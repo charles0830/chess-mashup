@@ -50,9 +50,9 @@ const turnIndicator = document.getElementById("turn-indicator");
 //   try making the edges and corners of the board beveled, in a gameplay-significant way
 //   (specifically, make the board a truncated cuboctahedron (beveled cube))
 
-let container, stats,
+let rendererContainer, stats,
 	camera, controls,
-	scene, renderer;
+	scene, renderer, webGLRenderer, svgRenderer;
 const raycastTargets = []; // don't want to include certain objects like hoverDecal, so we can't just use scene.children
 
 let theme = "default";
@@ -483,7 +483,8 @@ addEventListener('mousemove', function (event) {
 addEventListener('mousedown', function (event) {
 	// `renderer` doesn't exist when `addEventListener` is called,
 	// so I can't do `renderer.domElement.addEventListener` without moving code around.
-	if (event.target !== renderer.domElement) return;
+	// Furthermore, now renderer may be swapped out for an SVGRenderer
+	if (event.target.closest("svg, canvas") !== renderer.domElement) return;
 
 	if (event.button !== 0) return;
 	// console.log(`Clicked piece: ${hoveredPiece}`);
@@ -1139,23 +1140,46 @@ function initRendering() {
 
 	// renderer
 
-	renderer = new SVGRenderer({
+	webGLRenderer = new THREE.WebGLRenderer({
 		antialias: (theme === "wireframe" || theme === "perf") ? false : true
 	});
+	svgRenderer = new SVGRenderer();
+	renderer = webGLRenderer;
 	// renderer.setClearColor(scene.fog.color, 1);
-	renderer.setSize(window.innerWidth, window.innerHeight);
+	webGLRenderer.setSize(window.innerWidth, window.innerHeight);
+	svgRenderer.setSize(window.innerWidth, window.innerHeight);
 
-	renderer.outputEncoding = THREE.sRGBEncoding;
+	webGLRenderer.outputEncoding = THREE.sRGBEncoding;
 
-	container = document.body;
-	container.appendChild(renderer.domElement);
+	window.testLoseContext = () => {
+		webGLRenderer.getContext().getExtension('WEBGL_lose_context').loseContext();
+	};
+	window.testRestoreContext = () => {
+		webGLRenderer.getContext().getExtension('WEBGL_lose_context').restoreContext();
+	};
+	webGLRenderer.domElement.addEventListener("webglcontextlost", function (event) {
+		event.preventDefault();
+		renderer = svgRenderer;
+		rendererContainer.appendChild(svgRenderer.domElement);
+		webGLRenderer.domElement.style.display = "none";
+		svgRenderer.domElement.style.display = "";
+	}, false);
+
+	webGLRenderer.domElement.addEventListener("webglcontextrestored", function (event) {
+		renderer = webGLRenderer;
+		svgRenderer.domElement.style.display = "none";
+		webGLRenderer.domElement.style.display = "";
+	}, false);
+
+	rendererContainer = document.getElementById("renderer-container");
+	rendererContainer.appendChild(renderer.domElement);
 
 	stats = new Stats();
 	stats.domElement.style.position = 'absolute';
 	stats.domElement.style.top = '';
 	stats.domElement.style.bottom = '0px';
 	stats.domElement.style.zIndex = 100;
-	container.appendChild(stats.domElement);
+	document.getElementById("stats-and-renderer-container").appendChild(stats.domElement);
 
 	// camera
 
@@ -1164,7 +1188,7 @@ function initRendering() {
 	camera.near = 0.1;
 	camera.far = 1000;
 
-	controls = new CubeControls(camera, renderer.domElement);
+	controls = new CubeControls(camera, rendererContainer); // using a container so we don't need to recreate this object
 	controls.noPan = true; // panning already doesn't work but this makes it not give state === STATE.PANNING (with my modifications)
 	controls.minDistance = squareSize * BOARD_SIZE;
 	controls.maxDistance = squareSize * BOARD_SIZE * 3;
