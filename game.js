@@ -50,9 +50,10 @@ const turnIndicator = document.getElementById("turn-indicator");
 //   try making the edges and corners of the board beveled, in a gameplay-significant way
 //   (specifically, make the board a truncated cuboctahedron (beveled cube))
 
-let rendererContainer, stats,
+let stats,
 	camera, controls,
 	scene, renderer, webGLRenderer, svgRenderer;
+const rendererContainer = document.getElementById("renderer-container");
 const raycastTargets = []; // don't want to include certain objects like hoverDecal, so we can't just use scene.children
 
 let theme = "default";
@@ -480,12 +481,7 @@ addEventListener('mousemove', function (event) {
 	mouse.y = 1 - (event.clientY / window.innerHeight) * 2;
 }, true);
 
-addEventListener('mousedown', function (event) {
-	// `renderer` doesn't exist when `addEventListener` is called,
-	// so I can't do `renderer.domElement.addEventListener` without moving code around.
-	// Furthermore, now renderer may be swapped out for an SVGRenderer
-	if (event.target.closest("svg, canvas") !== renderer.domElement) return;
-
+rendererContainer.addEventListener('mousedown', function (event) {
 	if (event.button !== 0) return;
 	// console.log(`Clicked piece: ${hoveredPiece}`);
 	if (hoveredPiece &&
@@ -1171,7 +1167,6 @@ function initRendering() {
 		webGLRenderer.domElement.style.display = "";
 	}, false);
 
-	rendererContainer = document.getElementById("renderer-container");
 	rendererContainer.appendChild(renderer.domElement);
 
 	stats = new Stats();
