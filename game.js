@@ -233,7 +233,7 @@ if (theme === "wireframe" || theme === "perf") {
 
 
 function makeDecal(material) {
-	return new THREE.Mesh(new THREE.PlaneBufferGeometry(squareSize, squareSize), material);
+	return new THREE.Mesh(new THREE.PlaneGeometry(squareSize, squareSize), material);
 }
 function positionDecalWorldSpace(decalMesh, worldPosition, faceNormal) {
 	decalMesh.position.copy(worldPosition);
