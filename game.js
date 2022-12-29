@@ -6,6 +6,9 @@ import Stats from './lib/stats.module.js';
 import { STLLoader } from './lib/STLLoader.js';
 import { CubeControls } from './lib/cube-controls.js';
 import { getBufferGeometryUtils } from './lib/BufferGeometryUtils.js';
+
+import { playSound } from './game-audio.js';
+
 const BufferGeometryUtils = getBufferGeometryUtils();
 
 if (!Detector.webgl) Detector.addGetWebGLMessage();

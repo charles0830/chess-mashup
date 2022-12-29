@@ -1,12 +1,13 @@
 
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-const audioCtx = new AudioContext();
-const mainGain = audioCtx.createGain();
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+
+export const audioCtx = new AudioContext();
+export const mainGain = audioCtx.createGain();
 mainGain.connect(audioCtx.destination);
 
-let muted = false;
+export let muted = false;
 
-const playSound = (soundName, { playbackRate = 1, playbackRateVariation = 0, volume = 1, looping = false, time = 0, destination = audioCtx.destination } = {}) => {
+export const playSound = (soundName, { playbackRate = 1, playbackRateVariation = 0, volume = 1, looping = false, time = 0, destination = audioCtx.destination } = {}) => {
 	const audioBuffer = resources?.[soundName];
 	if (!audioBuffer) {
 		console.warn(`No AudioBuffer loaded for sound '${soundName}'`);
@@ -96,5 +97,3 @@ progressBar.removeAttribute("value"); // mark indeterminate state so it animates
 		progressBar.style.display = "none";
 	}
 })();
-
-window.playSound = playSound;
