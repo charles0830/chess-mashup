@@ -11,8 +11,6 @@ import { playSound } from './game-audio.js';
 
 const BufferGeometryUtils = getBufferGeometryUtils();
 
-if (!Detector.webgl) Detector.addGetWebGLMessage();
-
 const turnIndicator = document.getElementById("turn-indicator");
 
 // TODO:
@@ -1136,38 +1134,43 @@ function initRendering() {
 
 	// renderer
 
-	webGLRenderer = new THREE.WebGLRenderer({
-		antialias: (theme === "wireframe" || theme === "perf") ? false : true
-	});
 	svgRenderer = new SVGRenderer();
-	renderer = webGLRenderer;
-	// renderer.setClearColor(scene.fog.color, 1);
-	webGLRenderer.setSize(window.innerWidth, window.innerHeight);
-	svgRenderer.setSize(window.innerWidth, window.innerHeight);
-
-	webGLRenderer.outputEncoding = THREE.sRGBEncoding;
-
-	let webGLLoseContext;
-	window.testLoseContext = () => {
-		webGLLoseContext = webGLRenderer.getContext().getExtension('WEBGL_lose_context');
-		webGLLoseContext.loseContext();
-	};
-	window.testRestoreContext = () => {
-		webGLLoseContext.restoreContext();
-	};
-	webGLRenderer.domElement.addEventListener("webglcontextlost", function (event) {
-		event.preventDefault();
-		renderer = svgRenderer;
-		rendererContainer.appendChild(svgRenderer.domElement);
-		webGLRenderer.domElement.style.display = "none";
-		svgRenderer.domElement.style.display = "";
-	}, false);
-
-	webGLRenderer.domElement.addEventListener("webglcontextrestored", function (event) {
+	if (Detector.webgl) {
+		webGLRenderer = new THREE.WebGLRenderer({
+			antialias: (theme === "wireframe" || theme === "perf") ? false : true
+		});
 		renderer = webGLRenderer;
-		svgRenderer.domElement.style.display = "none";
-		webGLRenderer.domElement.style.display = "";
-	}, false);
+	} else {
+		renderer = svgRenderer;
+	}
+	// renderer.setClearColor(scene.fog.color, 1);
+	svgRenderer.setSize(window.innerWidth, window.innerHeight);
+	if (webGLRenderer) {
+		webGLRenderer.setSize(window.innerWidth, window.innerHeight);
+		webGLRenderer.outputEncoding = THREE.sRGBEncoding;
+
+		let webGLLoseContext;
+		window.testLoseContext = () => {
+			webGLLoseContext = webGLRenderer.getContext().getExtension('WEBGL_lose_context');
+			webGLLoseContext.loseContext();
+		};
+		window.testRestoreContext = () => {
+			webGLLoseContext.restoreContext();
+		};
+		webGLRenderer.domElement.addEventListener("webglcontextlost", function (event) {
+			event.preventDefault();
+			renderer = svgRenderer;
+			rendererContainer.appendChild(svgRenderer.domElement);
+			webGLRenderer.domElement.style.display = "none";
+			svgRenderer.domElement.style.display = "";
+		}, false);
+
+		webGLRenderer.domElement.addEventListener("webglcontextrestored", function (event) {
+			renderer = webGLRenderer;
+			svgRenderer.domElement.style.display = "none";
+			webGLRenderer.domElement.style.display = "";
+		}, false);
+	}
 
 	rendererContainer.appendChild(renderer.domElement);
 
