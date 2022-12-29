@@ -1119,7 +1119,9 @@ function initRendering() {
 	raycaster = new THREE.Raycaster();
 
 	// lighting
-	const ambientLight = new THREE.AmbientLight(0xeeeeee);
+
+	// Note: the environment map (envMap) also provides light.
+	const ambientLight = new THREE.AmbientLight(0xaaaaaa);
 	scene.add(ambientLight);
 
 
