@@ -1209,7 +1209,8 @@ function initRendering() {
 function onWindowResize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
-	renderer.setSize(window.innerWidth, window.innerHeight);
+	svgRenderer.setSize(window.innerWidth, window.innerHeight);
+	webGLRenderer?.setSize(window.innerWidth, window.innerHeight);
 	controls.handleResize();
 }
 
