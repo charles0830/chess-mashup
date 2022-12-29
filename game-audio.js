@@ -24,6 +24,7 @@ export const playSound = (soundName, { playbackRate = 1, playbackRateVariation =
 	source.playbackRate.value = playbackRate + (Math.random() * playbackRateVariation);
 	const promise = new Promise((resolve) => source.onended = resolve);
 	promise.bufferSource = source;
+	audioCtx.resume();
 	return promise;
 };
 
