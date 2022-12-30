@@ -854,6 +854,13 @@ class Piece {
 		}
 
 		this.wasSelectedAsOfLastFrame = selectedPiece === this;
+
+		if (renderer === svgRenderer) {
+			const cameraSpaceVector = this.towardsGroundVector.clone().project(camera);
+			const rotation = Math.atan2(-cameraSpaceVector.x, -cameraSpaceVector.y);
+			this.defaultSpriteMaterial.rotation = rotation;
+			this.hoverSpriteMaterial.rotation = rotation;
+		}
 	}
 	updateHovering(hovering) {
 		if (renderer === svgRenderer) {
