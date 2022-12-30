@@ -617,7 +617,10 @@ class Piece {
 		this.hoverSpriteMaterial.styleForSVGRenderer += "filter: brightness(150%) drop-shadow(0px 0px 10px red)"
 		this.sprite = new THREE.Sprite(this.defaultSpriteMaterial);
 		this.sprite.scale.set(30, 30, 1);
-
+		this.sprite.rotation.x -= Math.PI / 2; // useless
+		this.sprite.position.y -= squareSize / 15;
+		// Raycasting mesh,
+		// which is also a preload visual before the piece models (WebGL) or graphics (SVG) load.
 		const tempGeometry = new THREE.CylinderGeometry(10, 10, 1, 8, 1, false);
 		const tempMesh = new THREE.Mesh(tempGeometry, this.defaultMaterial);
 		tempMesh.scale.y = 30;
@@ -625,8 +628,11 @@ class Piece {
 		this.object3d.add(tempMesh);
 		this.raycastMesh = tempMesh;
 		this.visualMesh = tempMesh;
+		this.visualObject = tempMesh;
 		raycastTargets.push(this.raycastMesh);
+
 		this.setPieceType(pieceType);
+
 		if (facingDebug) {
 			const arrowHelper = new THREE.ArrowHelper(new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 10, 0), 20, 0x00aa00, 10, 8);
 			this.object3d.add(arrowHelper);
@@ -692,10 +698,13 @@ class Piece {
 		this.pieceType = pieceType;
 		const index = pieceTypes.indexOf(this.pieceType);
 		geometryPromises[Math.max(0, index)].then((geometry) => {
-			let mesh = new THREE.Mesh(geometry, this.defaultMaterial);
+			this.visualMesh = new THREE.Mesh(geometry, this.defaultMaterial);
 			geometry.computeBoundingBox();
 			this.raycastMesh.scale.y = geometry.boundingBox.max.z - geometry.boundingBox.min.z;
 			this.raycastMesh.position.y = this.raycastMesh.scale.y / 2 - squareSize / 2;
+
+			this.visualMesh.rotation.x -= Math.PI / 2;
+			this.visualMesh.position.y -= squareSize / 2;
 
 			// const node = document.createElementNS("http://www.w3.org/2000/svg", "image");
 			// node.setAttribute("href", `textures/JohnPablok%20Cburnett%20Chess%20set/SVG%20with%20shadow/${this.team ? "b" : "w"}_${this.pieceType}_svg_withShadow.svg`);
@@ -715,7 +724,12 @@ class Piece {
 			// }[this.pieceType][this.team];
 			// node.appendChild(document.createTextNode(symbol));
 
-			// mesh = new SVGObject(node.cloneNode(true));
+			let meshOrSprite = this.visualMesh;
+			// meshOrSprite = new SVGObject(node.cloneNode(true));
+
+			if (renderer === svgRenderer) {
+				meshOrSprite = this.sprite;
+			}
 
 			const svg = svgRenderer.domElement;
 			if (!svg.querySelector("defs")) {
@@ -742,18 +756,15 @@ class Piece {
 				}
 			}
 
-			this.object3d.add(mesh);
+			this.object3d.add(meshOrSprite);
 			this.raycastMesh.visible = false;
-			if (this.visualMesh !== this.raycastMesh) {
-				this.object3d.remove(this.visualMesh);
+			if (this.visualObject !== this.raycastMesh) {
+				this.object3d.remove(this.visualObject);
 			}
 			// raycastTargets.splice(raycastTargets.indexOf(this.raycastMesh), 1);
-			// this.raycastMesh = mesh;
+			// this.raycastMesh = meshOrSprite;
 			// raycastTargets.push(this.raycastMesh);
-			this.visualMesh = mesh;
-			mesh.rotation.x -= Math.PI / 2;
-			// mesh.position.y -= squareSize / 2;
-			mesh.position.y -= squareSize / 15;
+			this.visualObject = meshOrSprite;
 		});
 	}
 	takeMove(move, callback) {
@@ -872,10 +883,10 @@ class Piece {
 		this.wasSelectedAsOfLastFrame = selectedPiece === this;
 	}
 	updateHovering(hovering) {
-		if (renderer.isSVGRenderer) {
-			this.visualMesh.material = !hovering ? this.defaultSpriteMaterial : this.hoverSpriteMaterial;
+		if (renderer === svgRenderer) {
+			this.visualObject.material = !hovering ? this.defaultSpriteMaterial : this.hoverSpriteMaterial;
 		} else {
-			this.visualMesh.material = !hovering ? this.defaultMaterial : this.hoverMaterial;
+			this.visualObject.material = !hovering ? this.defaultMaterial : this.hoverMaterial;
 		}
 	}
 	toString() {
@@ -1196,7 +1207,7 @@ function initRendering() {
 	// renderer
 
 	svgRenderer = new SVGRenderer();
-	if (false) {
+	if (Detector.webgl) {
 		webGLRenderer = new THREE.WebGLRenderer({
 			antialias: (theme === "wireframe" || theme === "perf") ? false : true
 		});
@@ -1224,12 +1235,20 @@ function initRendering() {
 			rendererContainer.appendChild(svgRenderer.domElement);
 			webGLRenderer.domElement.style.display = "none";
 			svgRenderer.domElement.style.display = "";
+			// update mesh to svg sprite
+			for (const piece of allPieces) {
+				piece.setPieceType(piece.pieceType);
+			}
 		}, false);
 
 		webGLRenderer.domElement.addEventListener("webglcontextrestored", function (event) {
 			renderer = webGLRenderer;
 			svgRenderer.domElement.style.display = "none";
 			webGLRenderer.domElement.style.display = "";
+			// update svg sprite to mesh
+			for (const piece of allPieces) {
+				piece.setPieceType(piece.pieceType);
+			}
 		}, false);
 	}
 
