@@ -724,12 +724,7 @@ class Piece {
 			// }[this.pieceType][this.team];
 			// node.appendChild(document.createTextNode(symbol));
 
-			let meshOrSprite = this.visualMesh;
 			// meshOrSprite = new SVGObject(node.cloneNode(true));
-
-			if (renderer === svgRenderer) {
-				meshOrSprite = this.sprite;
-			}
 
 			const svg = svgRenderer.domElement;
 			if (!svg.querySelector("defs")) {
@@ -756,15 +751,18 @@ class Piece {
 				}
 			}
 
-			this.object3d.add(meshOrSprite);
+			const newVisualObject = renderer === svgRenderer ? this.sprite : this.visualMesh;
+
 			this.raycastMesh.visible = false;
 			if (this.visualObject !== this.raycastMesh) {
 				this.object3d.remove(this.visualObject);
 			}
+			// (Detailed raycasting is too slow and/or precise)
 			// raycastTargets.splice(raycastTargets.indexOf(this.raycastMesh), 1);
 			// this.raycastMesh = meshOrSprite;
 			// raycastTargets.push(this.raycastMesh);
-			this.visualObject = meshOrSprite;
+			this.visualObject = newVisualObject;
+			this.object3d.add(this.visualObject);
 		});
 	}
 	takeMove(move, callback) {
