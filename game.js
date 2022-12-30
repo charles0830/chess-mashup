@@ -708,9 +708,9 @@ class Piece {
 			// mesh = new SVGObject(node.cloneNode(true));
 
 			const material = new THREE.SpriteMaterial({ color: Math.random() * 0xffffff });
-			material.styleForSVGRenderer = "fill: url(#image-pattern);";
+			material.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${pieceType});`;
 			const sprite = new THREE.Sprite(material);
-			sprite.scale.set(64, 64, 1);
+			sprite.scale.set(30, 30, 1);
 			mesh = sprite;
 
 			const svg = svgRenderer.domElement;
@@ -718,12 +718,24 @@ class Piece {
 				const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
 				svg.appendChild(defs);
 				defs.preventRemoval = true;
-				defs.innerHTML = `
-					<pattern id="image-pattern" x="0" y="0" width="1" height="1"
-						viewBox="0 0 1024 576" preserveAspectRatio="xMidYMid slice">
-						<image width="1024" height="576" xlink:href="http://calciodanese.altervista.org/alterpages/hbkgepage.jpg"/>
-					</pattern>
-				`;
+				for (const pieceType of pieceTypes) {
+					for (const teamBWCode of "bw") {
+						const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+						pattern.setAttribute("id", `image-pattern-${teamBWCode}-${pieceType}`);
+						pattern.setAttribute("x", "0");
+						pattern.setAttribute("y", "0");
+						pattern.setAttribute("width", "1");
+						pattern.setAttribute("height", "1");
+						pattern.setAttribute("viewBox", "0 0 1024 1024");
+						pattern.setAttribute("preserveAspectRatio", "xMidYMid slice");
+						const image = document.createElementNS("http://www.w3.org/2000/svg", "image");
+						image.setAttribute("href", `textures/JohnPablok%20Cburnett%20Chess%20set/SVG%20with%20shadow/${teamBWCode}_${pieceType}_svg_withShadow.svg`);
+						image.setAttribute("width", "1024");
+						image.setAttribute("height", "1024");
+						pattern.appendChild(image);
+						defs.appendChild(pattern);
+					}
+				}
 			}
 
 
