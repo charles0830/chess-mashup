@@ -707,9 +707,12 @@ class Piece {
 
 			// mesh = new SVGObject(node.cloneNode(true));
 
-			const material = new THREE.SpriteMaterial({ color: Math.random() * 0xffffff });
-			material.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${pieceType});`;
-			const sprite = new THREE.Sprite(material);
+			this.defaultMaterial = new THREE.SpriteMaterial({});
+			this.defaultMaterial.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${pieceType});`;
+			this.hoverMaterial = new THREE.SpriteMaterial({});
+			this.hoverMaterial.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${pieceType});`;
+			this.hoverMaterial.styleForSVGRenderer += "filter: brightness(150%) drop-shadow(0px 0px 10px red)"
+			const sprite = new THREE.Sprite(this.defaultMaterial);
 			sprite.scale.set(30, 30, 1);
 			mesh = sprite;
 
