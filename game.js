@@ -619,7 +619,7 @@ class Piece {
 		this.sprite.scale.set(30, 30, 1);
 		this.sprite.position.y -= squareSize / 15;
 		// Raycasting mesh,
-		// which is also a preload visual before the piece models (WebGL) or graphics (SVG) load.
+		// which is also a preload visual before the piece's model (WebGL) or image (SVG) load.
 		const tempGeometry = new THREE.CylinderGeometry(10, 10, 1, 8, 1, false);
 		const tempMesh = new THREE.Mesh(tempGeometry, this.defaultMaterial);
 		tempMesh.scale.y = 30;
