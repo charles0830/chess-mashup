@@ -184,7 +184,7 @@ let hoverDecalMat = new THREE.MeshStandardMaterial({
 	polygonOffsetUnits: -4.0
 });
 let validMoveDecalMat = new THREE.MeshStandardMaterial({
-	color: 0xaaaaaa,
+	color: 0x44aa00,
 	emissive: 0x442200,
 	transparent: true,
 	opacity: 0.7,
