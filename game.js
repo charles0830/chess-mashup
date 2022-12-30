@@ -617,7 +617,6 @@ class Piece {
 		this.hoverSpriteMaterial.styleForSVGRenderer += "filter: brightness(150%) drop-shadow(0px 0px 10px white)"
 		this.sprite = new THREE.Sprite(this.defaultSpriteMaterial);
 		this.sprite.scale.set(30, 30, 1);
-		this.sprite.rotation.x -= Math.PI / 2; // useless
 		this.sprite.position.y -= squareSize / 15;
 		// Raycasting mesh,
 		// which is also a preload visual before the piece models (WebGL) or graphics (SVG) load.
@@ -720,7 +719,6 @@ class Piece {
 						pattern.setAttribute("width", "1");
 						pattern.setAttribute("height", "1");
 						pattern.setAttribute("viewBox", "0 0 1024 1024");
-						pattern.setAttribute("preserveAspectRatio", "xMidYMid slice");
 						const image = document.createElementNS("http://www.w3.org/2000/svg", "image");
 						image.setAttribute("href", `textures/JohnPablok%20Cburnett%20Chess%20set/SVG%20with%20shadow/${teamBWCode}_${pieceType}_svg_withShadow.svg`);
 						image.setAttribute("width", "1024");
