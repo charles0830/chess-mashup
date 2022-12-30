@@ -687,12 +687,12 @@ class Piece {
 			this.raycastMesh.scale.y = geometry.boundingBox.max.z - geometry.boundingBox.min.z;
 			this.raycastMesh.position.y = this.raycastMesh.scale.y / 2 - squareSize / 2;
 
-			const node = document.createElementNS("http://www.w3.org/2000/svg", "image");
-			node.setAttribute("href", `textures/JohnPablok%20Cburnett%20Chess%20set/SVG%20with%20shadow/${this.team ? "b" : "w"}_${this.pieceType}_svg_withShadow.svg`);
-			node.setAttribute("width", "40");
-			node.setAttribute("height", "40");
-			node.setAttribute("x", "-20");
-			node.setAttribute("y", "-20");
+			// const node = document.createElementNS("http://www.w3.org/2000/svg", "image");
+			// node.setAttribute("href", `textures/JohnPablok%20Cburnett%20Chess%20set/SVG%20with%20shadow/${this.team ? "b" : "w"}_${this.pieceType}_svg_withShadow.svg`);
+			// node.setAttribute("width", "40");
+			// node.setAttribute("height", "40");
+			// node.setAttribute("x", "-20");
+			// node.setAttribute("y", "-20");
 			// const node = document.createElementNS("http://www.w3.org/2000/svg", "text");
 			// node.setAttribute("font-size", "40");
 			// const symbol = {
@@ -705,7 +705,27 @@ class Piece {
 			// }[this.pieceType][this.team];
 			// node.appendChild(document.createTextNode(symbol));
 
-			mesh = new SVGObject(node.cloneNode(true));
+			// mesh = new SVGObject(node.cloneNode(true));
+
+			const material = new THREE.SpriteMaterial({ color: Math.random() * 0xffffff });
+			material.styleForSVGRenderer = "fill: url(#image-pattern);";
+			const sprite = new THREE.Sprite(material);
+			sprite.scale.set(64, 64, 1);
+			mesh = sprite;
+
+			const svg = svgRenderer.domElement;
+			if (!svg.querySelector("defs")) {
+				const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+				svg.appendChild(defs);
+				defs.preventRemoval = true;
+				defs.innerHTML = `
+					<pattern id="image-pattern" x="0" y="0" width="1" height="1"
+						viewBox="0 0 1024 576" preserveAspectRatio="xMidYMid slice">
+						<image width="1024" height="576" xlink:href="http://calciodanese.altervista.org/alterpages/hbkgepage.jpg"/>
+					</pattern>
+				`;
+			}
+
 
 			this.object3d.add(mesh);
 			this.raycastMesh.visible = false;
@@ -1156,7 +1176,7 @@ function initRendering() {
 	// renderer
 
 	svgRenderer = new SVGRenderer();
-	if (Detector.webgl) {
+	if (false) {
 		webGLRenderer = new THREE.WebGLRenderer({
 			antialias: (theme === "wireframe" || theme === "perf") ? false : true
 		});
