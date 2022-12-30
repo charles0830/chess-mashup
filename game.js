@@ -614,7 +614,7 @@ class Piece {
 		this.defaultSpriteMaterial.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${pieceType});`;
 		this.hoverSpriteMaterial = new THREE.SpriteMaterial({});
 		this.hoverSpriteMaterial.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${pieceType});`;
-		this.hoverSpriteMaterial.styleForSVGRenderer += "filter: brightness(150%) drop-shadow(0px 0px 10px red)"
+		this.hoverSpriteMaterial.styleForSVGRenderer += "filter: brightness(150%) drop-shadow(0px 0px 10px white)"
 		this.sprite = new THREE.Sprite(this.defaultSpriteMaterial);
 		this.sprite.scale.set(30, 30, 1);
 		this.sprite.rotation.x -= Math.PI / 2; // useless
@@ -885,6 +885,7 @@ class Piece {
 	updateHovering(hovering) {
 		if (renderer === svgRenderer) {
 			this.visualObject.material = !hovering ? this.defaultSpriteMaterial : this.hoverSpriteMaterial;
+			this.sprite.scale.set(30 + hovering * 2, 30 + hovering * 2, 1);
 		} else {
 			this.visualObject.material = !hovering ? this.defaultMaterial : this.hoverMaterial;
 		}
