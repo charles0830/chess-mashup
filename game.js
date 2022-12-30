@@ -606,8 +606,18 @@ class Piece {
 		this.team = team;
 		this.pieceType = pieceType || "pawn";
 		this.object3d = new THREE.Object3D();
+		// WebGL mode
 		this.defaultMaterial = team == 0 ? pieceMat0 : pieceMat1;
 		this.hoverMaterial = team == 0 ? hoveredPieceMat0 : hoveredPieceMat1;
+		// SVG mode
+		this.defaultSpriteMaterial = new THREE.SpriteMaterial({});
+		this.defaultSpriteMaterial.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${pieceType});`;
+		this.hoverSpriteMaterial = new THREE.SpriteMaterial({});
+		this.hoverSpriteMaterial.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${pieceType});`;
+		this.hoverSpriteMaterial.styleForSVGRenderer += "filter: brightness(150%) drop-shadow(0px 0px 10px red)"
+		this.sprite = new THREE.Sprite(this.defaultSpriteMaterial);
+		this.sprite.scale.set(30, 30, 1);
+
 		const tempGeometry = new THREE.CylinderGeometry(10, 10, 1, 8, 1, false);
 		const tempMesh = new THREE.Mesh(tempGeometry, this.defaultMaterial);
 		tempMesh.scale.y = 30;
@@ -707,15 +717,6 @@ class Piece {
 
 			// mesh = new SVGObject(node.cloneNode(true));
 
-			this.defaultMaterial = new THREE.SpriteMaterial({});
-			this.defaultMaterial.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${pieceType});`;
-			this.hoverMaterial = new THREE.SpriteMaterial({});
-			this.hoverMaterial.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${pieceType});`;
-			this.hoverMaterial.styleForSVGRenderer += "filter: brightness(150%) drop-shadow(0px 0px 10px red)"
-			const sprite = new THREE.Sprite(this.defaultMaterial);
-			sprite.scale.set(30, 30, 1);
-			mesh = sprite;
-
 			const svg = svgRenderer.domElement;
 			if (!svg.querySelector("defs")) {
 				const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
@@ -740,7 +741,6 @@ class Piece {
 					}
 				}
 			}
-
 
 			this.object3d.add(mesh);
 			this.raycastMesh.visible = false;
@@ -872,7 +872,11 @@ class Piece {
 		this.wasSelectedAsOfLastFrame = selectedPiece === this;
 	}
 	updateHovering(hovering) {
-		this.visualMesh.material = !hovering ? this.defaultMaterial : this.hoverMaterial;
+		if (renderer.isSVGRenderer) {
+			this.visualMesh.material = !hovering ? this.defaultSpriteMaterial : this.hoverSpriteMaterial;
+		} else {
+			this.visualMesh.material = !hovering ? this.defaultMaterial : this.hoverMaterial;
+		}
 	}
 	toString() {
 		const { x, y, z } = this.gamePosition;
