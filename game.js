@@ -706,26 +706,6 @@ class Piece {
 			this.visualMesh.rotation.x -= Math.PI / 2;
 			this.visualMesh.position.y -= squareSize / 2;
 
-			// const node = document.createElementNS("http://www.w3.org/2000/svg", "image");
-			// node.setAttribute("href", `textures/JohnPablok%20Cburnett%20Chess%20set/SVG%20with%20shadow/${this.team ? "b" : "w"}_${this.pieceType}_svg_withShadow.svg`);
-			// node.setAttribute("width", "40");
-			// node.setAttribute("height", "40");
-			// node.setAttribute("x", "-20");
-			// node.setAttribute("y", "-20");
-			// const node = document.createElementNS("http://www.w3.org/2000/svg", "text");
-			// node.setAttribute("font-size", "40");
-			// const symbol = {
-			// 	king: ["♔", "♚"],
-			// 	queen: ["♕", "♛"],
-			// 	rook: ["♖", "♜"],
-			// 	bishop: ["♗", "♝"],
-			// 	knight: ["♘", "♞"],
-			// 	pawn: ["♙", "♟︎"],
-			// }[this.pieceType][this.team];
-			// node.appendChild(document.createTextNode(symbol));
-
-			// meshOrSprite = new SVGObject(node.cloneNode(true));
-
 			const svg = svgRenderer.domElement;
 			if (!svg.querySelector("defs")) {
 				const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
@@ -751,16 +731,13 @@ class Piece {
 				}
 			}
 
+			// Keep raycastMesh around, invisibly, for raycasting,
+			// but switch to a detailed visual mesh or sprite.
 			const newVisualObject = renderer === svgRenderer ? this.sprite : this.visualMesh;
-
 			this.raycastMesh.visible = false;
 			if (this.visualObject !== this.raycastMesh) {
 				this.object3d.remove(this.visualObject);
 			}
-			// (Detailed raycasting is too slow and/or precise)
-			// raycastTargets.splice(raycastTargets.indexOf(this.raycastMesh), 1);
-			// this.raycastMesh = meshOrSprite;
-			// raycastTargets.push(this.raycastMesh);
 			this.visualObject = newVisualObject;
 			this.object3d.add(this.visualObject);
 		});
