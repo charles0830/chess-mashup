@@ -749,7 +749,8 @@ class Piece {
 			// raycastTargets.push(this.raycastMesh);
 			this.visualMesh = mesh;
 			mesh.rotation.x -= Math.PI / 2;
-			mesh.position.y -= squareSize / 2;
+			// mesh.position.y -= squareSize / 2;
+			mesh.position.y -= squareSize / 15;
 		});
 	}
 	takeMove(move, callback) {
