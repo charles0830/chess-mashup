@@ -856,7 +856,8 @@ class Piece {
 		this.wasSelectedAsOfLastFrame = selectedPiece === this;
 
 		if (renderer === svgRenderer) {
-			const cameraSpaceVector = this.towardsGroundVector.clone().project(camera);
+			// const cameraSpaceVector = this.towardsGroundVector.clone().project(camera); approximation or alternative
+			const cameraSpaceVector = this.object3d.position.clone().project(camera).sub(this.object3d.position.clone().sub(this.towardsGroundVector).project(camera));
 			const rotation = Math.atan2(-cameraSpaceVector.x, -cameraSpaceVector.y);
 			this.defaultSpriteMaterial.rotation = rotation;
 			this.hoverSpriteMaterial.rotation = rotation;
