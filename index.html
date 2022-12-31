@@ -26,7 +26,8 @@
 		}
 
 		#main-menu,
-		#new-game-options {
+		#new-game-options,
+		#general-options {
 			position: absolute;
 			left: 0;
 			top: 0;
@@ -77,23 +78,36 @@
 			font-size: 1.4em;
 		}
 
-		#leave-game,
-		#back-to-main {
+		#floating-buttons {
 			position: absolute;
 			z-index: 5;
 			left: 5px;
 			top: 5px;
+		}
+
+		.floating-button {
+			display: inline-block;
 			line-height: 2.5em;
 			padding: 0 10px;
 			font-size: 1.2em;
 			color: firebrick;
 			background-color: black;
 			border: 1px solid rgb(60, 0, 0);
+			cursor: pointer;
 		}
 
-		#leave-game:hover,
-		#back-to-main:hover {
+		.floating-button:hover {
 			border-color: firebrick;
+		}
+
+		.icon-button {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0;
+			width: 2em;
+			height: 2em;
+			border-radius: 50%;
 		}
 
 		.option-row {
@@ -120,8 +134,14 @@
 		</div>
 	</div>
 	<span id="turn-indicator"></span>
-	<a id="leave-game" href="#" style="display: none">Leave Game</a>
-	<a id="back-to-main" href="#" style="display: none">Back</a>
+	<div id="floating-buttons">
+		<a id="leave-game" class="floating-button" href="#" style="display: none">Leave Game</a>
+		<a id="back-to-main" class="floating-button" href="#" style="display: none">Back</a>
+		<button id="toggle-options-button" class="floating-button icon-button" aria-label="Options"
+			aria-expanded="false" aria-controls="general-options">
+			<span aria-hidden="true">⚙️</span>
+		</button>
+	</div>
 	<div id="main-menu">
 		<h2><a href="#almost-chess/new-game">Incorrect Chess</a></h2>
 		<p>The classic game of strategy.</p>
@@ -163,6 +183,28 @@
 		</div>
 		<br>
 		<button id="start-game">Play</button>
+	</div>
+	<div id="general-options" style="display: none">
+		<label class="option-row">
+			Visual theme:
+			<select id="visual-theme-select">
+				<option value="default" selected>Elegant</option>
+				<option value="perf">Retro</option>
+				<option value="wireframe">Wireframe</option>
+				<option value="svg">Symbolic</option>
+			</select>
+		</label>
+		<label class="option-row">
+			Audio theme:
+			<select id="audio-theme-select" disabled>
+				<option value="elegant">Elegant</option>
+				<option value="cartoon" selected>Cartoon</option>
+				<option value="retro">Retro</option>
+			</select>
+		</label>
+		<label class="option-row">
+			<input type="checkbox" disabled id="music-checkbox"> Music
+		</label>
 	</div>
 	<dialog id="game-over-dialog" style="display: none">
 		<h1>Game Over</h1>

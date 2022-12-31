@@ -1189,7 +1189,7 @@ function initRendering() {
 	// renderer
 
 	svgRenderer = new SVGRenderer();
-	if (Detector.webgl) {
+	if (Detector.webgl && theme !== "svg") {
 		webGLRenderer = new THREE.WebGLRenderer({
 			antialias: (theme === "wireframe" || theme === "perf") ? false : true
 		});
@@ -1839,9 +1839,32 @@ const startGameButton = document.getElementById("start-game");
 const seedInput = document.getElementById("seed");
 const worldSizeInput = document.getElementById("world-size");
 const voxelChessOptions = document.getElementById("voxel-chess-options");
+const toggleOptionsButton = document.getElementById("toggle-options-button");
+const generalOptions = document.getElementById("general-options");
+const visualThemeSelect = document.getElementById("visual-theme-select");
+const audioThemeSelect = document.getElementById("audio-theme-select");
+const musicCheckbox = document.getElementById("music-checkbox");
 const gameOverDialog = document.getElementById("game-over-dialog");
 const returnToMenuButton = document.getElementById("return-to-menu");
 const reviewGameButton = document.getElementById("review-game");
+
+toggleOptionsButton.addEventListener("click", () => {
+	const show = toggleOptionsButton.getAttribute("aria-expanded") === "false";
+	generalOptions.style.display = show ? "" : "none";
+	toggleOptionsButton.setAttribute("aria-expanded", show ? "true" : "false");
+});
+
+visualThemeSelect.value = theme;
+visualThemeSelect.addEventListener("change", () => {
+	try {
+		localStorage.setItem("3d-theme", visualThemeSelect.value);
+		if (confirm("The game needs to be reloaded to change the theme.\n\nThe current game will be lost. Continue?")) {
+			location.reload();
+		}
+	} catch (error) {
+		alert("Couldn't save preference.\n\nThe game needs to reload to change the theme, so saving is required for it to work.");
+	}
+});
 
 function showGameOverDialog() {
 	gameOverDialog.style.display = "";
