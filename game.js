@@ -71,8 +71,8 @@ let terrainObject3D;
 let cubesByGamePosition = {};
 
 const squareSize = 30;
-const cubeSegments = theme === "wireframe" ? 8 : 1;
-const cubeGeometry = new THREE.BoxGeometry(squareSize, squareSize, squareSize, cubeSegments, cubeSegments, cubeSegments);
+const cubeGeometry = new THREE.BoxGeometry(squareSize, squareSize, squareSize, 1, 1, 1);
+const denseCubeGeometry = new THREE.BoxGeometry(squareSize, squareSize, squareSize, 8, 8, 8);
 
 const textureLoader = new THREE.TextureLoader();
 
@@ -851,12 +851,16 @@ function initWorld(game, worldSize) {
 						z - (worldSize - 1) / 2
 					) ** 1.3 > Math.random() * worldSize) continue;
 				}
-				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat0);
+				const mat = ((x + y + z) % 2) ? boardMat1 : boardMat0;
+				const mesh = new THREE.Mesh(cubeGeometry, mat);
 				// mesh.visible = x === 0 || x === worldSize - 1 || y === 0 || y === worldSize - 1 || z === 0 || z === worldSize - 1;
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
 				mesh.matrixAutoUpdate = false;
+				mesh.denseWireframeVersion = new THREE.Mesh(denseCubeGeometry, mat);
+				mesh.denseWireframeVersion.visible = theme === "wireframe";
+				mesh.add(mesh.denseWireframeVersion);
 				terrainObject3D.add(mesh);
 				raycastTargets.push(mesh);
 				cubesByGamePosition[`${x},${y},${z}`] = mesh;
@@ -1310,6 +1314,9 @@ function initRendering() {
 		} else if (cube.material === oldBoardMat0) {
 			cube.material = boardMat0;
 		}
+		// For Wireframe theme, show dense wireframe cubes
+		cube.denseWireframeVersion.visible = theme === "wireframe";
+		cube.denseWireframeVersion.material = cube.material;
 	}
 	// Update hover decal
 	if (hoverDecal) {
