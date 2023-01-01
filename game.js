@@ -450,7 +450,7 @@ class Piece {
 		this.team = team;
 		this.pieceType = pieceType || "pawn";
 		this.object3d = new THREE.Object3D();
-		this.initMaterials(team, pieceType);
+		this.initMaterials();
 		// Raycasting mesh,
 		// which is also a preload visual before the piece's model (WebGL) or image (SVG) load.
 		const tempGeometry = new THREE.CylinderGeometry(10, 10, 1, 8, 1, false);
@@ -1907,15 +1907,8 @@ visualThemeSelect.value = theme;
 visualThemeSelect.addEventListener("change", () => {
 	try {
 		localStorage.setItem("3d-theme", visualThemeSelect.value);
-		// if (confirm("The game needs to be reloaded to change the theme.\n\nThe current game will be lost. Continue?")) {
-		// 	location.reload();
-		// }
 		theme = visualThemeSelect.value;
 		initRendering();
-		// update pieces to mesh vs svg sprite
-		// for (const piece of allPieces) {
-		// 	piece.setPieceType(piece.pieceType);
-		// }
 	} catch (error) {
 		alert("Couldn't save preference.\n\nThe game needs to reload to change the theme, so saving is required for it to work.");
 	}
