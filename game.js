@@ -848,10 +848,8 @@ function initWorld(game, worldSize) {
 						z - (worldSize - 1) / 2
 					) ** 1.3 > Math.random() * worldSize) continue;
 				}
-				const useMat1 = ((x + y + z) % 2);
-				const mesh = new THREE.Mesh(cubeGeometry, useMat1 ? boardMat1 : boardMat0);
+				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat0);
 				// mesh.visible = x === 0 || x === worldSize - 1 || y === 0 || y === worldSize - 1 || z === 0 || z === worldSize - 1;
-				mesh.useMat1 = useMat1;
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
@@ -1113,6 +1111,8 @@ function initRendering() {
 
 	const oldValidMoveDecalMat = validMoveDecalMat;
 	const oldInvalidMoveDecalMat = invalidMoveDecalMat;
+	const oldBoardMat0 = boardMat0;
+	const oldBoardMat1 = boardMat1;
 
 	/*material1 = new THREE.MeshLambertMaterial({
 		map: THREE.ImageUtils.loadTexture('/marble2.jpg'),
@@ -1292,7 +1292,11 @@ function initRendering() {
 	}
 	// Update board
 	for (const cube of Object.values(cubesByGamePosition)) {
-		cube.material = cube.useMat1 ? boardMat1 : boardMat0;
+		if (cube.material === oldBoardMat1) {
+			cube.material = boardMat1;
+		} else if (cube.material === oldBoardMat0) {
+			cube.material = boardMat0;
+		}
 	}
 	// Update hover decal
 	if (hoverDecal) {
