@@ -1259,23 +1259,23 @@ function initRendering() {
 	});
 
 	if (theme === "wireframe" || theme === "perf") {
-		color1 = 0xffffff;
-		color0 = 0xff0000;
+		color1 = 0xff0000;
+		color0 = 0xffffff;
 		if (theme === "perf") {
 			// boardMat1 = new THREE.MeshBasicMaterial({ color: "lime" });
 			// boardMat0 = new THREE.MeshBasicMaterial({ color: "green" });
 			boardMat1 = new THREE.MeshBasicMaterial({ color: 0xaa0000 });
 			boardMat0 = new THREE.MeshBasicMaterial({ color: 0xcccccc });
 		} else {
-			boardMat1 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true });
-			boardMat0 = new THREE.MeshBasicMaterial({ color: "green", wireframe: true });
-			// boardMat1 = new THREE.MeshBasicMaterial({ color: "white", wireframe: true });
-			// boardMat0 = new THREE.MeshBasicMaterial({ color: "black", wireframe: true });
+			boardMat1 = new THREE.MeshBasicMaterial({ color: "green", wireframe: true });
+			boardMat0 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true });
+			// boardMat1 = new THREE.MeshBasicMaterial({ color: "black", wireframe: true });
+			// boardMat0 = new THREE.MeshBasicMaterial({ color: "white", wireframe: true });
 		}
-		pieceMat0 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true });
-		pieceMat1 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true });
-		hoveredPieceMat0 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true, fog: false });
-		hoveredPieceMat1 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true, fog: false });
+		pieceMat0 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true });
+		pieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true });
+		hoveredPieceMat0 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true, fog: false });
+		hoveredPieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true, fog: false });
 		hoverDecalMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, fog: false, });
 
 		validMoveDecalMat = new THREE.MeshBasicMaterial({
