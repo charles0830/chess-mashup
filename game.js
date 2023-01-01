@@ -1047,9 +1047,16 @@ function initRendering() {
 	const alreadyHadWebGLRenderer = !!webGLRenderer;
 	svgRenderer ??= new SVGRenderer();
 	if (Detector.webgl && theme !== "svg" && !webGLContextLost) {
-		webGLRenderer ??= new THREE.WebGLRenderer({
-			antialias: (theme === "wireframe" || theme === "perf") ? false : true
-		});
+		const wantAliasing = theme === "wireframe" || theme === "perf";
+		const wantAntiAliasing = !wantAliasing;
+		if (!webGLRenderer || wantAntiAliasing !== webGLRenderer.getContext().getContextAttributes().antialias) {
+			webGLRenderer?.dispose();
+			webGLRenderer?.domElement.remove();
+			webGLRenderer = new THREE.WebGLRenderer({
+				antialias: wantAntiAliasing
+			});
+			webGLContextLost = false;
+		}
 		renderer = webGLRenderer;
 	} else {
 		renderer = svgRenderer;
