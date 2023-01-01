@@ -1300,9 +1300,10 @@ function initRendering() {
 	}
 	// Update hover decal
 	if (hoverDecal) {
-		scene.remove(hoverDecal);
+		hoverDecal.material = hoverDecalMat;
+	} else {
+		hoverDecal = makeDecal(hoverDecalMat);
 	}
-	hoverDecal = makeDecal(hoverDecalMat);
 	// Update move decals
 	for (const decal of movementDecals) {
 		if (decal.material === oldValidMoveDecalMat) {
