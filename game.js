@@ -66,6 +66,7 @@ try {
 	console.warn("Couldn't read settings from local storage", error);
 }
 
+let hoverDecal;
 let terrainObject3D;
 let cubesByGamePosition = {};
 let color1 = 0xaf0000;
@@ -157,9 +158,6 @@ function makeMovePath(move, material) {
 
 	return object3d;
 }
-
-
-const hoverDecal = makeDecal(hoverDecalMat);
 
 const stlLoader = new STLLoader();
 const pieceTypes = [
@@ -1113,6 +1111,9 @@ function initRendering() {
 
 	// Materials
 
+	const oldValidMoveDecalMat = validMoveDecalMat;
+	const oldInvalidMoveDecalMat = invalidMoveDecalMat;
+
 	/*material1 = new THREE.MeshLambertMaterial({
 		map: THREE.ImageUtils.loadTexture('/marble2.jpg'),
 		color:color1, ambient:color1, opacity: 0.7, transparent: true
@@ -1292,6 +1293,19 @@ function initRendering() {
 	// Update board
 	for (const cube of Object.values(cubesByGamePosition)) {
 		cube.material = cube.useMat1 ? boardMat1 : boardMat0;
+	}
+	// Update hover decal
+	if (hoverDecal) {
+		scene.remove(hoverDecal);
+	}
+	hoverDecal = makeDecal(hoverDecalMat);
+	// Update move decals
+	for (const decal of movementDecals) {
+		if (decal.material === oldValidMoveDecalMat) {
+			decal.material = validMoveDecalMat
+		} else if (decal.material === oldInvalidMoveDecalMat) {
+			decal.material = invalidMoveDecalMat
+		}
 	}
 }
 
