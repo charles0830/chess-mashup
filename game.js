@@ -1916,12 +1916,12 @@ toggleOptionsButton.addEventListener("click", () => {
 
 visualThemeSelect.value = theme;
 visualThemeSelect.addEventListener("change", () => {
+	theme = visualThemeSelect.value;
+	initRendering();
 	try {
 		localStorage.setItem("3d-theme", visualThemeSelect.value);
-		theme = visualThemeSelect.value;
-		initRendering();
 	} catch (error) {
-		alert("Couldn't save preference.\n\nThe game needs to reload to change the theme, so saving is required for it to work.");
+		alert("Couldn't save preference.\n\n" + error);
 	}
 });
 
