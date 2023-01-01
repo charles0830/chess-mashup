@@ -850,8 +850,10 @@ function initWorld(game, worldSize) {
 						z - (worldSize - 1) / 2
 					) ** 1.3 > Math.random() * worldSize) continue;
 				}
-				const mesh = new THREE.Mesh(cubeGeometry, ((x + y + z) % 2) ? boardMat1 : boardMat0);
+				const useMat1 = ((x + y + z) % 2);
+				const mesh = new THREE.Mesh(cubeGeometry, useMat1 ? boardMat1 : boardMat0);
 				// mesh.visible = x === 0 || x === worldSize - 1 || y === 0 || y === worldSize - 1 || z === 0 || z === worldSize - 1;
+				mesh.useMat1 = useMat1;
 				mesh.gamePosition = new THREE.Vector3(x, y, z);
 				mesh.position.copy(gameToWorldSpace(mesh.gamePosition));
 				mesh.updateMatrix();
@@ -1289,7 +1291,7 @@ function initRendering() {
 	}
 	// Update board
 	for (const cube of Object.values(cubesByGamePosition)) {
-		cube.material = boardMat0;
+		cube.material = cube.useMat1 ? boardMat1 : boardMat0;
 	}
 }
 
