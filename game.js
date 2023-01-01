@@ -41,7 +41,6 @@ const turnIndicator = document.getElementById("turn-indicator");
 // - option to show capturing paths for valid moves
 // - full keyboard controls
 // - persist game state in localStorage
-// - option to switch between themes
 // - try adding a border around the board (beveled wood, or brass)
 //   - OR: to keep the checkerboard pattern consistent,
 //   so that bishops have to stay on their own colors, and so it's easier to visualize where they can go,
@@ -50,7 +49,9 @@ const turnIndicator = document.getElementById("turn-indicator");
 
 let stats,
 	camera, controls,
-	scene, renderer, webGLRenderer, svgRenderer;
+	scene, renderer, webGLRenderer, svgRenderer,
+	ambientLight;
+let webGLContextLost = false;
 const rendererContainer = document.getElementById("renderer-container");
 const raycastTargets = []; // don't want to include certain objects like hoverDecal, so we can't just use scene.children
 
@@ -1171,26 +1172,30 @@ function initWorld(game, worldSize) {
 
 function initRendering() {
 
-	scene = new THREE.Scene();
+	scene ??= new THREE.Scene();
 
 	if (theme === "wireframe" || theme === "perf") {
 		scene.fog = new THREE.FogExp2(0x000000, 0.002);
+	} else {
+		scene.fog = null;
 	}
 
-	raycaster = new THREE.Raycaster();
+	raycaster ??= new THREE.Raycaster();
 
 	// lighting
 
 	// Note: the environment map (envMap) also provides light.
-	const ambientLight = new THREE.AmbientLight(0xaaaaaa);
-	scene.add(ambientLight);
-
+	if (!ambientLight) {
+		ambientLight = new THREE.AmbientLight(0xaaaaaa);
+		scene.add(ambientLight);
+	}
 
 	// renderer
 
-	svgRenderer = new SVGRenderer();
-	if (Detector.webgl && theme !== "svg") {
-		webGLRenderer = new THREE.WebGLRenderer({
+	const alreadyHadWebGLRenderer = !!webGLRenderer;
+	svgRenderer ??= new SVGRenderer();
+	if (Detector.webgl && theme !== "svg" && !webGLContextLost) {
+		webGLRenderer ??= new THREE.WebGLRenderer({
 			antialias: (theme === "wireframe" || theme === "perf") ? false : true
 		});
 		renderer = webGLRenderer;
@@ -1203,40 +1208,38 @@ function initRendering() {
 		webGLRenderer.setSize(window.innerWidth, window.innerHeight);
 		webGLRenderer.outputEncoding = THREE.sRGBEncoding;
 
-		let webGLLoseContext;
-		window.testLoseContext = () => {
-			webGLLoseContext = webGLRenderer.getContext().getExtension('WEBGL_lose_context');
-			webGLLoseContext.loseContext();
-		};
-		window.testRestoreContext = () => {
-			webGLLoseContext.restoreContext();
-		};
-		webGLRenderer.domElement.addEventListener("webglcontextlost", function (event) {
-			event.preventDefault();
-			renderer = svgRenderer;
-			rendererContainer.appendChild(svgRenderer.domElement);
-			webGLRenderer.domElement.style.display = "none";
-			svgRenderer.domElement.style.display = "";
-			// update mesh to svg sprite
-			for (const piece of allPieces) {
-				piece.setPieceType(piece.pieceType);
-			}
-		}, false);
+		if (!alreadyHadWebGLRenderer) {
+			let webGLLoseContext;
+			window.testLoseContext = () => {
+				webGLLoseContext = webGLRenderer.getContext().getExtension('WEBGL_lose_context');
+				webGLLoseContext.loseContext();
+			};
+			window.testRestoreContext = () => {
+				webGLLoseContext.restoreContext();
+			};
+			webGLRenderer.domElement.addEventListener("webglcontextlost", function (event) {
+				event.preventDefault(); // probably not needed, I think three.js does this already
+				webGLContextLost = true;
+				initRendering();
+			}, false);
 
-		webGLRenderer.domElement.addEventListener("webglcontextrestored", function (event) {
-			renderer = webGLRenderer;
-			svgRenderer.domElement.style.display = "none";
-			webGLRenderer.domElement.style.display = "";
-			// update svg sprite to mesh
-			for (const piece of allPieces) {
-				piece.setPieceType(piece.pieceType);
-			}
-		}, false);
+			webGLRenderer.domElement.addEventListener("webglcontextrestored", function (event) {
+				webGLContextLost = false;
+				initRendering();
+			}, false);
+		}
 	}
 
 	rendererContainer.appendChild(renderer.domElement);
+	renderer.domElement.style.display = "";
+	for (const otherRenderer of [svgRenderer, webGLRenderer]) {
+		if (otherRenderer && otherRenderer !== renderer) {
+			// otherRenderer.domElement.remove();
+			otherRenderer.domElement.style.display = "none";
+		}
+	}
 
-	stats = new Stats();
+	stats ??= new Stats();
 	stats.domElement.style.position = 'absolute';
 	stats.domElement.style.top = '';
 	stats.domElement.style.bottom = '0px';
@@ -1245,26 +1248,37 @@ function initRendering() {
 
 	// camera
 
-	camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-	camera.position.z = -500;
-	camera.near = 0.1;
-	camera.far = 1000;
+	if (!camera) {
+		camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+		camera.position.z = -500;
+		camera.near = 0.1;
+		camera.far = 1000;
 
-	controls = new CubeControls(camera, rendererContainer); // using a container so we don't need to recreate this object
-	controls.noPan = true; // panning already doesn't work but this makes it not give state === STATE.PANNING (with my modifications)
-	controls.minDistance = squareSize * BOARD_SIZE;
-	controls.maxDistance = squareSize * BOARD_SIZE * 3;
+		controls = new CubeControls(camera, rendererContainer); // using a container so we don't need to recreate this object
+		controls.noPan = true; // panning already doesn't work but this makes it not give state === STATE.PANNING (with my modifications)
+		controls.minDistance = squareSize * BOARD_SIZE;
+		controls.maxDistance = squareSize * BOARD_SIZE * 3;
+	}
 
-	//
+	// misc one-time initialization
+	if (!camera) {
 
-	window.addEventListener('resize', onWindowResize, false);
+		window.addEventListener('resize', onWindowResize, false);
 
-	// this texture can look really bad without anisotropic filtering
-	// at an angle or from far away,
-	// due to the black border around the white ornamentation
-	if (renderer.capabilities) {
-		const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
-		hoverDecalTexture.anisotropy = maxAnisotropy;
+		// this texture can look really bad without anisotropic filtering
+		// at an angle or from far away,
+		// due to the black border around the white ornamentation
+		if (renderer.capabilities) {
+			const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+			hoverDecalTexture.anisotropy = maxAnisotropy;
+		}
+
+	}
+
+	// Update mesh to svg sprite or visa-versa
+	// TODO: handle this change in Piece.update instead
+	for (const piece of allPieces) {
+		piece.setPieceType(piece.pieceType);
 	}
 }
 
@@ -1858,9 +1872,15 @@ visualThemeSelect.value = theme;
 visualThemeSelect.addEventListener("change", () => {
 	try {
 		localStorage.setItem("3d-theme", visualThemeSelect.value);
-		if (confirm("The game needs to be reloaded to change the theme.\n\nThe current game will be lost. Continue?")) {
-			location.reload();
-		}
+		// if (confirm("The game needs to be reloaded to change the theme.\n\nThe current game will be lost. Continue?")) {
+		// 	location.reload();
+		// }
+		theme = visualThemeSelect.value;
+		initRendering();
+		// update pieces to mesh vs svg sprite
+		// for (const piece of allPieces) {
+		// 	piece.setPieceType(piece.pieceType);
+		// }
 	} catch (error) {
 		alert("Couldn't save preference.\n\nThe game needs to reload to change the theme, so saving is required for it to work.");
 	}
