@@ -83,166 +83,11 @@ const reflectionTexture = textureLoader.load('textures/2294472375_24a3b8ef46_o.j
 reflectionTexture.mapping = THREE.EquirectangularReflectionMapping;
 reflectionTexture.encoding = THREE.sRGBEncoding;
 
-/*const material1 = new THREE.MeshLambertMaterial({
-	map: THREE.ImageUtils.loadTexture('/marble2.jpg'),
-	color:color1, ambient:color1, opacity: 0.7, transparent: true
-});
-const material2 = new THREE.MeshLambertMaterial({
-	map: THREE.ImageUtils.loadTexture('/marble1'),
-	color:color2, ambient:color2, opacity: 0.7, transparent: true
-});*/
-let boardMat1 = new THREE.MeshPhysicalMaterial({
-	color: color1,
-	roughness: 0.3,
-	metalness: 0.1,
-	transmission: 0.3,
-	opacity: 0.8,
-	transparent: true,
-	envMap: reflectionTexture,
-	envMapIntensity: 5,
-	// map: marbleTexture,
-});
-let boardMat0 = new THREE.MeshPhysicalMaterial({
-	color: color0,
-	roughness: 0.3,
-	metalness: 0.4,
-	transmission: 0.5,
-	opacity: 0.8,
-	transparent: true,
-	envMap: reflectionTexture,
-	envMapIntensity: 30,
-	// map: marbleTexture,
-});
-
-// const tarnishedBrass = new THREE.MeshPhysicalMaterial({
-// 	color: 0xf0f0a0,
-// 	// emissive: 0x333344,
-// 	roughness: 0.1,
-// 	metalness: 0.9,
-// 	envMap: reflectionTexture,
-// 	envMapIntensity: 10 * envMapIntensity,
-// });
-
-// let pieceMat1 = new THREE.MeshLambertMaterial({
-// 	color: 0xffffff,
-// 	emissive: 0xd48a8a,
-// 	ambient: color1,
-// 	shininess: 1.0,
-// 	specular: 0xfbbbbb,
-// 	// map: textureLoader.load('./Seamless-White-Marble-Texture.webp'),
-// 	envMap: reflectionTexture,
-// });
-let pieceMat1 = new THREE.MeshPhysicalMaterial({
-	color: color1,
-	roughness: 0.01,
-	metalness: 0.5,
-	envMap: reflectionTexture,
-	envMapIntensity: 9,
-});
-let pieceMat0 = new THREE.MeshPhysicalMaterial({
-	color: color0,
-	// emissive: 0x3f3f3f,
-	roughness: 0.2,
-	metalness: 0.5,
-	envMap: reflectionTexture,
-	envMapIntensity: 9,
-});
-
-let hoveredPieceMat1 = new THREE.MeshPhysicalMaterial({
-	color: color1,
-	roughness: 0.01,
-	metalness: 0.1,
-	envMap: reflectionTexture,
-	envMapIntensity: 90,
-});
-let hoveredPieceMat0 = new THREE.MeshPhysicalMaterial({
-	color: color0,
-	emissive: 0x333344,
-	roughness: 0.2,
-	metalness: 1.1,
-	envMap: reflectionTexture,
-	envMapIntensity: 14,
-});
-const hoverDecalTexture = textureLoader.load('./textures/hover-decal-flower-frame-with-outline.png');
-// hoverDecalTexture.encoding = THREE.sRGBEncoding;
-
-let hoverDecalMat = new THREE.MeshStandardMaterial({
-	color: 0xffffff,
-	emissive: 0x442200,
-	transparent: true,
-	// map: textureLoader.load('./textures/vintage-symmetric-frame-extrapolated.png'), // too high detail
-	// alphaMap: textureLoader.load('./textures/symmetric-checkerboard-frame.jpg'), // funny
-	// alphaMap: textureLoader.load('./textures/flower-frame-1436652825nLe.jpg'),
-	map: hoverDecalTexture,
-	// depthTest: false,
-	// depthWrite: false,
-	// combine: THREE.MultiplyOperation,
-	fog: false,
-	// hover decal should always be on top of other decals
-	// (I have not played around with these values, but it seems to work)
-	polygonOffset: true,
-	polygonOffsetFactor: -1.0,
-	polygonOffsetUnits: -4.0
-});
-let validMoveDecalMat = new THREE.MeshStandardMaterial({
-	color: 0x44aa00,
-	emissive: 0x442200,
-	transparent: true,
-	opacity: 0.7,
-	map: hoverDecalTexture,
-	fog: false,
-	polygonOffset: true,
-	polygonOffsetFactor: -1.0,
-	polygonOffsetUnits: -1.0,
-});
-let invalidMoveDecalMat = new THREE.MeshStandardMaterial({
-	color: 0xff6600,
-	emissive: 0x442200,
-	transparent: true,
-	opacity: 0.7,
-	map: hoverDecalTexture,
-	fog: false,
-	polygonOffset: true,
-	polygonOffsetFactor: -1.0,
-	polygonOffsetUnits: -1.0,
-});
-
-if (theme === "wireframe" || theme === "perf") {
-	color1 = 0xffffff;
-	color0 = 0xff0000;
-	if (theme === "perf") {
-		// boardMat1 = new THREE.MeshBasicMaterial({ color: "lime" });
-		// boardMat0 = new THREE.MeshBasicMaterial({ color: "green" });
-		boardMat1 = new THREE.MeshBasicMaterial({ color: 0xaa0000 });
-		boardMat0 = new THREE.MeshBasicMaterial({ color: 0xcccccc });
-	} else {
-		boardMat1 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true });
-		boardMat0 = new THREE.MeshBasicMaterial({ color: "green", wireframe: true });
-		// boardMat1 = new THREE.MeshBasicMaterial({ color: "white", wireframe: true });
-		// boardMat0 = new THREE.MeshBasicMaterial({ color: "black", wireframe: true });
-	}
-	pieceMat0 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true });
-	pieceMat1 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true });
-	hoveredPieceMat0 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true, fog: false });
-	hoveredPieceMat1 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true, fog: false });
-	hoverDecalMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, fog: false, });
-
-	validMoveDecalMat = new THREE.MeshBasicMaterial({
-		color: 0x00ff00,
-		opacity: theme === "wireframe" ? 1 : 0.5,
-		transparent: theme !== "wireframe",
-		wireframe: theme === "wireframe",
-		fog: theme !== "wireframe",
-	});
-	invalidMoveDecalMat = new THREE.MeshBasicMaterial({
-		color: 0xffaa00,
-		opacity: theme === "wireframe" ? 1 : 0.5,
-		transparent: theme !== "wireframe",
-		wireframe: theme === "wireframe",
-		fog: theme !== "wireframe",
-	});
-}
-
+let hoverDecalTexture,
+	hoverDecalMat, validMoveDecalMat, invalidMoveDecalMat,
+	boardMat1, boardMat0,
+	pieceMat1, pieceMat0,
+	hoveredPieceMat1, hoveredPieceMat0;
 
 function makeDecal(material) {
 	return new THREE.Mesh(new THREE.PlaneGeometry(squareSize, squareSize), material);
@@ -607,18 +452,7 @@ class Piece {
 		this.team = team;
 		this.pieceType = pieceType || "pawn";
 		this.object3d = new THREE.Object3D();
-		// WebGL mode
-		this.defaultMaterial = team == 0 ? pieceMat0 : pieceMat1;
-		this.hoverMaterial = team == 0 ? hoveredPieceMat0 : hoveredPieceMat1;
-		// SVG mode
-		this.defaultSpriteMaterial = new THREE.SpriteMaterial({});
-		this.defaultSpriteMaterial.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${pieceType});`;
-		this.hoverSpriteMaterial = new THREE.SpriteMaterial({});
-		this.hoverSpriteMaterial.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${pieceType});`;
-		this.hoverSpriteMaterial.styleForSVGRenderer += "filter: brightness(150%) drop-shadow(0px 0px 10px white)"
-		this.sprite = new THREE.Sprite(this.defaultSpriteMaterial);
-		this.sprite.scale.set(30, 30, 1);
-		this.sprite.position.y -= squareSize / 15;
+		this.initMaterials(team, pieceType);
 		// Raycasting mesh,
 		// which is also a preload visual before the piece's model (WebGL) or image (SVG) load.
 		const tempGeometry = new THREE.CylinderGeometry(10, 10, 1, 8, 1, false);
@@ -645,6 +479,21 @@ class Piece {
 		this.id = "piece_" + pieceIdCounter++;
 		this.wasSelectedAsOfLastFrame = false;
 	}
+	initMaterials() {
+		// WebGL mode
+		this.defaultMaterial = this.team == 0 ? pieceMat0 : pieceMat1;
+		this.hoverMaterial = this.team == 0 ? hoveredPieceMat0 : hoveredPieceMat1;
+		// SVG mode
+		this.defaultSpriteMaterial = new THREE.SpriteMaterial({});
+		this.defaultSpriteMaterial.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${this.pieceType});`;
+		this.hoverSpriteMaterial = new THREE.SpriteMaterial({});
+		this.hoverSpriteMaterial.styleForSVGRenderer = `fill: url(#image-pattern-${this.team ? "b" : "w"}-${this.pieceType});`;
+		this.hoverSpriteMaterial.styleForSVGRenderer += "filter: brightness(150%) drop-shadow(0px 0px 10px white)";
+		this.sprite = new THREE.Sprite(this.defaultSpriteMaterial);
+		this.sprite.scale.set(30, 30, 1);
+		this.sprite.position.y -= squareSize / 15;
+	}
+
 	get towardsGroundVector() {
 		// Note: applyQuaternion gives imprecise results, so we have to round it.
 		return new THREE.Vector3(0, -1, 0).applyQuaternion(this.gameOrientation).round();
@@ -1260,27 +1109,191 @@ function initRendering() {
 		controls.maxDistance = squareSize * BOARD_SIZE * 3;
 	}
 
-	// misc one-time initialization
-	if (!camera) {
+	// Materials
 
-		window.addEventListener('resize', onWindowResize, false);
+	/*material1 = new THREE.MeshLambertMaterial({
+		map: THREE.ImageUtils.loadTexture('/marble2.jpg'),
+		color:color1, ambient:color1, opacity: 0.7, transparent: true
+	});
+	material2 = new THREE.MeshLambertMaterial({
+		map: THREE.ImageUtils.loadTexture('/marble1'),
+		color:color2, ambient:color2, opacity: 0.7, transparent: true
+	});*/
+	boardMat1 = new THREE.MeshPhysicalMaterial({
+		color: color1,
+		roughness: 0.3,
+		metalness: 0.1,
+		transmission: 0.3,
+		opacity: 0.8,
+		transparent: true,
+		envMap: reflectionTexture,
+		envMapIntensity: 5,
+		// map: marbleTexture,
+	});
+	boardMat0 = new THREE.MeshPhysicalMaterial({
+		color: color0,
+		roughness: 0.3,
+		metalness: 0.4,
+		transmission: 0.5,
+		opacity: 0.8,
+		transparent: true,
+		envMap: reflectionTexture,
+		envMapIntensity: 30,
+		// map: marbleTexture,
+	});
 
-		// this texture can look really bad without anisotropic filtering
-		// at an angle or from far away,
-		// due to the black border around the white ornamentation
-		if (renderer.capabilities) {
-			const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
-			hoverDecalTexture.anisotropy = maxAnisotropy;
-		}
+	// tarnishedBrass = new THREE.MeshPhysicalMaterial({
+	// 	color: 0xf0f0a0,
+	// 	// emissive: 0x333344,
+	// 	roughness: 0.1,
+	// 	metalness: 0.9,
+	// 	envMap: reflectionTexture,
+	// 	envMapIntensity: 10 * envMapIntensity,
+	// });
 
+	// pieceMat1 = new THREE.MeshLambertMaterial({
+	// 	color: 0xffffff,
+	// 	emissive: 0xd48a8a,
+	// 	ambient: color1,
+	// 	shininess: 1.0,
+	// 	specular: 0xfbbbbb,
+	// 	// map: textureLoader.load('./Seamless-White-Marble-Texture.webp'),
+	// 	envMap: reflectionTexture,
+	// });
+	pieceMat1 = new THREE.MeshPhysicalMaterial({
+		color: color1,
+		roughness: 0.01,
+		metalness: 0.5,
+		envMap: reflectionTexture,
+		envMapIntensity: 9,
+	});
+	pieceMat0 = new THREE.MeshPhysicalMaterial({
+		color: color0,
+		// emissive: 0x3f3f3f,
+		roughness: 0.2,
+		metalness: 0.5,
+		envMap: reflectionTexture,
+		envMapIntensity: 9,
+	});
+
+	hoveredPieceMat1 = new THREE.MeshPhysicalMaterial({
+		color: color1,
+		roughness: 0.01,
+		metalness: 0.1,
+		envMap: reflectionTexture,
+		envMapIntensity: 90,
+	});
+	hoveredPieceMat0 = new THREE.MeshPhysicalMaterial({
+		color: color0,
+		emissive: 0x333344,
+		roughness: 0.2,
+		metalness: 1.1,
+		envMap: reflectionTexture,
+		envMapIntensity: 14,
+	});
+	hoverDecalTexture = textureLoader.load('./textures/hover-decal-flower-frame-with-outline.png');
+	// hoverDecalTexture.encoding = THREE.sRGBEncoding;
+
+	// this texture can look really bad without anisotropic filtering
+	// at an angle or from far away,
+	// due to the black border around the white ornamentation
+	if (renderer.capabilities) {
+		const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+		hoverDecalTexture.anisotropy = maxAnisotropy;
 	}
 
-	// Update mesh to svg sprite or visa-versa
-	// TODO: handle this change in Piece.update instead
+	hoverDecalMat = new THREE.MeshStandardMaterial({
+		color: 0xffffff,
+		emissive: 0x442200,
+		transparent: true,
+		// map: textureLoader.load('./textures/vintage-symmetric-frame-extrapolated.png'), // too high detail
+		// alphaMap: textureLoader.load('./textures/symmetric-checkerboard-frame.jpg'), // funny
+		// alphaMap: textureLoader.load('./textures/flower-frame-1436652825nLe.jpg'),
+		map: hoverDecalTexture,
+		// depthTest: false,
+		// depthWrite: false,
+		// combine: THREE.MultiplyOperation,
+		fog: false,
+		// hover decal should always be on top of other decals
+		// (I have not played around with these values, but it seems to work)
+		polygonOffset: true,
+		polygonOffsetFactor: -1.0,
+		polygonOffsetUnits: -4.0
+	});
+	validMoveDecalMat = new THREE.MeshStandardMaterial({
+		color: 0x44aa00,
+		emissive: 0x442200,
+		transparent: true,
+		opacity: 0.7,
+		map: hoverDecalTexture,
+		fog: false,
+		polygonOffset: true,
+		polygonOffsetFactor: -1.0,
+		polygonOffsetUnits: -1.0,
+	});
+	invalidMoveDecalMat = new THREE.MeshStandardMaterial({
+		color: 0xff6600,
+		emissive: 0x442200,
+		transparent: true,
+		opacity: 0.7,
+		map: hoverDecalTexture,
+		fog: false,
+		polygonOffset: true,
+		polygonOffsetFactor: -1.0,
+		polygonOffsetUnits: -1.0,
+	});
+
+	if (theme === "wireframe" || theme === "perf") {
+		color1 = 0xffffff;
+		color0 = 0xff0000;
+		if (theme === "perf") {
+			// boardMat1 = new THREE.MeshBasicMaterial({ color: "lime" });
+			// boardMat0 = new THREE.MeshBasicMaterial({ color: "green" });
+			boardMat1 = new THREE.MeshBasicMaterial({ color: 0xaa0000 });
+			boardMat0 = new THREE.MeshBasicMaterial({ color: 0xcccccc });
+		} else {
+			boardMat1 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true });
+			boardMat0 = new THREE.MeshBasicMaterial({ color: "green", wireframe: true });
+			// boardMat1 = new THREE.MeshBasicMaterial({ color: "white", wireframe: true });
+			// boardMat0 = new THREE.MeshBasicMaterial({ color: "black", wireframe: true });
+		}
+		pieceMat0 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true });
+		pieceMat1 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true });
+		hoveredPieceMat0 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true, fog: false });
+		hoveredPieceMat1 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true, fog: false });
+		hoverDecalMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, fog: false, });
+
+		validMoveDecalMat = new THREE.MeshBasicMaterial({
+			color: 0x00ff00,
+			opacity: theme === "wireframe" ? 1 : 0.5,
+			transparent: theme !== "wireframe",
+			wireframe: theme === "wireframe",
+			fog: theme !== "wireframe",
+		});
+		invalidMoveDecalMat = new THREE.MeshBasicMaterial({
+			color: 0xffaa00,
+			opacity: theme === "wireframe" ? 1 : 0.5,
+			transparent: theme !== "wireframe",
+			wireframe: theme === "wireframe",
+			fog: theme !== "wireframe",
+		});
+	}
+
+	// Update pieces
+	// Might be better to handle these changes in Piece.update instead
 	for (const piece of allPieces) {
+		// Update materials
+		piece.initMaterials();
+		// Update mesh to svg sprite or visa-versa
 		piece.setPieceType(piece.pieceType);
 	}
+	// Update board
+	for (const cube of Object.values(cubesByGamePosition)) {
+		cube.material = boardMat0;
+	}
 }
+
+window.addEventListener('resize', onWindowResize, false);
 
 function onWindowResize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
