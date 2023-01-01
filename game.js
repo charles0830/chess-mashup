@@ -576,6 +576,10 @@ class Piece {
 					}
 				}
 			}
+			if (renderer === svgRenderer) {
+				// SVG mode uses different materials per piece type
+				this.initMaterials();
+			}
 
 			// Keep raycastMesh around, invisibly, for raycasting,
 			// but switch to a detailed visual mesh or sprite.
