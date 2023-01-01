@@ -69,8 +69,6 @@ try {
 let hoverDecal;
 let terrainObject3D;
 let cubesByGamePosition = {};
-let color1 = 0xaf0000;
-let color0 = 0xffffff;
 
 const squareSize = 30;
 const cubeSegments = theme === "wireframe" ? 8 : 1;
@@ -1125,6 +1123,9 @@ function initRendering() {
 	const oldInvalidMoveDecalMat = invalidMoveDecalMat;
 	const oldBoardMat0 = boardMat0;
 	const oldBoardMat1 = boardMat1;
+
+	let color1 = 0xaf0000;
+	let color0 = 0xffffff;
 
 	/*material1 = new THREE.MeshLambertMaterial({
 		map: THREE.ImageUtils.loadTexture('/marble2.jpg'),
