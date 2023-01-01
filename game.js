@@ -1241,7 +1241,7 @@ function initRendering() {
 		polygonOffsetUnits: -4.0
 	});
 	validMoveDecalMat = new THREE.MeshStandardMaterial({
-		color: renderer === svgRenderer ? 0x44aa00 : 0xaaaaaa,
+		color: renderer === svgRenderer ? 0x11ee11 : 0xaaaaaa,
 		emissive: 0x442200,
 		transparent: true,
 		opacity: 0.7,
