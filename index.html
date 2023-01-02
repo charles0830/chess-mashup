@@ -129,8 +129,22 @@
 			width: 200px;
 		}
 
-		#game-over-dialog {
+		#game-over-dialog[open] {
 			top: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+		}
+
+		#game-over-dialog img {
+			width: 300px;
+		}
+
+		#game-over-dialog button {
+			width: 300px;
+			height: 40px;
+			margin: 5px;
 		}
 	</style>
 </head>
@@ -220,9 +234,11 @@
 		</label>
 	</div>
 	<dialog id="game-over-dialog" style="display: none">
+		<img src="textures/game-over-top.png" />
 		<h1>Game Over</h1>
 		<button id="return-to-menu">Main Menu</button>
 		<button id="review-game">Review Game</button>
+		<img src="textures/game-over-bottom.png" />
 	</dialog>
 
 	<!-- Import maps polyfill -->
