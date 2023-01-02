@@ -16,7 +16,6 @@ const turnIndicator = document.getElementById("turn-indicator");
 // TODO:
 // - menus
 //   - preview game type with a screenshot
-//   - game over
 //   - win/lose tracking system
 // - sound effects
 //   - undo, redo, menu interactions, clicking opponent piece (when it does nothing, i.e. except at end of game, currently)
