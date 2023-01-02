@@ -1092,8 +1092,8 @@ function initRendering() {
 		webGLRenderer.setSize(window.innerWidth, window.innerHeight);
 		webGLRenderer.outputEncoding = THREE.sRGBEncoding;
 
-		renderer.shadowMap.enabled = enableShadows;
-		renderer.shadowMap.type = THREE.PCFShadowMap;
+		webGLRenderer.shadowMap.enabled = enableShadows;
+		webGLRenderer.shadowMap.type = THREE.PCFShadowMap;
 
 		if (!alreadyHadWebGLRenderer) {
 			let webGLLoseContext;
