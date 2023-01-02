@@ -1861,7 +1861,7 @@ function handleTurn() {
 				const winningTeam = +!team;
 				turnIndicator.textContent = `Assassin-mate! ${teamNames[winningTeam]} wins!`
 				gameOver = true;
-				showGameOverDialog();
+				showGameOverDialog("Assassin-mate!", `${teamNames[winningTeam]} wins! Some cheating may have been involved.`);
 				if (teamTypes[team] === "computer") {
 					playSound("win");
 				} else if (teamTypes[(team + 1) % 2] === "computer") {
@@ -1891,7 +1891,6 @@ function handleTurn() {
 		}
 		if (!kinglessPuzzle) {
 			gameOver = true;
-			showGameOverDialog();
 			if (inCheck) {
 				const winningTeam = +!team;
 				turnIndicator.textContent = `Checkmate! ${teamNames[winningTeam]} wins!`;
@@ -1902,9 +1901,11 @@ function handleTurn() {
 				} else {
 					playSound("checkmate");
 				}
+				showGameOverDialog("Checkmate!", `${teamNames[winningTeam]} wins!`);
 			} else {
 				turnIndicator.textContent = "Stalemate! It's a draw.";
 				playSound("draw");
+				showGameOverDialog("Stalemate!", "It's a draw.");
 			}
 		}
 	}, 500);
@@ -1972,10 +1973,17 @@ enableShadowsCheckbox.addEventListener("change", () => {
 	}
 });
 
-function showGameOverDialog() {
+function showGameOverDialog(title, subtitle) {
+	gameOverDialog.querySelector("h1").textContent = title;
+	gameOverDialog.querySelector("h2").textContent = subtitle;
 	gameOverDialog.style.display = "";
 	gameOverDialog.show();
+	turnIndicator.style.display = "none"; // hide redundant info
 }
+
+gameOverDialog.addEventListener("close", () => {
+	turnIndicator.style.display = "";
+});
 
 returnToMenuButton.addEventListener("click", () => {
 	location.hash = "#";

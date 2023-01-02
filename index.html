@@ -151,6 +151,15 @@
 			width: 300px;
 			margin-bottom: 10px;
 		}
+
+		#game-over-dialog h1,
+		#game-over-dialog h2 {
+			margin: 5px;
+		}
+
+		#game-over-dialog h2 {
+			margin-bottom: 15px;
+		}
 	</style>
 </head>
 
@@ -240,7 +249,9 @@
 	</div>
 	<dialog id="game-over-dialog" style="display: none">
 		<img src="textures/game-over-top.png" />
+		<!-- heading text is replaced when showing the dialog -->
 		<h1>Game Over</h1>
+		<h2>To be continued...</h2>
 		<button id="return-to-menu">Main Menu</button>
 		<button id="review-game">Review Game</button>
 		<img src="textures/game-over-bottom.png" />
