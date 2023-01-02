@@ -91,7 +91,8 @@
 			top: 5px;
 		}
 
-		.floating-button {
+		.floating-button,
+		#game-over-dialog button {
 			display: inline-block;
 			line-height: 2.5em;
 			padding: 0 10px;
@@ -130,11 +131,16 @@
 		}
 
 		#game-over-dialog[open] {
-			top: 0;
+			top: -5px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			flex-direction: column;
+			background-color: rgb(36, 36, 36);
+			color: wheat;
+			border: 5px solid rgb(139, 19, 19);
+			border-radius: 5px;
+			box-shadow: 0 4px 2px 4px #bf0000, 0 4px 2px 5px #ff7e7e;
 		}
 
 		#game-over-dialog img {
@@ -143,8 +149,7 @@
 
 		#game-over-dialog button {
 			width: 300px;
-			height: 40px;
-			margin: 5px;
+			margin-bottom: 10px;
 		}
 	</style>
 </head>
