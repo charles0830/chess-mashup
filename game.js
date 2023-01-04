@@ -1256,13 +1256,14 @@ function initRendering() {
 	}
 
 	hoverDecalMat = new THREE.MeshStandardMaterial({
-		color: 0xffffff,
-		emissive: 0x442200,
+		color: 0xdddddd,
+		emissive: 0xdddddd,
 		transparent: true,
 		// map: textureLoader.load('./textures/vintage-symmetric-frame-extrapolated.png'), // too high detail
 		// alphaMap: textureLoader.load('./textures/symmetric-checkerboard-frame.jpg'), // funny
 		// alphaMap: textureLoader.load('./textures/flower-frame-1436652825nLe.jpg'),
 		map: hoverDecalTexture,
+		emissiveMap: hoverDecalTexture,
 		// depthTest: false,
 		// depthWrite: false,
 		// combine: THREE.MultiplyOperation,
@@ -1274,11 +1275,12 @@ function initRendering() {
 		polygonOffsetUnits: -4.0
 	});
 	validMoveDecalMat = new THREE.MeshStandardMaterial({
-		color: renderer === svgRenderer ? 0x11ee11 : 0xaaaaaa,
-		emissive: 0x442200,
+		color: renderer === svgRenderer ? 0x11ee11 : 0x554433,
+		emissive: 0x554433,
 		transparent: true,
 		opacity: 0.7,
 		map: hoverDecalTexture,
+		emissiveMap: hoverDecalTexture,
 		fog: false,
 		polygonOffset: true,
 		polygonOffsetFactor: -1.0,
@@ -1286,10 +1288,11 @@ function initRendering() {
 	});
 	invalidMoveDecalMat = new THREE.MeshStandardMaterial({
 		color: 0xff6600,
-		emissive: 0x442200,
+		emissive: 0xff6600,
 		transparent: true,
-		opacity: 0.7,
+		opacity: 0.5,
 		map: hoverDecalTexture,
+		emissiveMap: hoverDecalTexture,
 		fog: false,
 		polygonOffset: true,
 		polygonOffsetFactor: -1.0,
