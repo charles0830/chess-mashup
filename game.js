@@ -1041,35 +1041,6 @@ function initRendering() {
 
 	raycaster ??= new THREE.Raycaster();
 
-	// Lighting
-	// Note: the environment map (envMap) also provides light.
-
-	ambientLight?.removeFromParent();
-	spotLight?.removeFromParent();
-
-	if (!ambientLight && !enableShadows) {
-		ambientLight = new THREE.AmbientLight(0xaaaaaa);
-		scene.add(ambientLight);
-	}
-
-	if (enableShadows && !spotLight) {
-		const SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 1024;
-
-		spotLight = new THREE.SpotLight(0xffffff, 0.5, 0, Math.PI / 3, 0.3);
-		spotLight.position.set(30, 30, -500);
-		spotLight.target.position.set(0, 0, 0);
-
-		spotLight.castShadow = true;
-		spotLight.shadow.camera.near = 0.5;
-		spotLight.shadow.camera.far = 2500;
-		// spotLight.shadow.bias = 0.0001;
-
-		spotLight.shadow.mapSize.width = SHADOW_MAP_WIDTH;
-		spotLight.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
-
-		scene.add(spotLight);
-	}
-
 	// Renderer
 
 	const alreadyHadWebGLRenderer = !!webGLRenderer;
@@ -1148,6 +1119,39 @@ function initRendering() {
 		controls.noPan = true; // panning already doesn't work but this makes it not give state === STATE.PANNING (with my modifications)
 		controls.minDistance = squareSize * BOARD_SIZE;
 		controls.maxDistance = squareSize * BOARD_SIZE * 3;
+	}
+
+	// Lighting
+	// Note: the environment map (envMap) also provides light.
+
+	ambientLight?.removeFromParent();
+	spotLight?.removeFromParent();
+	ambientLight = null;
+	spotLight = null;
+
+	const reallyEnableShadows = enableShadows && renderer !== svgRenderer;
+
+	if (!ambientLight && !reallyEnableShadows) {
+		ambientLight = new THREE.AmbientLight(0xaaaaaa);
+		scene.add(ambientLight);
+	}
+
+	if (reallyEnableShadows && !spotLight) {
+		const SHADOW_MAP_WIDTH = 2048, SHADOW_MAP_HEIGHT = 1024;
+
+		spotLight = new THREE.SpotLight(0xffffff, 0.5, 0, Math.PI / 3, 0.3);
+		spotLight.position.set(30, 30, -500);
+		spotLight.target.position.set(0, 0, 0);
+
+		spotLight.castShadow = true;
+		spotLight.shadow.camera.near = 0.5;
+		spotLight.shadow.camera.far = 2500;
+		// spotLight.shadow.bias = 0.0001;
+
+		spotLight.shadow.mapSize.width = SHADOW_MAP_WIDTH;
+		spotLight.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
+
+		scene.add(spotLight);
 	}
 
 	// Materials
