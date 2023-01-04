@@ -1195,13 +1195,12 @@ function initRendering() {
 		// map: marbleTexture,
 	});
 
-	// tarnishedBrass = new THREE.MeshPhysicalMaterial({
+	// const brass = new THREE.MeshPhysicalMaterial({
 	// 	color: 0xf0f0a0,
-	// 	// emissive: 0x333344,
 	// 	roughness: 0.1,
 	// 	metalness: 0.9,
 	// 	envMap: reflectionTexture,
-	// 	envMapIntensity: 10 * envMapIntensity,
+	// 	envMapIntensity: 10,
 	// });
 
 	// pieceMat1 = new THREE.MeshLambertMaterial({
@@ -1222,7 +1221,6 @@ function initRendering() {
 	});
 	pieceMat0 = new THREE.MeshPhysicalMaterial({
 		color: color0,
-		// emissive: 0x3f3f3f,
 		roughness: 0.2,
 		metalness: 0.5,
 		envMap: reflectionTexture,
@@ -1247,9 +1245,9 @@ function initRendering() {
 	hoverDecalTexture = textureLoader.load('./textures/hover-decal-flower-frame-with-outline.png');
 	// hoverDecalTexture.encoding = THREE.sRGBEncoding;
 
-	// this texture can look really bad without anisotropic filtering
+	// This texture can look really bad without anisotropic filtering
 	// at an angle or from far away,
-	// due to the black border around the white ornamentation
+	// due to the black border around the white ornamentation.
 	if (renderer.capabilities) {
 		const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
 		hoverDecalTexture.anisotropy = maxAnisotropy;
@@ -1259,17 +1257,11 @@ function initRendering() {
 		color: 0xdddddd,
 		emissive: 0xdddddd,
 		transparent: true,
-		// map: textureLoader.load('./textures/vintage-symmetric-frame-extrapolated.png'), // too high detail
-		// alphaMap: textureLoader.load('./textures/symmetric-checkerboard-frame.jpg'), // funny
-		// alphaMap: textureLoader.load('./textures/flower-frame-1436652825nLe.jpg'),
 		map: hoverDecalTexture,
 		emissiveMap: hoverDecalTexture,
-		// depthTest: false,
-		// depthWrite: false,
-		// combine: THREE.MultiplyOperation,
 		fog: false,
-		// hover decal should always be on top of other decals
-		// (I have not played around with these values, but it seems to work)
+		// The hover decal should always be on top of other decals.
+		// (I have not played around with these values, but it seems to work.)
 		polygonOffset: true,
 		polygonOffsetFactor: -1.0,
 		polygonOffsetUnits: -4.0
@@ -1303,15 +1295,11 @@ function initRendering() {
 		color1 = 0xff0000;
 		color0 = 0xffffff;
 		if (theme === "perf") {
-			// boardMat1 = new THREE.MeshBasicMaterial({ color: "lime" });
-			// boardMat0 = new THREE.MeshBasicMaterial({ color: "green" });
 			boardMat1 = new THREE.MeshBasicMaterial({ color: 0xaa0000 });
 			boardMat0 = new THREE.MeshBasicMaterial({ color: 0xcccccc });
 		} else {
 			boardMat1 = new THREE.MeshBasicMaterial({ color: "green", wireframe: true });
 			boardMat0 = new THREE.MeshBasicMaterial({ color: "lime", wireframe: true });
-			// boardMat1 = new THREE.MeshBasicMaterial({ color: "black", wireframe: true });
-			// boardMat0 = new THREE.MeshBasicMaterial({ color: "white", wireframe: true });
 		}
 		pieceMat0 = new THREE.MeshBasicMaterial({ color: color0, wireframe: true });
 		pieceMat1 = new THREE.MeshBasicMaterial({ color: color1, wireframe: true });
