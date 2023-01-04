@@ -1212,7 +1212,7 @@ function initRendering() {
 	// 	// map: textureLoader.load('./Seamless-White-Marble-Texture.webp'),
 	// 	envMap: reflectionTexture,
 	// });
-	pieceMat1 = new THREE.MeshPhysicalMaterial({
+	pieceMat1 = new THREE.MeshStandardMaterial({
 		color: color1,
 		roughness: 0.01,
 		metalness: 0.5,
@@ -1227,14 +1227,14 @@ function initRendering() {
 		envMapIntensity: 9,
 	});
 
-	hoveredPieceMat1 = new THREE.MeshPhysicalMaterial({
+	hoveredPieceMat1 = new THREE.MeshStandardMaterial({
 		color: color1,
 		roughness: 0.01,
 		metalness: 0.1,
 		envMap: reflectionTexture,
 		envMapIntensity: 90,
 	});
-	hoveredPieceMat0 = new THREE.MeshPhysicalMaterial({
+	hoveredPieceMat0 = new THREE.MeshStandardMaterial({
 		color: color0,
 		emissive: 0x333344,
 		roughness: 0.2,
