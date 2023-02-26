@@ -30,6 +30,7 @@
 		"undos",
 		"unproject",
 		"voxel",
+		"voxels",
 		"webglcontextlost",
 		"webglcontextrestored",
 		"wireframe"

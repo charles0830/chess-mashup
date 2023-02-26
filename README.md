@@ -1,5 +1,14 @@
 
-# Chess³
+# Chess Mashup
+
+[Play amusing chess variants in beautiful 3D.](https://1j01.github.io/chess-mashup/)
+
+The available games may not match the list below,
+since this document was written largely prospectively.
+
+## Chess On a Cube
+
+(8³ cube = 512 voxels, 8×8×6 surface area = 384 spaces)
 
 Finally, a perfect information game with poor visibility.
 
@@ -8,9 +17,12 @@ Sure there's *3-D chess* and *N-D chess*, where it's hard to wrap your head arou
 but in this game, it's hard to hard to wrap your *eyes* around it. 👀  
 It's innovative. 🍷🤔
 
+Some may say this cube seems too big,
+but I say it seems almost impossible to design a reasonable starting arrangement for a cube like this.
+
 or...
 
-# Chessgocala, or: Frankenstein's Board Game, or: What Game Should We Play?
+## Frankenstein's Board Game, or: What Game Should We Play?
 
 Board game mashup. How many abstract board games can you play on the same board?
 How many rule sets can you combine?
@@ -19,7 +31,7 @@ How many rule sets can you combine?
 
 or...
 
-# Non-Euclidean Chess
+## Non-Euclidean Chess
 
 In the game of Chess, pawns can advance to the eighth rank and promote to a queen.
 In Non-Euclidean Chess, there's another way to upgrade pieces, but it's not what you're used to.
@@ -39,13 +51,13 @@ If you've ever played [Problem Sleuth], this should be no problem for you.
 
 ## Development Setup
 
-This project is built with [ThreeJS], which is a JavaScript library for 3D graphics.
+This project is built with [ThreeJS], a popular JavaScript library for 3D graphics.
 
 - Install Git if you don't already have it.
 - [Clone the repo.][git clone]
 - Install [Node.js][] if you don't have it, then open up a command prompt / terminal in the project directory.
 - Install project dependencies with `npm install`
-- `npm start` will start a web server which will watch for changes to the source files and automatically rebuild the project.
+- `npm start` will start a web server which will watch for changes to the source files and automatically reload the page.
 
 [Problem Sleuth]: https://www.homestuck.com/problem-sleuth/1
 [ThreeJS]: https://threejs.org/
