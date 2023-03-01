@@ -3,6 +3,8 @@
 
 [Play amusing chess variants in beautiful 3D.](https://1j01.github.io/chess-mashup/)
 
+[![Screenshot of the chess game](og-screenshot.png)](https://1j01.github.io/chess-mashup/)
+
 The available games may not match the list below,
 since this document was written largely prospectively.
 
