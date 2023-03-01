@@ -61,6 +61,12 @@ This project is built with [ThreeJS], a popular JavaScript library for 3D graphi
 - Install project dependencies with `npm install`
 - `npm start` will start a web server which will watch for changes to the source files and automatically reload the page.
 
+
+## License
+
+[MIT license](LICENSE.txt)
+
+
 [Problem Sleuth]: https://www.homestuck.com/problem-sleuth/1
 [ThreeJS]: https://threejs.org/
 [Node.js]: https://nodejs.org/
