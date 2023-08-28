@@ -64,11 +64,5 @@ This project is built with [ThreeJS], a popular JavaScript library for 3D graphi
 
 ## License
 
-[MIT license](LICENSE.txt)
+<a href="https://www.buymeacoffee.com/chberry830"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="60"></a>
 
-
-[Problem Sleuth]: https://www.homestuck.com/problem-sleuth/1
-[ThreeJS]: https://threejs.org/
-[Node.js]: https://nodejs.org/
-[git lfs install]: https://help.github.com/en/github/managing-large-files/installing-git-large-file-storage
-[git clone]: https://help.github.com/articles/cloning-a-repository/
